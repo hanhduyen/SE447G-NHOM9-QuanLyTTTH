@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitCenter - Đăng Nhập | Đồ án CDIO SE447G</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Pattern vân chéo wireframe đúng chuẩn Figma theo ảnh */
+    .wireframe-pattern {
+      background-color: #f8fafc;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        #f1f5f9,
+        #f1f5f9 12px,
+        #e2e8f0 12px,
+        #e2e8f0 24px
+      );
+    }
+
+    /* Chuyển đổi hiển thị ảnh thật */
+    .real-photo {
+      display: none;
+    }
+    .show-real-photos .real-photo {
+      display: block !important;
+    }
+    .show-real-photos .wireframe-placeholder {
+      display: none !important;
+    }
+  </style>
+</head>
+<body class="bg-white text-slate-900 min-h-screen flex flex-col md:flex-row">
+
+  <!-- ================= CỘT TRÁI: BANNER & THƯƠNG HIỆU FITCENTER ================= -->
+  <div class="w-full md:w-1/2 lg:w-5/12 bg-neutral-100/90 border-r border-gray-200/80 p-8 sm:p-12 lg:p-16 flex flex-col justify-between min-h-[400px] md:min-h-screen">
+    <!-- Logo -->
+    <div>
+      <a href="trang_chu.html" class="flex items-center space-x-3 group">
+        <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center text-xs shadow-sm group-hover:scale-105 transition">
+          <i class="fa-solid fa-dumbbell text-xs"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-base tracking-tight text-black block leading-none">FitCenter</span>
+          <span class="text-[11px] text-gray-500 font-medium block mt-1">Website quản lý trung tâm thể hình</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Tiêu đề & Giới thiệu giữa màn hình -->
+    <div class="my-12 max-w-sm">
+      <h1 class="text-3xl sm:text-4xl font-black text-black tracking-tight leading-tight mb-4">
+        Chào mừng<br>trở lại.
+      </h1>
+      <p class="text-gray-600 text-xs sm:text-sm leading-relaxed">
+        Đăng nhập để xem lịch học, đăng ký khóa học và quản lý hoạt động của bạn tại trung tâm.
+      </p>
+    </div>
+
+    <!-- Khối ảnh / Banner trung tâm (Dưới cùng cột trái) -->
+    <div class="w-full max-w-sm">
+      <div class="w-full aspect-[16/10] rounded-2xl border border-gray-200 overflow-hidden relative shadow-sm">
+        <!-- Wireframe Placeholder -->
+        <div class="wireframe-placeholder w-full h-full wireframe-pattern flex items-center justify-center text-gray-500 text-xs font-medium">
+          Ảnh / banner trung tâm
+        </div>
+        <!-- Ảnh phòng tập thật khi bật chế độ -->
+        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80" alt="FitCenter Gym Banner" class="real-photo w-full h-full object-cover">
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= CỘT PHẢI: FORM ĐĂNG NHẬP ================= -->
+  <div class="w-full md:w-1/2 lg:w-7/12 bg-white p-6 sm:p-12 flex items-center justify-center">
+    <div class="w-full max-w-[430px] border border-gray-200/90 rounded-3xl p-7 sm:p-9 shadow-sm bg-white">
+      
+      <!-- Tiêu đề form -->
+      <div class="mb-5">
+        <h2 class="text-2xl font-bold text-black tracking-tight">Đăng nhập</h2>
+        <p class="text-xs text-gray-500 mt-1">Nhập thông tin tài khoản của bạn</p>
+      </div>
+
+      <!-- Thông báo lỗi (ẩn mặc định, chỉ hiện khi nhập sai) -->
+      <div id="alertError" class="hidden mb-5 border border-gray-200 bg-gray-50 rounded-2xl p-3.5 flex items-start gap-3 text-xs text-gray-700">
+        <i class="fa-solid fa-triangle-exclamation text-gray-500 text-sm mt-0.5 shrink-0"></i>
+        <div class="flex-1 leading-relaxed">
+          Thông tin đăng nhập không chính xác. Vui lòng thử lại.
+        </div>
+        <button type="button" onclick="document.getElementById('alertError').classList.add('hidden')" class="text-gray-400 hover:text-black">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Form nhập liệu -->
+      <form onsubmit="event.preventDefault(); handleLogin();" class="space-y-4">
+        <!-- Email / Tên đăng nhập -->
+        <div>
+          <label class="block text-xs font-semibold text-black mb-1.5">Email / Tên đăng nhập</label>
+          <div class="relative">
+            <i class="fa-regular fa-user absolute left-3.5 top-3 text-gray-400 text-sm"></i>
+            <input 
+              id="inputEmail" 
+              type="text" 
+              required 
+              placeholder="Nhập email hoặc tên đăng nhập" 
+              class="w-full border border-gray-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-black placeholder-gray-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition"
+            >
+          </div>
+        </div>
+
+        <!-- Mật khẩu -->
+        <div>
+          <label class="block text-xs font-semibold text-black mb-1.5">Mật khẩu</label>
+          <div class="relative">
+            <i class="fa-solid fa-lock absolute left-3.5 top-3 text-gray-400 text-sm"></i>
+            <input 
+              id="inputPassword" 
+              type="password" 
+              required 
+              placeholder="••••••••" 
+              class="w-full border border-gray-300 rounded-xl pl-10 pr-10 py-2.5 text-xs text-black placeholder-gray-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition font-mono"
+            >
+            <button type="button" onclick="togglePassword()" class="absolute right-3.5 top-3 text-gray-400 hover:text-black">
+              <i id="eyeIcon" class="fa-regular fa-eye text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Nút Đăng nhập -->
+        <button type="submit" class="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 rounded-xl text-xs sm:text-sm transition shadow-sm active:scale-[0.99] mt-2">
+          Đăng nhập
+        </button>
+      </form>
+
+      <!-- Liên kết Đăng ký -->
+      <div class="text-center mt-4">
+        <p class="text-xs text-gray-600">
+          Chưa có tài khoản? <a href="dang_ky.html" class="font-bold text-black underline hover:text-gray-700">Đăng ký</a>
+        </p>
+      </div>
+
+      <!-- Tài khoản trải nghiệm nhanh cho hội đồng / giảng viên -->
+      <div class="mt-5 p-3 rounded-2xl bg-gray-50 border border-gray-200/80 text-[11px] text-gray-600 space-y-1.5">
+        <span class="block font-bold text-black text-[10px] uppercase tracking-wider">Tài khoản demo nghiệm thu:</span>
+        <div class="flex flex-wrap gap-1.5 pt-0.5">
+          <button type="button" onclick="quickFill('admin@fitcenter.vn', '123456')" class="px-2 py-1 bg-white border border-gray-200 rounded-lg text-black font-semibold hover:border-black transition">
+            Admin
+          </button>
+          <button type="button" onclick="quickFill('hlv.tuan@fitcenter.vn', '123456')" class="px-2 py-1 bg-white border border-gray-200 rounded-lg text-black font-semibold hover:border-black transition">
+            HLV
+          </button>
+          <button type="button" onclick="quickFill('an.nguyen@email.com', '123456')" class="px-2 py-1 bg-white border border-gray-200 rounded-lg text-black font-semibold hover:border-black transition">
+            Hội viên
+          </button>
+        </div>
+      </div>
+
+      <!-- Nút Quay lại trang chủ -->
+      <div class="text-center mt-6 pt-4 border-t border-gray-100">
+        <a href="trang_chu.html" class="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-black transition font-medium">
+          <i class="fa-solid fa-chevron-left text-[10px]"></i>
+          <span>Quay lại trang chủ</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Nút tiện ích góc màn hình chuyển chế độ ảnh -->
+  <button onclick="document.body.classList.toggle('show-real-photos')" class="fixed bottom-4 left-4 z-50 bg-slate-900 text-white text-[11px] px-3 py-1.5 rounded-full shadow-lg border border-slate-700 opacity-70 hover:opacity-100 transition flex items-center gap-1.5">
+    <i class="fa-regular fa-image text-emerald-400"></i>
+    <span>Ảnh thật / Wireframe</span>
+  </button>
+
+  <script>
+    // Điền nhanh tài khoản demo
+    function quickFill(email, pass) {
+      document.getElementById('inputEmail').value = email;
+      document.getElementById('inputPassword').value = pass;
+    }
+
+    // Ẩn/Hiện mật khẩu
+    function togglePassword() {
+      const input = document.getElementById('inputPassword');
+      const icon = document.getElementById('eyeIcon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash text-sm';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-regular fa-eye text-sm';
+      }
+    }
+
+    // Xử lý đăng nhập qua API Backend MySQL
+    async function handleLogin() {
+      const email = (document.getElementById('inputEmail').value || '').trim();
+      const password = document.getElementById('inputPassword').value;
+
+      if (!email || !password) {
+        alert('Vui lòng nhập đầy đủ email và mật khẩu!');
+        return;
+      }
+
+      const submitBtn = document.querySelector('form button[type="submit"]');
+      const originalText = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang xác thực...';
+      }
+
+      try {
+        const API_BASE = (window.location.origin.includes(':3000')) ? '' : 'http://localhost:3000';
+        const response = await fetch(`${API_BASE}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // Lưu phiên đăng nhập vào LocalStorage
+          localStorage.setItem('fitcenter_user', JSON.stringify(data.user));
+
+          alert(`Đăng nhập thành công!\nXin chào ${data.user.fullName} (${data.user.role.toUpperCase()})`);
+
+          // Điều hướng theo vai trò từ Database MySQL
+          if (data.user.role === 'admin' || data.user.role === 'staff') {
+            window.location.href = 'admin.html';
+          } else if (data.user.role === 'trainer') {
+            window.location.href = 'huan_luyen_vien.html';
+          } else {
+            window.location.href = 'khach_hang.html';
+          }
+        } else {
+          alert('Đăng nhập thất bại: ' + (data.message || 'Sai thông tin đăng nhập!'));
+        }
+      } catch (error) {
+        console.error('Lỗi API Login:', error);
+        alert(
+          'Không thể kết nối đến máy chủ Backend!\n\n' +
+          '👉 Cách sửa nhanh:\n' +
+          '1. Hãy đảm bảo bạn truy cập qua đường dẫn: http://localhost:3000/dang_nhap.html (thay vì bấm đúp file HTML).\n' +
+          '2. Trong VS Code, mở Terminal (Ctrl + `) và gõ lệnh: npm start'
+        );
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        }
+      }
+    }
+  </script>
+</body>
+</html>

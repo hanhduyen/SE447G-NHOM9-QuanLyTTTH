@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitCenter - Trang Chủ | Đồ án CDIO SE447G</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font: Plus Jakarta Sans / Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Pattern vân chéo wireframe đúng chuẩn Figma theo ảnh */
+    .wireframe-pattern {
+      background-color: #f8fafc;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        #f1f5f9,
+        #f1f5f9 12px,
+        #e2e8f0 12px,
+        #e2e8f0 24px
+      );
+    }
+
+    /* Hiệu ứng chuyển đổi Ảnh thật / Wireframe */
+    .real-photo {
+      display: none;
+    }
+    .show-real-photos .real-photo {
+      display: block !important;
+    }
+    .show-real-photos .wireframe-placeholder {
+      display: none !important;
+    }
+  </style>
+</head>
+<body class="bg-white text-slate-900 min-h-screen flex flex-col">
+
+  <!-- Nút chuyển đổi nhanh Ảnh thật / Wireframe (tiện lợi khi trình bày) -->
+  <div class="fixed bottom-4 right-4 z-50 flex items-center gap-2">
+    <button onclick="togglePhotoStyle()" id="btnPhotoStyle" class="bg-slate-900/90 hover:bg-slate-900 text-white text-xs px-3.5 py-2 rounded-full shadow-xl border border-slate-700 flex items-center gap-1.5 backdrop-blur transition">
+      <i class="fa-regular fa-image text-emerald-400"></i>
+      <span id="photoBtnText">Xem với Ảnh thật</span>
+    </button>
+  </div>
+
+  <!-- ================= BẢN THIẾT KẾ TRANG CHỦ HOÀN THIỆN ================= -->
+  <div class="max-w-[1360px] mx-auto w-full px-6 sm:px-10 lg:px-16 py-6 flex-1 flex flex-col justify-between">
+
+    <!-- ================= 1. HEADER ================= -->
+    <header class="py-4 border-b border-gray-100 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#" class="flex items-center space-x-2.5">
+        <!-- Biểu tượng tạ trong khối tròn đen -->
+        <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs shadow-sm">
+          <i class="fa-solid fa-dumbbell text-[11px]"></i>
+        </div>
+        <div class="flex items-baseline">
+          <span class="font-extrabold text-base tracking-tight text-black">FitCenter</span>
+          <span class="text-xs text-gray-500 font-medium ml-1">Gym Management</span>
+        </div>
+      </a>
+
+      <!-- Menu điều hướng -->
+      <nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
+        <a href="#trang-chu" class="text-black font-semibold border-b-2 border-black pb-1">Trang chủ</a>
+        <a href="#gioi-thieu" class="text-gray-600 hover:text-black transition">Giới thiệu</a>
+        <a href="#co-so-vat-chat" class="text-gray-600 hover:text-black transition">Cơ sở vật chất</a>
+        <a href="#dich-vu" class="text-gray-600 hover:text-black transition">Dịch vụ</a>
+        <a href="#lien-he" class="text-gray-600 hover:text-black transition">Liên hệ</a>
+      </nav>
+
+      <!-- Nút Đăng nhập / Đăng ký -->
+      <div id="authHeaderButtons" class="flex items-center space-x-3">
+        <a href="dang_nhap.html" class="px-5 py-2 rounded-xl border border-gray-300 text-sm font-semibold text-black hover:bg-gray-50 transition shadow-sm inline-block">
+          Đăng nhập
+        </a>
+
+        <a href="dang_ky.html" class="px-5 py-2 rounded-xl bg-black text-white text-sm font-semibold hover:bg-gray-800 transition shadow-sm inline-block">
+          Đăng ký
+        </a>
+      </div>
+    </header>
+
+    <!-- ================= 2. HERO BANNER ================= -->
+    <section id="trang-chu" class="py-16 sm:py-24 text-center max-w-4xl mx-auto relative">
+      <div class="mb-3">
+        <span class="text-xs tracking-[0.2em] font-semibold text-gray-400 uppercase">TRUNG TÂM THỂ HÌNH</span>
+      </div>
+
+      <h1 class="text-5xl sm:text-7xl font-black tracking-tight text-black mb-6">
+        FITCENTER
+      </h1>
+
+      <p class="text-gray-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto mb-8 font-normal">
+        Không gian tập luyện hiện đại, huấn luyện viên tận tâm — đăng ký khóa học và theo dõi lịch học ngay trên website.
+      </p>
+
+      <!-- Cụm nút CTA -->
+      <div class="flex items-center justify-center gap-3">
+        <a href="dang_ky.html" class="px-6 py-3 rounded-xl bg-black text-white text-sm font-semibold hover:bg-gray-800 transition shadow-sm inline-block">
+          Đăng ký tài khoản
+        </a>
+        <a href="#gioi-thieu" class="px-6 py-3 rounded-xl border border-gray-300 bg-white text-black text-sm font-semibold hover:bg-gray-50 transition shadow-sm inline-block">
+          Tìm hiểu thêm
+        </a>
+      </div>
+    </section>
+
+    <!-- ================= 3. GIỚI THIỆU ================= -->
+    <section id="gioi-thieu" class="py-12 border-t border-gray-100">
+      <div class="flex flex-col lg:flex-row items-start justify-between gap-8">
+        <!-- Cột trái: Tiêu đề & mô tả -->
+        <div class="max-w-xl">
+          <h2 class="text-2xl font-bold text-black tracking-tight mb-2">Giới thiệu</h2>
+          <p class="text-gray-600 text-sm leading-relaxed">
+            Trung tâm cung cấp gói tập, khóa học nhóm và đội ngũ huấn luyện viên theo từng mục tiêu của hội viên.
+          </p>
+        </div>
+
+        <!-- Cột phải: 3 thẻ thống kê -->
+        <div class="flex flex-wrap sm:flex-nowrap gap-4 w-full lg:w-auto">
+          <div class="border border-gray-200 rounded-2xl px-6 py-4 text-center min-w-[110px] flex-1 sm:flex-initial bg-white shadow-sm">
+            <div class="text-2xl sm:text-3xl font-extrabold text-black">1.200+</div>
+            <div class="text-xs text-gray-500 font-medium mt-1">Hội viên</div>
+          </div>
+
+          <div class="border border-gray-200 rounded-2xl px-6 py-4 text-center min-w-[110px] flex-1 sm:flex-initial bg-white shadow-sm">
+            <div class="text-2xl sm:text-3xl font-extrabold text-black">12</div>
+            <div class="text-xs text-gray-500 font-medium mt-1">Huấn luyện viên</div>
+          </div>
+
+          <div class="border border-gray-200 rounded-2xl px-6 py-4 text-center min-w-[110px] flex-1 sm:flex-initial bg-white shadow-sm">
+            <div class="text-2xl sm:text-3xl font-extrabold text-black">6</div>
+            <div class="text-xs text-gray-500 font-medium mt-1">Khóa học</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 4. CƠ SỞ VẬT CHẤT ================= -->
+    <section id="co-so-vat-chat" class="py-12 border-t border-gray-100">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-black tracking-tight">Cơ sở vật chất</h2>
+      </div>
+
+      <!-- 4 Cards cơ sở vật chất -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Card 1 -->
+        <div class="group cursor-pointer">
+          <div class="w-full aspect-[16/10] rounded-2xl border border-gray-200 overflow-hidden relative shadow-sm">
+            <!-- Wireframe placeholder -->
+            <div class="wireframe-placeholder w-full h-full wireframe-pattern flex items-center justify-center text-gray-400 text-xs font-medium gap-1.5">
+              <i class="fa-solid fa-camera"></i>
+              <span>Ảnh</span>
+            </div>
+            <!-- Ảnh thực tế -->
+            <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80" alt="Khu tập tạ & cardio" class="real-photo w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          </div>
+          <div class="mt-3">
+            <h3 class="font-bold text-sm text-black">Khu tập tạ & cardio</h3>
+            <p class="text-xs text-gray-500 mt-0.5">Thiết bị hiện đại, không gian rộng</p>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="group cursor-pointer">
+          <div class="w-full aspect-[16/10] rounded-2xl border border-gray-200 overflow-hidden relative shadow-sm">
+            <div class="wireframe-placeholder w-full h-full wireframe-pattern flex items-center justify-center text-gray-400 text-xs font-medium gap-1.5">
+              <i class="fa-solid fa-camera"></i>
+              <span>Ảnh</span>
+            </div>
+            <img src="https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=600&q=80" alt="Phòng Yoga / Pilates" class="real-photo w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          </div>
+          <div class="mt-3">
+            <h3 class="font-bold text-sm text-black">Phòng Yoga / Pilates</h3>
+            <p class="text-xs text-gray-500 mt-0.5">Phòng lớp nhóm có điều hòa</p>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="group cursor-pointer">
+          <div class="w-full aspect-[16/10] rounded-2xl border border-gray-200 overflow-hidden relative shadow-sm">
+            <div class="wireframe-placeholder w-full h-full wireframe-pattern flex items-center justify-center text-gray-400 text-xs font-medium gap-1.5">
+              <i class="fa-solid fa-camera"></i>
+              <span>Ảnh</span>
+            </div>
+            <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80" alt="Phòng Studio" class="real-photo w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          </div>
+          <div class="mt-3">
+            <h3 class="font-bold text-sm text-black">Phòng Studio</h3>
+            <p class="text-xs text-gray-500 mt-0.5">Zumba, Kickboxing, HIIT</p>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="group cursor-pointer">
+          <div class="w-full aspect-[16/10] rounded-2xl border border-gray-200 overflow-hidden relative shadow-sm">
+            <div class="wireframe-placeholder w-full h-full wireframe-pattern flex items-center justify-center text-gray-400 text-xs font-medium gap-1.5">
+              <i class="fa-solid fa-camera"></i>
+              <span>Ảnh</span>
+            </div>
+            <img src="https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=600&q=80" alt="Khu cửa hàng" class="real-photo w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          </div>
+          <div class="mt-3">
+            <h3 class="font-bold text-sm text-black">Khu cửa hàng</h3>
+            <p class="text-xs text-gray-500 mt-0.5">Bán sản phẩm trực tiếp tại quầy</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 5. DỊCH VỤ CỦA TRUNG TÂM ================= -->
+    <section id="dich-vu" class="py-12 border-t border-gray-100">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <h2 class="text-2xl font-bold text-black tracking-tight">Dịch vụ của trung tâm</h2>
+
+        <!-- Khóa xem chi tiết dành cho khách vãng lai -->
+        <button onclick="alert('Vui lòng đăng nhập để xem thông tin chi tiết các gói tập & khóa học!')" class="px-4 py-2 rounded-xl border border-gray-200 bg-gray-50/60 hover:bg-gray-100 text-xs text-gray-700 font-medium flex items-center gap-2 transition shadow-sm w-fit">
+          <i class="fa-solid fa-lock text-[11px] text-gray-500"></i>
+          <span>Đăng nhập để xem chi tiết gói tập & khóa học</span>
+        </button>
+      </div>
+
+      <!-- 4 Thẻ dịch vụ -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Card 1: Gói tập luyện -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+          <div class="w-10 h-10 rounded-xl border border-gray-300 flex items-center justify-center mb-5 text-gray-700 bg-white">
+            <i class="fa-solid fa-arrow-right-arrow-left text-sm"></i>
+          </div>
+          <h3 class="font-bold text-base text-black mb-2">Gói tập luyện</h3>
+          <p class="text-xs text-gray-500 leading-relaxed">
+            Các gói tập linh hoạt theo nhu cầu hội viên.
+          </p>
+        </div>
+
+        <!-- Card 2: Khóa học & lớp nhóm -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+          <div class="w-10 h-10 rounded-xl border border-gray-300 flex items-center justify-center mb-5 text-gray-700 bg-white">
+            <i class="fa-regular fa-calendar text-sm"></i>
+          </div>
+          <h3 class="font-bold text-base text-black mb-2">Khóa học & lớp nhóm</h3>
+          <p class="text-xs text-gray-500 leading-relaxed">
+            Yoga, CrossFit, Pilates, Kickboxing, Zumba,... có huấn luyện viên phụ trách.
+          </p>
+        </div>
+
+        <!-- Card 3: Huấn luyện viên -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+          <div class="w-10 h-10 rounded-xl border border-gray-300 flex items-center justify-center mb-5 text-gray-700 bg-white">
+            <i class="fa-regular fa-user text-sm"></i>
+          </div>
+          <h3 class="font-bold text-base text-black mb-2">Huấn luyện viên</h3>
+          <p class="text-xs text-gray-500 leading-relaxed">
+            Đội ngũ HLV theo dõi tình hình và tiến độ tập luyện.
+          </p>
+        </div>
+
+        <!-- Card 4: Cửa hàng tại quầy -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+          <div class="w-10 h-10 rounded-xl border border-gray-300 flex items-center justify-center mb-5 text-gray-700 bg-white">
+            <i class="fa-solid fa-box text-sm"></i>
+          </div>
+          <h3 class="font-bold text-base text-black mb-2">Cửa hàng tại quầy</h3>
+          <p class="text-xs text-gray-500 leading-relaxed">
+            Sản phẩm bán trực tiếp tại quầy thông qua nhân viên.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 6. LIÊN HỆ ================= -->
+    <section id="lien-he" class="py-12 border-t border-gray-100">
+      <h2 class="text-2xl font-bold text-black tracking-tight mb-6">Liên hệ</h2>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <!-- Cột trái: Thông tin liên hệ -->
+        <div class="space-y-4 text-xs sm:text-sm text-gray-700">
+          <div class="flex items-center space-x-3.5">
+            <i class="fa-solid fa-location-dot text-gray-500 w-5 text-center text-sm"></i>
+            <span>Số 12, Đường Số 1, Quận Hải Châu, Đà Nẵng</span>
+          </div>
+
+          <div class="flex items-center space-x-3.5">
+            <i class="fa-solid fa-phone text-gray-500 w-5 text-center text-sm"></i>
+            <span class="font-mono">0900 000 000</span>
+          </div>
+
+          <div class="flex items-center space-x-3.5">
+            <i class="fa-regular fa-envelope text-gray-500 w-5 text-center text-sm"></i>
+            <span>lienhe@fitcenter.vn</span>
+          </div>
+
+          <div class="flex items-center space-x-3.5">
+            <i class="fa-regular fa-clock text-gray-500 w-5 text-center text-sm"></i>
+            <span>Thứ 2 – Chủ nhật: 05:30 – 22:00</span>
+          </div>
+        </div>
+
+        <!-- Cột phải: Bản đồ vị trí trung tâm -->
+        <div class="w-full aspect-[16/8] rounded-2xl border border-gray-200 overflow-hidden relative shadow-sm">
+          <!-- Wireframe placeholder bản đồ -->
+          <div class="wireframe-placeholder w-full h-full wireframe-pattern flex flex-col items-center justify-center text-gray-500 text-xs font-medium gap-2">
+            <div class="w-8 h-8 rounded-full bg-white border border-gray-300 flex items-center justify-center shadow-sm text-black">
+              <i class="fa-solid fa-location-dot"></i>
+            </div>
+            <span>Bản đồ vị trí trung tâm</span>
+          </div>
+
+          <!-- Bản đồ thực tế (OpenStreetMap vệ tinh/bản đồ tương tác) -->
+          <iframe 
+            class="real-photo w-full h-full border-0" 
+            src="https://www.openstreetmap.org/export/embed.html?bbox=108.20%2C16.05%2C108.24%2C16.08&amp;layer=mapnik&amp;marker=16.068%2C108.22"
+            loading="lazy">
+          </iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 7. FOOTER ================= -->
+    <footer class="pt-8 pb-12 border-t border-gray-200 mt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+      <span>© 2026 FitCenter — Đồ án CDIO SE447 G · Nhóm 09</span>
+
+      <div class="flex items-center space-x-6">
+        <a href="#" class="hover:text-black transition">Chính sách</a>
+        <a href="#" class="hover:text-black transition">Điều khoản</a>
+        <a href="#" class="hover:text-black transition">Liên hệ</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ================= JAVASCRIPT HỖ TRỢ ================= -->
+  <script>
+    // Chuyển đổi giữa Chế độ Wireframe (đúng ảnh gốc) và Chế độ Ảnh thực tế
+    let realPhotos = false;
+    function togglePhotoStyle() {
+      realPhotos = !realPhotos;
+      document.body.classList.toggle('show-real-photos', realPhotos);
+      const text = document.getElementById('photoBtnText');
+      if (realPhotos) {
+        text.innerText = "Xem dạng Wireframe";
+      } else {
+        text.innerText = "Xem với Ảnh thật";
+      }
+    }
+
+    // Kiểm tra trạng thái đăng nhập từ LocalStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      const userJson = localStorage.getItem('fitcenter_user');
+      if (userJson) {
+        try {
+          const user = JSON.parse(userJson);
+          const authContainer = document.getElementById('authHeaderButtons');
+          if (authContainer) {
+            let targetPage = 'khach_hang.html';
+            let roleTitle = 'Hội viên';
+            if (user.role === 'admin' || user.role === 'staff') {
+              targetPage = 'admin.html';
+              roleTitle = 'Quản trị';
+            } else if (user.role === 'trainer') {
+              targetPage = 'huan_luyen_vien.html';
+              roleTitle = 'HLV';
+            }
+
+            authContainer.innerHTML = `
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-600 hidden sm:inline">Xin chào, <strong class="text-black">${user.fullName || user.email}</strong> (${roleTitle})</span>
+                <a href="${targetPage}" class="px-3.5 py-1.5 rounded-xl bg-black text-white text-xs font-semibold hover:bg-gray-800 transition shadow-sm">
+                  Cổng ${roleTitle}
+                </a>
+                <button onclick="logout()" class="px-2.5 py-1.5 rounded-xl border border-gray-300 text-xs text-gray-500 hover:text-red-600 transition">
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+              </div>
+            `;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
+
+    function logout() {
+      if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+        localStorage.removeItem('fitcenter_user');
+        window.location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

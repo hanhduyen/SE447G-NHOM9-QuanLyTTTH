@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitCenter - Cổng Huấn Luyện Viên | CDIO SE447G</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .coach-tab {
+      display: none;
+    }
+    .coach-tab.active {
+      display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50/60 text-slate-900 min-h-screen flex flex-col">
+
+  <!-- ================= HEADER HUẤN LUYỆN VIÊN ================= -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-xs">
+    <div class="max-w-[1360px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo thương hiệu cho Huấn luyện viên -->
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs shadow-sm">
+          <i class="fa-solid fa-dumbbell text-[11px]"></i>
+        </div>
+        <div class="flex items-baseline">
+          <span class="font-extrabold text-base tracking-tight text-black">FitCenter</span>
+          <span class="text-xs text-gray-500 font-medium ml-1">Trainer Portal</span>
+        </div>
+      </div>
+
+      <!-- Menu chuyển Tab các chức năng của Huấn luyện viên -->
+      <nav class="hidden md:flex items-center space-x-1 text-xs font-semibold">
+        <button onclick="switchTab('dashboard')" class="tab-btn px-3.5 py-2 rounded-xl transition text-black bg-gray-100" data-tab="dashboard">
+          <i class="fa-solid fa-house mr-1.5 text-gray-600"></i> Tổng quan ca dạy
+        </button>
+        <button onclick="switchTab('schedule')" class="tab-btn px-3.5 py-2 rounded-xl transition text-gray-600 hover:text-black hover:bg-gray-100" data-tab="schedule">
+          <i class="fa-regular fa-calendar-days mr-1.5 text-gray-600"></i> Xem lịch dạy
+        </button>
+        <button onclick="switchTab('students')" class="tab-btn px-3.5 py-2 rounded-xl transition text-gray-600 hover:text-black hover:bg-gray-100" data-tab="students">
+          <i class="fa-solid fa-user-pen mr-1.5 text-gray-600"></i> Cập nhật tình hình học viên
+        </button>
+        <button onclick="switchTab('notifications')" class="tab-btn px-3.5 py-2 rounded-xl transition text-gray-600 hover:text-black hover:bg-gray-100" data-tab="notifications">
+          <i class="fa-regular fa-bell mr-1.5 text-gray-600"></i> Thông báo cá nhân
+        </button>
+        <button onclick="switchTab('account')" class="tab-btn px-3.5 py-2 rounded-xl transition text-gray-600 hover:text-black hover:bg-gray-100" data-tab="account">
+          <i class="fa-regular fa-id-badge mr-1.5 text-gray-600"></i> Thông tin tài khoản
+        </button>
+      </nav>
+
+      <!-- Chuông thông báo & Hồ sơ Huấn luyện viên -->
+      <div class="flex items-center space-x-3">
+        
+        <!-- Nút mở nhanh thông báo -->
+        <button onclick="switchTab('notifications')" class="relative w-9 h-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-600 transition shadow-2xs" title="Thông báo cá nhân">
+          <i class="fa-regular fa-bell text-sm"></i>
+          <!-- Huy hiệu 4 thông báo mới -->
+          <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-600 text-white text-[9px] font-bold flex items-center justify-center">
+            4
+          </span>
+        </button>
+
+        <!-- Thẻ thông tin HLV (bấm vào để mở thông tin tài khoản) -->
+        <div class="flex items-center space-x-2.5 pl-2 border-l border-gray-200">
+          <div id="hlvHeaderAvatar" onclick="switchTab('account')" class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs shadow-2xs cursor-pointer hover:opacity-85 transition" title="Xem thông tin tài khoản">
+            MT
+          </div>
+          <div onclick="switchTab('account')" class="hidden sm:block text-left cursor-pointer hover:opacity-85 transition" title="Xem thông tin tài khoản">
+            <span id="hlvHeaderName" class="block text-xs font-bold text-black leading-tight">HLV Nguyễn Minh Tuấn</span>
+            <span id="hlvHeaderSpecialties" class="block text-[10px] text-gray-500 font-medium">Chuyên gia Kickfit & PT (HLV-08)</span>
+          </div>
+          <!-- Đăng xuất -->
+          <button onclick="logoutHLV()" class="p-1.5 text-gray-400 hover:text-red-600 transition" title="Đăng xuất">
+            <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= SUBNAV TRÊN MOBILE ================= -->
+  <div class="md:hidden bg-white border-b border-gray-200 px-4 py-2 flex items-center gap-1 overflow-x-auto text-xs whitespace-nowrap">
+    <button onclick="switchTab('dashboard')" class="mobile-tab-btn px-3 py-1.5 rounded-lg bg-gray-100 font-bold" data-tab="dashboard">Tổng quan</button>
+    <button onclick="switchTab('schedule')" class="mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium" data-tab="schedule">Xem lịch dạy</button>
+    <button onclick="switchTab('students')" class="mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium" data-tab="students">Theo dõi học viên</button>
+    <button onclick="switchTab('notifications')" class="mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium" data-tab="notifications">Thông báo (4)</button>
+    <button onclick="switchTab('account')" class="mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium" data-tab="account">Tài khoản</button>
+  </div>
+
+  <!-- ================= MAIN CONTENT CONTAINER ================= -->
+  <main class="max-w-[1360px] mx-auto w-full px-4 sm:px-8 py-8 flex-1">
+
+    <!-- =============================================================== -->
+    <!-- TAB 1: BẢNG TỔNG QUAN CA DẠY (DASHBOARD) -->
+    <!-- =============================================================== -->
+    <div id="tab-dashboard" class="coach-tab active space-y-6">
+      
+      <!-- Chào mừng & Thống kê nhanh ca trực -->
+      <div class="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div>
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Cổng tác nghiệp huấn luyện viên</span>
+          <h1 class="text-2xl sm:text-3xl font-black text-black mt-1">Xin chào, HLV Nguyễn Minh Tuấn! 🏋️</h1>
+          <p class="text-xs sm:text-sm text-gray-600 mt-1.5 max-w-xl">
+            Hôm nay bạn có <strong class="text-black">3 ca dạy</strong> (1 ca kèm PT 1-1 và 2 lớp nhóm). Hãy kiểm tra danh sách học viên và điểm danh đúng giờ.
+          </p>
+
+          <div class="flex flex-wrap items-center gap-3 mt-5">
+            <button onclick="switchTab('schedule')" class="px-4 py-2.5 rounded-xl bg-black text-white text-xs font-semibold hover:bg-gray-800 transition flex items-center gap-2 shadow-sm">
+              <i class="fa-regular fa-calendar-check"></i> Xem toàn bộ lịch dạy tuần
+            </button>
+            <button onclick="switchTab('students')" class="px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-black text-xs font-semibold hover:bg-gray-50 transition flex items-center gap-2">
+              <i class="fa-solid fa-user-pen"></i> Cập nhật chỉ số học viên
+            </button>
+          </div>
+        </div>
+
+        <!-- Thẻ tóm tắt thông tin ca dạy kế tiếp -->
+        <div class="bg-neutral-900 text-white rounded-2xl p-5 w-full sm:w-80 shadow-md border border-neutral-800 shrink-0">
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-[10px] tracking-widest font-black text-amber-300 uppercase">CA DẠY SẮP DIỄN RA</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          </div>
+
+          <div class="mb-4">
+            <h3 class="text-sm font-bold text-white">Kickfit Chiến Binh (Lớp Nhóm)</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Phòng: <strong>Boxing Ring</strong> · Sĩ số: <strong>15/15</strong></p>
+            <div class="mt-2 text-xs font-bold text-amber-300">
+              17:30 – 18:45 Hôm nay
+            </div>
+          </div>
+
+          <button onclick="openClassDetailModal('Kickfit Chiến Binh (17:30)', 'Boxing Ring', '15/15 học viên')" class="w-full py-2 bg-white text-black hover:bg-gray-100 rounded-xl text-xs font-semibold transition">
+            Xem danh sách học viên điểm danh
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 Thẻ số liệu quản lý của Huấn luyện viên -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs text-gray-500 font-medium">Ca dạy trong tuần này</span>
+            <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-black text-xs"><i class="fa-regular fa-calendar"></i></span>
+          </div>
+          <h3 class="text-2xl font-black text-black">16 <span class="text-xs text-gray-500 font-normal">ca dạy</span></h3>
+          <p class="text-xs text-gray-600 mt-1">Gồm 6 ca PT kèm riêng và 10 lớp nhóm</p>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs text-gray-500 font-medium">Học viên PT phụ trách chính</span>
+            <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-black text-xs"><i class="fa-solid fa-users"></i></span>
+          </div>
+          <h3 class="text-2xl font-black text-black">8 <span class="text-xs text-gray-500 font-normal">học viên VIP</span></h3>
+          <p class="text-xs text-emerald-600 mt-1 font-medium"><i class="fa-solid fa-circle-check"></i> Đang theo sát lộ trình tăng cơ, giảm mỡ</p>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs text-gray-500 font-medium">Đánh giá trung bình từ học viên</span>
+            <span class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-black text-xs"><i class="fa-solid fa-star text-amber-500"></i></span>
+          </div>
+          <h3 class="text-2xl font-black text-black">4.9 / 5.0</h3>
+          <p class="text-xs text-gray-600 mt-1">Dựa trên 142 lượt phản hồi sau buổi tập</p>
+        </div>
+      </div>
+
+      <!-- Danh sách ca dạy hôm nay -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-xs">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-base font-bold text-black flex items-center gap-2">
+            <i class="fa-regular fa-clock text-gray-500"></i> Lịch dạy hôm nay (Chủ nhật, 15/11/2026)
+          </h2>
+          <button onclick="switchTab('schedule')" class="text-xs font-semibold text-black hover:underline">
+            Xem lịch cả tuần →
+          </button>
+        </div>
+
+        <div class="space-y-3">
+          <!-- Ca 1: Đã hoàn thành -->
+          <div class="border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50/50">
+            <div class="flex items-start space-x-3.5">
+              <div class="w-14 h-14 rounded-xl bg-gray-200 text-gray-700 flex flex-col items-center justify-center shrink-0">
+                <span class="text-xs font-bold">06:00</span>
+                <span class="text-[10px] text-gray-500">07:15</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 mb-0.5">
+                  <h4 class="font-bold text-sm text-black">Kickboxing Khởi Động Sáng</h4>
+                  <span class="bg-gray-200 text-gray-700 text-[10px] font-semibold px-2 py-0.5 rounded-md">Studio 3</span>
+                </div>
+                <p class="text-xs text-gray-500">Hình thức: Lớp nhóm · Sĩ số: <strong>14/15 học viên</strong></p>
+                <span class="inline-block bg-gray-200 text-gray-700 text-[10px] font-semibold px-2 py-0.5 rounded-md mt-1">
+                  ✓ Đã hoàn thành buổi dạy
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="alert('Xem lại danh sách 14 học viên đã tham gia buổi sáng')" class="px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-white transition">
+                Xem lại danh sách
+              </button>
+            </div>
+          </div>
+
+          <!-- Ca 2: Sắp diễn ra (Chiều) -->
+          <div class="border border-black rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white shadow-2xs">
+            <div class="flex items-start space-x-3.5">
+              <div class="w-14 h-14 rounded-xl bg-black text-white flex flex-col items-center justify-center shrink-0">
+                <span class="text-xs font-bold">17:30</span>
+                <span class="text-[10px] text-gray-400">18:45</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 mb-0.5">
+                  <h4 class="font-bold text-sm text-black">Kickfit Chiến Binh (Đốt Mỡ Đỉnh Cao)</h4>
+                  <span class="bg-red-50 text-red-700 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-red-200">Boxing Ring</span>
+                </div>
+                <p class="text-xs text-gray-500">Hình thức: Lớp nhóm · Sĩ số: <strong>15/15 học viên (Đã kín chỗ)</strong></p>
+                <span class="inline-block bg-amber-50 text-amber-800 text-[10px] font-semibold px-2 py-0.5 rounded-md mt-1 border border-amber-200">
+                  ● Ca dạy tiếp theo
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="openClassDetailModal('Kickfit Chiến Binh (17:30)', 'Boxing Ring', '15/15 học viên')" class="px-4 py-2 rounded-xl bg-black text-white text-xs font-semibold hover:bg-gray-800 transition">
+                Điểm danh lớp
+              </button>
+            </div>
+          </div>
+
+          <!-- Ca 3: Ca tối PT 1-1 -->
+          <div class="border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-gray-300 transition">
+            <div class="flex items-start space-x-3.5">
+              <div class="w-14 h-14 rounded-xl bg-gray-100 text-black flex flex-col items-center justify-center shrink-0">
+                <span class="text-xs font-bold">19:15</span>
+                <span class="text-[10px] text-gray-500">20:15</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 mb-0.5">
+                  <h4 class="font-bold text-sm text-black">Kèm riêng PT 1-1: Học viên Trần Gia Huy</h4>
+                  <span class="bg-gray-100 text-gray-700 text-[10px] font-semibold px-2 py-0.5 rounded-md">Khu Tạ Free Weights</span>
+                </div>
+                <p class="text-xs text-gray-500">Nội dung: <strong>Giáo án Tăng cơ thân trên (Ngực & Tay sau)</strong></p>
+                <span class="inline-block bg-blue-50 text-blue-700 text-[10px] font-semibold px-2 py-0.5 rounded-md mt-1 border border-blue-200">
+                  Buổi 18 / 30 buổi
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="openUpdateStudentModal('Trần Gia Huy', 'FC-00143', 'Buổi 18 - Kèm PT 1-1', '72.0', '16.5', '34.0')" class="px-3.5 py-2 rounded-xl border border-gray-300 hover:border-black text-xs font-semibold text-black transition">
+                Cập nhật kết quả buổi tập
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- =============================================================== -->
+    <!-- TAB 2: XEM LỊCH DẠY CHI TIẾT (SCHEDULE) -->
+    <!-- =============================================================== -->
+    <div id="tab-schedule" class="coach-tab space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-200">
+        <div>
+          <h2 class="text-xl font-bold text-black">Lịch dạy của Huấn luyện viên</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Xem phân công ca dạy theo tuần, theo dõi phòng học và sĩ số từng lớp</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="p-2 border border-gray-200 bg-white rounded-lg text-xs hover:bg-gray-50"><i class="fa-solid fa-chevron-left"></i></button>
+          <span class="text-xs font-bold text-black bg-white px-3 py-2 border border-gray-200 rounded-lg">Tuần 15/11 – 21/11/2026</span>
+          <button class="p-2 border border-gray-200 bg-white rounded-lg text-xs hover:bg-gray-50"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <!-- Thanh chọn ngày trong tuần -->
+      <div class="grid grid-cols-7 gap-2 text-center text-xs">
+        <button class="p-3 rounded-2xl bg-black text-white font-bold shadow-xs">
+          <span class="block text-[10px] uppercase font-normal opacity-70">Hôm nay</span>
+          <span class="text-base font-black">CN 15</span>
+        </button>
+        <button class="p-3 rounded-2xl bg-white border border-gray-200 text-gray-700 hover:border-black transition">
+          <span class="block text-[10px] text-gray-400 uppercase">Thứ 2</span>
+          <span class="text-base font-bold">16</span>
+        </button>
+        <button class="p-3 rounded-2xl bg-white border border-gray-200 text-gray-700 hover:border-black transition">
+          <span class="block text-[10px] text-gray-400 uppercase">Thứ 3</span>
+          <span class="text-base font-bold">17</span>
+        </button>
+        <button class="p-3 rounded-2xl bg-white border border-gray-200 text-gray-700 hover:border-black transition">
+          <span class="block text-[10px] text-gray-400 uppercase">Thứ 4</span>
+          <span class="text-base font-bold">18</span>
+        </button>
+        <button class="p-3 rounded-2xl bg-white border border-gray-200 text-gray-700 hover:border-black transition">
+          <span class="block text-[10px] text-gray-400 uppercase">Thứ 5</span>
+          <span class="text-base font-bold">19</span>
+        </button>
+        <button class="p-3 rounded-2xl bg-white border border-gray-200 text-gray-700 hover:border-black transition">
+          <span class="block text-[10px] text-gray-400 uppercase">Thứ 6</span>
+          <span class="text-base font-bold">20</span>
+        </button>
+        <button class="p-3 rounded-2xl bg-white border border-gray-200 text-gray-700 hover:border-black transition">
+          <span class="block text-[10px] text-gray-400 uppercase">Thứ 7</span>
+          <span class="text-base font-bold">21</span>
+        </button>
+      </div>
+
+      <!-- Bảng lịch dạy chi tiết -->
+      <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xs">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-gray-700">
+            <thead class="bg-gray-50/80 uppercase text-[11px] font-bold text-gray-500 border-b border-gray-200">
+              <tr>
+                <th class="py-3 px-4">Thời gian ca</th>
+                <th class="py-3 px-4">Nội dung buổi dạy</th>
+                <th class="py-3 px-4">Hình thức</th>
+                <th class="py-3 px-4">Phòng học</th>
+                <th class="py-3 px-4">Sĩ số / Học viên</th>
+                <th class="py-3 px-4">Trạng thái</th>
+                <th class="py-3 px-4 text-center">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <!-- Ca 1 -->
+              <tr class="hover:bg-gray-50/60 transition">
+                <td class="py-4 px-4 font-bold text-black whitespace-nowrap">06:00 – 07:15</td>
+                <td class="py-4 px-4 font-semibold text-black">Kickboxing Khởi Động Sáng</td>
+                <td class="py-4 px-4"><span class="bg-gray-100 px-2 py-0.5 rounded text-[10px] font-medium">Lớp nhóm</span></td>
+                <td class="py-4 px-4">Studio 3</td>
+                <td class="py-4 px-4">14 / 15 học viên</td>
+                <td class="py-4 px-4"><span class="text-gray-500 font-medium">Đã kết thúc</span></td>
+                <td class="py-4 px-4 text-center">
+                  <button onclick="openClassDetailModal('Kickboxing Sáng', 'Studio 3', '14/15')" class="text-xs font-semibold text-black hover:underline">Chi tiết</button>
+                </td>
+              </tr>
+
+              <!-- Ca 2 -->
+              <tr class="hover:bg-gray-50/60 transition bg-amber-50/30">
+                <td class="py-4 px-4 font-bold text-black whitespace-nowrap">17:30 – 18:45</td>
+                <td class="py-4 px-4 font-semibold text-black">Kickfit Chiến Binh</td>
+                <td class="py-4 px-4"><span class="bg-gray-100 px-2 py-0.5 rounded text-[10px] font-medium">Lớp nhóm</span></td>
+                <td class="py-4 px-4">Boxing Ring</td>
+                <td class="py-4 px-4 font-bold text-red-600">15 / 15 (Kín chỗ)</td>
+                <td class="py-4 px-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-semibold border border-emerald-200">Sắp diễn ra</span></td>
+                <td class="py-4 px-4 text-center">
+                  <button onclick="openClassDetailModal('Kickfit Chiến Binh', 'Boxing Ring', '15/15')" class="px-3 py-1 bg-black text-white rounded-lg text-xs font-semibold hover:bg-gray-800">Điểm danh</button>
+                </td>
+              </tr>
+
+              <!-- Ca 3 -->
+              <tr class="hover:bg-gray-50/60 transition">
+                <td class="py-4 px-4 font-bold text-black whitespace-nowrap">19:15 – 20:15</td>
+                <td class="py-4 px-4 font-semibold text-black">Kèm riêng PT 1-1 (Trần Gia Huy)</td>
+                <td class="py-4 px-4"><span class="bg-black text-white px-2 py-0.5 rounded text-[10px] font-medium">VIP PT 1-1</span></td>
+                <td class="py-4 px-4">Khu Tạ Tự Do</td>
+                <td class="py-4 px-4">1 học viên</td>
+                <td class="py-4 px-4"><span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[10px] font-semibold border border-blue-200">Chưa bắt đầu</span></td>
+                <td class="py-4 px-4 text-center">
+                  <button onclick="openUpdateStudentModal('Trần Gia Huy', 'FC-00143', 'Buổi 18', '72.0', '16.5', '34.0')" class="text-xs font-semibold text-black hover:underline">Ghi chú kết quả</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================================== -->
+    <!-- TAB 3: CẬP NHẬT TÌNH HÌNH & KẾT QUẢ HỌC VIÊN (STUDENTS TRACKING) -->
+    <!-- =============================================================== -->
+    <div id="tab-students" class="coach-tab space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-200">
+        <div>
+          <h2 class="text-xl font-bold text-black">Cập nhật tình hình & Kết quả học viên</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Theo dõi chỉ số hình thể InBody (cân nặng, mỡ, cơ) và ghi chú nhận xét tiến độ sau mỗi buổi tập</p>
+        </div>
+        <!-- Ô tìm kiếm học viên -->
+        <div class="relative w-full sm:w-72">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+          <input type="text" placeholder="Tìm theo tên học viên, mã thẻ..." class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-xl text-xs text-black placeholder-gray-400 focus:outline-none focus:border-black">
+        </div>
+      </div>
+
+      <!-- Danh sách học viên phụ trách -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        
+        <!-- Thẻ học viên 1 -->
+        <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:border-black transition">
+          <div>
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 rounded-full bg-black text-white font-bold text-sm flex items-center justify-center">
+                  GH
+                </div>
+                <div>
+                  <h3 class="font-bold text-sm text-black">Trần Gia Huy</h3>
+                  <p class="text-[11px] text-gray-500 font-mono">Mã HV: FC-00143</p>
+                </div>
+              </div>
+              <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200">
+                VIP PT 1-1
+              </span>
+            </div>
+
+            <!-- Mục tiêu & Tiến độ buổi học -->
+            <div class="bg-gray-50 rounded-2xl p-3.5 mb-4 text-xs space-y-1.5 border border-gray-200">
+              <div class="flex justify-between">
+                <span class="text-gray-500">Mục tiêu:</span>
+                <strong class="text-black">Tăng cơ ngực, giảm mỡ</strong>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-500">Tiến độ gói:</span>
+                <strong class="text-black">Đã học 18 / 30 buổi</strong>
+              </div>
+            </div>
+
+            <!-- Chỉ số hình thể đo gần nhất -->
+            <div class="grid grid-cols-3 gap-2 text-center text-xs mb-4">
+              <div class="p-2 border border-gray-200 rounded-xl bg-white">
+                <span class="block text-[10px] text-gray-500">Cân nặng</span>
+                <strong class="text-sm text-black">72.0 kg</strong>
+                <span class="block text-[9px] text-emerald-600 font-semibold">-2.5 kg</span>
+              </div>
+              <div class="p-2 border border-gray-200 rounded-xl bg-white">
+                <span class="block text-[10px] text-gray-500">Tỷ lệ mỡ</span>
+                <strong class="text-sm text-black">16.5%</strong>
+                <span class="block text-[9px] text-emerald-600 font-semibold">-2.0%</span>
+              </div>
+              <div class="p-2 border border-gray-200 rounded-xl bg-white">
+                <span class="block text-[10px] text-gray-500">Khối cơ</span>
+                <strong class="text-sm text-black">34.0 kg</strong>
+                <span class="block text-[9px] text-emerald-600 font-semibold">+1.2 kg</span>
+              </div>
+            </div>
+
+            <!-- Nhận xét gần nhất của HLV -->
+            <p class="text-[11px] text-gray-600 italic bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/60 mb-4">
+              "Tập luyện chăm chỉ, thể lực tăng rõ rệt sau 2 tuần qua. Cần chú ý giấc ngủ để cơ hồi phục tốt hơn."
+            </p>
+          </div>
+
+          <button onclick="openUpdateStudentModal('Trần Gia Huy', 'FC-00143', 'Buổi 18 - Kèm PT', '72.0', '16.5', '34.0')" class="w-full py-2.5 bg-black text-white hover:bg-gray-800 rounded-xl text-xs font-semibold transition">
+            Cập nhật tình hình & Kết quả
+          </button>
+        </div>
+
+        <!-- Thẻ học viên 2 -->
+        <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:border-black transition">
+          <div>
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 rounded-full bg-black text-white font-bold text-sm flex items-center justify-center">
+                  AD
+                </div>
+                <div>
+                  <h3 class="font-bold text-sm text-black">Võ Đức Anh Duy</h3>
+                  <p class="text-[11px] text-gray-500 font-mono">Mã HV: FC-00142</p>
+                </div>
+              </div>
+              <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200">
+                VIP PT 1-1
+              </span>
+            </div>
+
+            <!-- Mục tiêu & Tiến độ buổi học -->
+            <div class="bg-gray-50 rounded-2xl p-3.5 mb-4 text-xs space-y-1.5 border border-gray-200">
+              <div class="flex justify-between">
+                <span class="text-gray-500">Mục tiêu:</span>
+                <strong class="text-black">Siết cơ, giảm 4kg mỡ bụng</strong>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-500">Tiến độ gói:</span>
+                <strong class="text-black">Đã học 8 / 10 buổi</strong>
+              </div>
+            </div>
+
+            <!-- Chỉ số hình thể đo gần nhất -->
+            <div class="grid grid-cols-3 gap-2 text-center text-xs mb-4">
+              <div class="p-2 border border-gray-200 rounded-xl bg-white">
+                <span class="block text-[10px] text-gray-500">Cân nặng</span>
+                <strong class="text-sm text-black">68.5 kg</strong>
+                <span class="block text-[9px] text-emerald-600 font-semibold">-3.0 kg</span>
+              </div>
+              <div class="p-2 border border-gray-200 rounded-xl bg-white">
+                <span class="block text-[10px] text-gray-500">Tỷ lệ mỡ</span>
+                <strong class="text-sm text-black">14.8%</strong>
+                <span class="block text-[9px] text-emerald-600 font-semibold">-3.2%</span>
+              </div>
+              <div class="p-2 border border-gray-200 rounded-xl bg-white">
+                <span class="block text-[10px] text-gray-500">Khối cơ</span>
+                <strong class="text-sm text-black">33.2 kg</strong>
+                <span class="block text-[9px] text-emerald-600 font-semibold">+0.8 kg</span>
+              </div>
+            </div>
+
+            <!-- Nhận xét gần nhất của HLV -->
+            <p class="text-[11px] text-gray-600 italic bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/60 mb-4">
+              "Kỹ thuật nâng tạ Bench Press và Deadlift chuẩn xác. Đã sẵn sàng tăng mức tạ trong tuần tới."
+            </p>
+          </div>
+
+          <button onclick="openUpdateStudentModal('Võ Đức Anh Duy', 'FC-00142', 'Buổi 8 - Kèm PT', '68.5', '14.8', '33.2')" class="w-full py-2.5 bg-black text-white hover:bg-gray-800 rounded-xl text-xs font-semibold transition">
+            Cập nhật tình hình & Kết quả
+          </button>
+        </div>
+
+        <!-- Thẻ học viên 3 -->
+        <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:border-black transition">
+          <div>
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 rounded-full bg-black text-white font-bold text-sm flex items-center justify-center">
+                  BN
+                </div>
+                <div>
+                  <h3 class="font-bold text-sm text-black">Hoàng Bích Ngọc</h3>
+                  <p class="text-[11px] text-gray-500 font-mono">Mã HV: FC-00148</p>
+                </div>
+              </div>
+              <span class="bg-gray-100 text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-gray-200">
+                Kickfit Nhóm
+              </span>
+            </div>
+
+            <!-- Mục tiêu & Tiến độ buổi học -->
+            <div class="bg-gray-50 rounded-2xl p-3.5 mb-4 text-xs space-y-1.5 border border-gray-200">
+              <div class="flex justify-between">
+                <span class="text-gray-500">Mục tiêu:</span>
+                <strong class="text-black">Tăng độ dẻo dai & săn chắc</strong>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-500">Tiến độ gói:</span>
+                <strong class="text-black">Đã học 12 / 24 buổi</strong>
+              </div>
+            </div>
+
+            <!-- Chỉ số hình thể đo gần nhất -->
+            <div class="grid grid-cols-3 gap-2 text-center text-xs mb-4">
+              <div class="p-2 border border-gray-200 rounded-xl bg-white">
+                <span class="block text-[10px] text-gray-500">Cân nặng</span>
+                <strong class="text-sm text-black">52.0 kg</strong>
+                <span class="block text-[9px] text-emerald-600 font-semibold">-1.5 kg</span>
+              </div>
+              <div class="p-2 border border-gray-200 rounded-xl bg-white">
+                <span class="block text-[10px] text-gray-500">Tỷ lệ mỡ</span>
+                <strong class="text-sm text-black">21.0%</strong>
+                <span class="block text-[9px] text-emerald-600 font-semibold">-1.8%</span>
+              </div>
+              <div class="p-2 border border-gray-200 rounded-xl bg-white">
+                <span class="block text-[10px] text-gray-500">Khối cơ</span>
+                <strong class="text-sm text-black">22.5 kg</strong>
+                <span class="block text-[9px] text-emerald-600 font-semibold">+0.5 kg</span>
+              </div>
+            </div>
+
+            <!-- Nhận xét gần nhất của HLV -->
+            <p class="text-[11px] text-gray-600 italic bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/60 mb-4">
+              "Lưu ý khớp gối bên phải hơi mỏi sau các bài squat nhảy. Đã đổi sang bài tập kháng lực với dây đàn hồi."
+            </p>
+          </div>
+
+          <button onclick="openUpdateStudentModal('Hoàng Bích Ngọc', 'FC-00148', 'Buổi 12 - Kickfit', '52.0', '21.0', '22.5')" class="w-full py-2.5 bg-black text-white hover:bg-gray-800 rounded-xl text-xs font-semibold transition">
+            Cập nhật tình hình & Kết quả
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =============================================================== -->
+    <!-- TAB 4: THÔNG BÁO CÁ NHÂN (COACH NOTIFICATIONS) -->
+    <!-- =============================================================== -->
+    <div id="tab-notifications" class="coach-tab space-y-6">
+      <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+        <div>
+          <h2 class="text-xl font-bold text-black">Thông báo cá nhân Huấn luyện viên</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Thông báo phân công ca dạy, học viên đổi lịch và thông tin điều hành từ quản trị</p>
+        </div>
+        <button onclick="alert('Đã đánh dấu tất cả thông báo là đã đọc!')" class="text-xs font-semibold text-gray-600 hover:text-black">
+          Đánh dấu tất cả là đã đọc
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <!-- Thông báo 1: Phân công lịch dạy mới -->
+        <div class="bg-white border-l-4 border-black border-y border-r border-gray-200 rounded-2xl p-4.5 shadow-xs flex items-start gap-3.5">
+          <div class="w-9 h-9 rounded-xl bg-gray-100 text-black flex items-center justify-center shrink-0">
+            <i class="fa-regular fa-calendar-plus text-sm"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-black">Phân công thêm ca dạy mới</h4>
+              <span class="text-[11px] text-gray-400">2 giờ trước</span>
+            </div>
+            <p class="text-xs text-gray-600 mt-1 leading-relaxed">
+              Quản trị viên đã phân công bạn phụ trách lớp <strong>Kickboxing Nâng Cao</strong> vào <strong>19:00 Thứ 6 ngày 20/11</strong> tại Boxing Ring. Vui lòng kiểm tra và chuẩn bị giáo án.
+            </p>
+          </div>
+        </div>
+
+        <!-- Thông báo 2: Học viên đặt lịch PT -->
+        <div class="bg-white border-l-4 border-black border-y border-r border-gray-200 rounded-2xl p-4.5 shadow-xs flex items-start gap-3.5">
+          <div class="w-9 h-9 rounded-xl bg-gray-100 text-black flex items-center justify-center shrink-0">
+            <i class="fa-regular fa-user text-sm"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-black">Học viên mới đặt lịch tập PT 1-1</h4>
+              <span class="text-[11px] text-gray-400">4 giờ trước</span>
+            </div>
+            <p class="text-xs text-gray-600 mt-1 leading-relaxed">
+              Học viên <strong>Trần Gia Huy (FC-00143)</strong> đã đặt ca tập kèm 1-1 vào <strong>19:15 tối nay</strong>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Thông báo 3: Yêu cầu đổi lịch của học viên -->
+        <div class="bg-white border-l-4 border-black border-y border-r border-gray-200 rounded-2xl p-4.5 shadow-xs flex items-start gap-3.5">
+          <div class="w-9 h-9 rounded-xl bg-gray-100 text-black flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-arrows-rotate text-sm"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-black">Học viên yêu cầu đổi giờ tập</h4>
+              <span class="text-[11px] text-gray-400">Hôm qua</span>
+            </div>
+            <p class="text-xs text-gray-600 mt-1 leading-relaxed">
+              Học viên <strong>Văn Viết Tài</strong> đã gửi yêu cầu chuyển ca tập Kickfit từ Thứ 4 (18/11) sang Thứ 5 (19/11). Hệ thống đã tự động cập nhật lại sĩ số phòng tập.
+            </p>
+          </div>
+        </div>
+
+        <!-- Thông báo 4: Thông báo từ Ban Giám đốc -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-4.5 shadow-xs flex items-start gap-3.5 opacity-80">
+          <div class="w-9 h-9 rounded-xl bg-gray-50 text-gray-500 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-bullhorn text-sm"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-black">Họp chuyên môn Huấn luyện viên định kỳ</h4>
+              <span class="text-[11px] text-gray-400">3 ngày trước</span>
+            </div>
+            <p class="text-xs text-gray-600 mt-1 leading-relaxed">
+              Cuộc họp chuyên môn định kỳ đánh giá kết quả huấn luyện quý 4 sẽ diễn ra lúc <strong>14:00 Thứ 7 (21/11)</strong> tại phòng họp tầng 2.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================================== -->
+    <!-- TAB 5: THÔNG TIN TÀI KHOẢN HUẤN LUYỆN VIÊN (ACCOUNT INFO) -->
+    <!-- =============================================================== -->
+    <div id="tab-account" class="coach-tab space-y-6">
+      <div class="pb-4 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-black">Thông tin tài khoản Huấn luyện viên</h2>
+        <p class="text-xs text-gray-500 mt-0.5">Quản lý hồ sơ công tác cá nhân, thông tin liên hệ, chứng chỉ chuyên môn và bảo mật</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Cột trái: Thẻ chứng nhận HLV & Mã QR hồ sơ -->
+        <div class="space-y-5">
+          <!-- Thẻ HLV Chuyên Nghiệp -->
+          <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-xs text-center space-y-4">
+            <div class="w-20 h-20 rounded-full bg-black text-white text-2xl font-black flex items-center justify-center mx-auto shadow-md">
+              MT
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-black">Nguyễn Minh Tuấn</h3>
+              <p class="text-xs text-gray-500 font-mono mt-0.5">Mã HLV: HLV-08</p>
+              <span class="inline-block mt-2 px-3 py-1 bg-black text-white rounded-full text-[10px] font-bold uppercase tracking-wider">
+                Senior Personal Trainer
+              </span>
+            </div>
+
+            <div class="pt-3 border-t border-gray-100 text-xs text-gray-600 space-y-2 text-left">
+              <div class="flex justify-between">
+                <span class="text-gray-500">Cơ sở làm việc:</span>
+                <strong class="text-black">Hải Châu, Đà Nẵng</strong>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-500">Đánh giá chuyên môn:</span>
+                <strong class="text-amber-600 font-bold">⭐ 4.9 / 5.0 (142 lượt)</strong>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-500">Trạng thái công tác:</span>
+                <span class="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded text-[10px]">Đang hoạt động</span>
+              </div>
+            </div>
+
+            <!-- Mã QR Profile cá nhân -->
+            <div class="pt-3 border-t border-gray-100">
+              <div class="w-32 h-32 bg-white border border-gray-200 rounded-2xl p-2 mx-auto shadow-2xs flex items-center justify-center">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=FITCENTER-TRAINER-HLV08" alt="QR HLV" class="w-full h-full">
+              </div>
+              <p class="text-[10px] text-gray-500 mt-2">Mã QR hồ sơ HLV dùng để học viên quét đặt lịch</p>
+            </div>
+          </div>
+
+          <!-- Khối chứng chỉ & Bằng cấp -->
+          <div class="bg-white border border-gray-200 rounded-3xl p-5 shadow-xs">
+            <h4 class="text-xs font-bold text-black uppercase tracking-wider mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-award text-black"></i> Bằng cấp & Chứng chỉ quốc tế
+            </h4>
+            <div class="space-y-2.5 text-xs">
+              <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-200">
+                <p class="font-bold text-black">NASM-CPT</p>
+                <p class="text-[11px] text-gray-500">Chứng chỉ Huấn luyện viên Cá nhân Quốc tế (Mỹ)</p>
+              </div>
+              <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-200">
+                <p class="font-bold text-black">First Aid & CPR/AED</p>
+                <p class="text-[11px] text-gray-500">Chứng nhận Sơ cấp cứu hồi sức tim phổi AHA</p>
+              </div>
+              <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-200">
+                <p class="font-bold text-black">Kickboxing Black Belt 2nd Dan</p>
+                <p class="text-[11px] text-gray-500">Đai đen Nhị đẳng & Chứng nhận HLV Đối kháng</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cột phải: Form thông tin cá nhân & Đổi mật khẩu -->
+        <div class="lg:col-span-2 space-y-6">
+          
+          <!-- Thông tin cá nhân & Hợp đồng -->
+          <div class="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-xs">
+            <h3 class="text-sm font-bold text-black mb-4">Thông tin cá nhân & Công tác</h3>
+            <form onsubmit="event.preventDefault(); alert('Cập nhật thông tin tài khoản HLV thành công!');" class="space-y-4 text-xs">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block font-semibold text-gray-700 mb-1">Họ và tên</label>
+                  <input type="text" value="Nguyễn Minh Tuấn" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black focus:outline-none focus:border-black">
+                </div>
+                <div>
+                  <label class="block font-semibold text-gray-700 mb-1">Số điện thoại</label>
+                  <input type="tel" value="0905 888 777" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black font-mono focus:outline-none focus:border-black">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block font-semibold text-gray-700 mb-1">Email nội bộ</label>
+                  <input type="email" value="tuan.nguyen@fitcenter.vn" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black focus:outline-none focus:border-black">
+                </div>
+                <div>
+                  <label class="block font-semibold text-gray-700 mb-1">Số CCCD / CMND</label>
+                  <input type="text" value="048096001234" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black font-mono focus:outline-none focus:border-black">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block font-semibold text-gray-700 mb-1">Ngày sinh</label>
+                  <input type="text" value="12/08/1996" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black focus:outline-none focus:border-black">
+                </div>
+                <div>
+                  <label class="block font-semibold text-gray-700 mb-1">Giới tính</label>
+                  <select class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black focus:outline-none focus:border-black">
+                    <option selected>Nam</option>
+                    <option>Nữ</option>
+                    <option>Khác</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block font-semibold text-gray-700 mb-1">Địa chỉ thường trú</label>
+                <input type="text" value="45 Lê Duẩn, Quận Hải Châu, TP. Đà Nẵng" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black focus:outline-none focus:border-black">
+              </div>
+
+              <!-- Chi tiết công tác -->
+              <div class="pt-3 border-t border-gray-100 bg-gray-50/60 p-4 rounded-2xl space-y-2 border border-gray-200">
+                <h4 class="font-bold text-black">Hồ sơ lao động & Ca trực</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-600">
+                  <p>Ngày bắt đầu làm việc: <strong class="text-black">01/03/2024</strong></p>
+                  <p>Loại hợp đồng: <strong class="text-black">Hợp đồng lao động chính thức</strong></p>
+                  <p>Số giờ dạy tích lũy: <strong class="text-black">1.280 giờ</strong></p>
+                  <p>Ca trực cố định: <strong class="text-black">Ca sáng & Ca chiều tối</strong></p>
+                </div>
+              </div>
+
+              <div class="flex justify-end pt-2">
+                <button type="submit" class="px-5 py-2.5 bg-black text-white rounded-xl font-semibold hover:bg-gray-800 transition">
+                  Lưu thay đổi thông tin
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Đổi mật khẩu tài khoản -->
+          <div class="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-xs">
+            <h3 class="text-sm font-bold text-black mb-4">Đổi mật khẩu bảo mật</h3>
+            <form onsubmit="event.preventDefault(); alert('Cập nhật mật khẩu tài khoản HLV thành công!');" class="space-y-4 text-xs">
+              <div>
+                <label class="block font-semibold text-gray-700 mb-1">Mật khẩu hiện tại</label>
+                <input type="password" placeholder="Nhập mật khẩu hiện tại" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black focus:outline-none focus:border-black">
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block font-semibold text-gray-700 mb-1">Mật khẩu mới</label>
+                  <input type="password" placeholder="Tối thiểu 8 ký tự" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black focus:outline-none focus:border-black">
+                </div>
+                <div>
+                  <label class="block font-semibold text-gray-700 mb-1">Xác nhận mật khẩu mới</label>
+                  <input type="password" placeholder="Nhập lại mật khẩu mới" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black focus:outline-none focus:border-black">
+                </div>
+              </div>
+              <div class="flex justify-end pt-2">
+                <button type="submit" class="px-5 py-2.5 border border-black text-black hover:bg-black hover:text-white rounded-xl font-semibold transition">
+                  Cập nhật mật khẩu mới
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= MODAL 1: CẬP NHẬT TÌNH HÌNH & KẾT QUẢ HỌC VIÊN ================= -->
+  <div id="updateStudentModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 shadow-2xl border border-gray-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h3 class="text-base font-bold text-black">Cập nhật tình hình & Kết quả học viên</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Nhập chỉ số thể hình mới và nhận xét chuyên môn sau buổi tập</p>
+        </div>
+        <button onclick="closeModal('updateStudentModal')" class="text-gray-400 hover:text-black text-base">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Thông tin tóm tắt học viên -->
+      <div class="bg-gray-50 rounded-2xl p-4 mb-4 text-xs space-y-1 border border-gray-200">
+        <p class="text-gray-500">Học viên: <strong id="modalStudentName" class="text-black text-sm">Trần Gia Huy</strong> (<span id="modalStudentCode">FC-00143</span>)</p>
+        <p class="text-gray-500">Buổi huấn luyện: <strong id="modalSessionInfo" class="text-black">Buổi 18</strong></p>
+      </div>
+
+      <form onsubmit="event.preventDefault(); saveStudentResult();" class="space-y-4 text-xs">
+        <!-- Đánh giá thái độ tập luyện -->
+        <div>
+          <label class="block font-semibold text-gray-700 mb-1">Đánh giá tinh thần & thể lực hôm nay:</label>
+          <select class="w-full border border-gray-300 rounded-xl px-3 py-2 text-black focus:outline-none focus:border-black">
+            <option>Rất chăm chỉ, hoàn thành 100% giáo án</option>
+            <option>Khá tốt, cần chú ý nhịp thở</option>
+            <option>Thể lực hơi giảm, đã điều chỉnh mức tạ nhẹ hơn</option>
+            <option>Bị chấn thương nhẹ / Cần bài phục hồi giãn cơ</option>
+          </select>
+        </div>
+
+        <!-- 3 Chỉ số InBody mới -->
+        <div>
+          <label class="block font-semibold text-gray-700 mb-1.5">Chỉ số đo đạc mới (InBody):</label>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <span class="text-[11px] text-gray-500 block mb-1">Cân nặng (kg)</span>
+              <input id="inputWeight" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-black font-semibold focus:outline-none focus:border-black">
+            </div>
+            <div>
+              <span class="text-[11px] text-gray-500 block mb-1">Tỷ lệ mỡ (%)</span>
+              <input id="inputFat" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-black font-semibold focus:outline-none focus:border-black">
+            </div>
+            <div>
+              <span class="text-[11px] text-gray-500 block mb-1">Khối cơ (kg)</span>
+              <input id="inputMuscle" type="number" step="0.1" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-black font-semibold focus:outline-none focus:border-black">
+            </div>
+          </div>
+        </div>
+
+        <!-- Nhận xét chi tiết & Hướng dẫn dinh dưỡng -->
+        <div>
+          <label class="block font-semibold text-gray-700 mb-1">Tình hình thể chất & Lời dặn dò của HLV:</label>
+          <textarea id="inputCoachNotes" rows="3" placeholder="Nhập ghi chú chi tiết về bài tập, động tác cần cải thiện hoặc nhắc nhở thực đơn ăn uống..." class="w-full border border-gray-300 rounded-xl p-3 text-black placeholder-gray-400 focus:outline-none focus:border-black">Học viên tập tốt hiệp deadlift, cần chú ý giữ thẳng lưng khi squat. Nhắc học viên uống đủ 2.5 lít nước và nạp đủ protein sau tập.</textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-gray-100">
+          <button type="button" onclick="closeModal('updateStudentModal')" class="px-4 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50">
+            Hủy
+          </button>
+          <button type="submit" class="px-5 py-2.5 bg-black hover:bg-gray-800 text-white rounded-xl font-semibold">
+            Lưu kết quả & Gửi phản hồi
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 2: CHI TIẾT CA DẠY & ĐIỂM DANH HỌC VIÊN ================= -->
+  <div id="classDetailModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl border border-gray-200">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h3 id="modalClassTitle" class="text-base font-bold text-black">Kickfit Chiến Binh</h3>
+          <p id="modalClassSubtitle" class="text-xs text-gray-500 mt-0.5">Phòng Boxing Ring · 15/15 học viên</p>
+        </div>
+        <button onclick="closeModal('classDetailModal')" class="text-gray-400 hover:text-black text-base">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Danh sách học viên trong lớp -->
+      <p class="text-xs font-semibold text-gray-700 mb-2">Danh sách điểm danh học viên hôm nay:</p>
+      <div class="space-y-2 max-h-56 overflow-y-auto pr-1 text-xs mb-5">
+        <label class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer">
+          <span class="font-medium text-black">1. Nguyễn Văn An (FC-00142)</span>
+          <input type="checkbox" checked class="w-4 h-4 rounded text-black focus:ring-0">
+        </label>
+        <label class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer">
+          <span class="font-medium text-black">2. Trần Gia Huy (FC-00143)</span>
+          <input type="checkbox" checked class="w-4 h-4 rounded text-black focus:ring-0">
+        </label>
+        <label class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer">
+          <span class="font-medium text-black">3. Văn Viết Tài (FC-00144)</span>
+          <input type="checkbox" checked class="w-4 h-4 rounded text-black focus:ring-0">
+        </label>
+        <label class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer">
+          <span class="font-medium text-black">4. Hoàng Bích Ngọc (FC-00148)</span>
+          <input type="checkbox" class="w-4 h-4 rounded text-black focus:ring-0">
+        </label>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 text-xs">
+        <button type="button" onclick="closeModal('classDetailModal')" class="px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50">
+          Đóng
+        </button>
+        <button type="button" onclick="alert('Đã lưu dữ liệu điểm danh lớp thành công!'); closeModal('classDetailModal');" class="px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-xl font-semibold">
+          Lưu điểm danh
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT ĐIỀU KHIỂN ================= -->
+  <script>
+    // Chuyển Tab tính năng
+    function switchTab(tabId) {
+      document.querySelectorAll('.coach-tab').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById('tab-' + tabId);
+      if (target) {
+        target.classList.add('active');
+      }
+
+      // Cập nhật giao diện nút Desktop
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (btn.dataset.tab === tabId) {
+          btn.className = 'tab-btn px-3.5 py-2 rounded-xl transition text-black bg-gray-100 font-bold';
+        } else {
+          btn.className = 'tab-btn px-3.5 py-2 rounded-xl transition text-gray-600 hover:text-black hover:bg-gray-100 font-semibold';
+        }
+      });
+
+      // Cập nhật giao diện nút Mobile
+      document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+        if (btn.dataset.tab === tabId) {
+          btn.className = 'mobile-tab-btn px-3 py-1.5 rounded-lg bg-gray-100 font-bold text-black';
+        } else {
+          btn.className = 'mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium';
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Modal Helpers
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    // Mở Modal cập nhật học viên
+    function openUpdateStudentModal(name, code, session, weight, fat, muscle) {
+      document.getElementById('modalStudentName').innerText = name;
+      document.getElementById('modalStudentCode').innerText = code;
+      document.getElementById('modalSessionInfo').innerText = session;
+      document.getElementById('inputWeight').value = weight;
+      document.getElementById('inputFat').value = fat;
+      document.getElementById('inputMuscle').value = muscle;
+      openModal('updateStudentModal');
+    }
+
+    function saveStudentResult() {
+      const name = document.getElementById('modalStudentName').innerText;
+      alert('Đã cập nhật thành công kết quả và chỉ số hình thể cho học viên ' + name + '!\nDữ liệu đã được đồng bộ vào hồ sơ cá nhân của học viên.');
+      closeModal('updateStudentModal');
+    }
+
+    // Mở Modal chi tiết lớp & Điểm danh
+    function openClassDetailModal(title, room, size) {
+      document.getElementById('modalClassTitle').innerText = title;
+      document.getElementById('modalClassSubtitle').innerText = 'Phòng ' + room + ' · ' + size;
+      openModal('classDetailModal');
+    }
+
+    // Đồng bộ thông tin HLV từ LocalStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      const userJson = localStorage.getItem('fitcenter_user');
+      if (userJson) {
+        try {
+          const user = JSON.parse(userJson);
+          const nameEl = document.getElementById('hlvHeaderName');
+          const specEl = document.getElementById('hlvHeaderSpecialties');
+          const avatarEl = document.getElementById('hlvHeaderAvatar');
+          if (nameEl) nameEl.innerText = user.fullName || user.email;
+          if (specEl) specEl.innerText = (user.specialties || 'Huấn luyện viên') + ' · ' + user.email;
+          if (avatarEl && user.fullName) {
+            avatarEl.innerText = user.fullName.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'HLV';
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
+
+    function logoutHLV() {
+      if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi Cổng Huấn luyện viên?')) {
+        localStorage.removeItem('fitcenter_user');
+        window.location.href = 'dang_nhap.html';
+      }
+    }
+  </script>
+</body>
+</html>

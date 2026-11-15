@@ -1,0 +1,2351 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitCenter - Cổng Quản Trị Hệ Thống (Admin Portal) | CDIO SE447G</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              900: '#0f172a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .admin-tab {
+      display: none;
+    }
+    .admin-tab.active {
+      display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Tùy chỉnh thanh cuộn đẹp mắt */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-neutral-50 text-slate-900 min-h-screen flex flex-col md:flex-row antialiased selection:bg-black selection:text-white">
+
+  <!-- ================= SIDEBAR (CỘT ĐIỀU HƯỚNG BÊN TRÁI) ================= -->
+  <aside id="sidebar" class="w-full md:w-64 bg-white border-r border-gray-200/90 flex flex-col justify-between shrink-0 min-h-screen z-30 transition-all duration-200">
+    <div>
+      <!-- Logo FitCenter -->
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <a href="trang_chu.html" class="flex items-center space-x-3 group">
+          <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center text-xs shadow-sm group-hover:scale-105 transition">
+            <i class="fa-solid fa-dumbbell text-xs"></i>
+          </div>
+          <div>
+            <span class="font-extrabold text-base tracking-tight text-black block leading-none">FitCenter</span>
+            <span class="text-[11px] text-gray-500 font-medium block mt-1">Gym Management</span>
+          </div>
+        </a>
+        <button onclick="toggleMobileSidebar()" class="md:hidden text-gray-500 hover:text-black">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Menu Điều hướng chức năng Admin -->
+      <nav class="p-3 space-y-1 text-xs font-semibold text-gray-600">
+        <!-- 1. Tổng quan -->
+        <button onclick="switchAdminTab('overview')" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition text-black bg-gray-100/90" data-tab="overview">
+          <i class="fa-solid fa-table-cells-large text-sm w-4 text-center"></i>
+          <span>Tổng quan</span>
+        </button>
+
+        <!-- 2. Khách hàng -->
+        <button onclick="switchAdminTab('customers')" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition hover:bg-gray-100/80 hover:text-black" data-tab="customers">
+          <i class="fa-solid fa-user-group text-sm w-4 text-center"></i>
+          <span>Khách hàng</span>
+        </button>
+
+        <!-- 3. Gói tập & Khóa học -->
+        <button onclick="switchAdminTab('courses')" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition hover:bg-gray-100/80 hover:text-black" data-tab="courses">
+          <i class="fa-solid fa-layer-group text-sm w-4 text-center"></i>
+          <span>Gói tập & khóa học</span>
+        </button>
+
+        <!-- 4. Lớp học & Lịch lớp -->
+        <button onclick="switchAdminTab('courses'); filterCourseTab('schedule');" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition hover:bg-gray-100/80 hover:text-black">
+          <i class="fa-regular fa-calendar-days text-sm w-4 text-center"></i>
+          <span>Lớp học & lịch lớp</span>
+        </button>
+
+        <!-- 5. Phân công HLV -->
+        <button onclick="openModal('modalAssignTrainer')" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition hover:bg-gray-100/80 hover:text-black">
+          <i class="fa-solid fa-user-gear text-sm w-4 text-center"></i>
+          <span>Phân công HLV</span>
+        </button>
+
+        <!-- 6. Tài khoản nhân sự -->
+        <button onclick="switchAdminTab('staff')" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition hover:bg-gray-100/80 hover:text-black" data-tab="staff">
+          <i class="fa-regular fa-id-badge text-sm w-4 text-center"></i>
+          <span>Tài khoản nhân sự</span>
+        </button>
+
+        <!-- 7. Sản phẩm cửa hàng -->
+        <button onclick="switchAdminTab('products')" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition hover:bg-gray-100/80 hover:text-black" data-tab="products">
+          <i class="fa-solid fa-cube text-sm w-4 text-center"></i>
+          <span>Sản phẩm</span>
+        </button>
+
+        <!-- 8. Thông báo hệ thống -->
+        <button onclick="switchAdminTab('notifications')" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition hover:bg-gray-100/80 hover:text-black" data-tab="notifications">
+          <i class="fa-regular fa-bell text-sm w-4 text-center"></i>
+          <span>Thông báo</span>
+        </button>
+
+        <!-- 9. Báo cáo & Thống kê -->
+        <button onclick="switchAdminTab('reports')" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition hover:bg-gray-100/80 hover:text-black" data-tab="reports">
+          <i class="fa-solid fa-chart-line text-sm w-4 text-center"></i>
+          <span>Báo cáo & thống kê</span>
+        </button>
+
+        <!-- 10. Trợ lý AI hỗ trợ -->
+        <button onclick="switchAdminTab('ai-assistant')" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition hover:bg-gray-100/80 hover:text-black" data-tab="ai-assistant">
+          <i class="fa-solid fa-wand-magic-sparkles text-sm w-4 text-center text-purple-600"></i>
+          <span class="flex items-center justify-between flex-1">
+            <span>Trợ lý AI</span>
+            <span class="text-[9px] bg-black text-white px-1.5 py-0.5 rounded-full font-bold">Mới</span>
+          </span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Thông tin tài khoản Admin & Đăng xuất -->
+    <div class="p-4 border-t border-gray-100 bg-white">
+      <div class="flex items-center gap-3 mb-3">
+        <div id="adminSidebarAvatar" class="w-9 h-9 rounded-full bg-neutral-200 text-neutral-800 font-bold text-xs flex items-center justify-center shrink-0 border border-neutral-300">
+          Q
+        </div>
+        <div class="truncate">
+          <p id="adminSidebarName" class="text-xs font-bold text-black leading-tight">Quản trị viên</p>
+          <p id="adminSidebarEmail" class="text-[11px] text-gray-500 truncate">admin@fitcenter.vn</p>
+        </div>
+      </div>
+      <button onclick="logoutAdmin()" class="flex items-center gap-2 text-xs text-gray-500 hover:text-red-600 font-medium transition py-1">
+        <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+        <span>Đăng xuất</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ================= NỘI DUNG CHÍNH (MAIN VIEW AREA) ================= -->
+  <div class="flex-1 flex flex-col min-h-screen overflow-x-hidden">
+    
+    <!-- HEADER TRÊN CÙNG -->
+    <header class="bg-white border-b border-gray-200/90 h-16 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20 shadow-2xs">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleMobileSidebar()" class="md:hidden text-gray-600 hover:text-black p-1.5">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+        <div>
+          <h1 id="headerTitle" class="text-base sm:text-lg font-bold text-black leading-tight">Tổng quan</h1>
+          <p id="headerSubtitle" class="text-[11px] text-gray-500">Thứ Bảy, 07 tháng 11, 2026</p>
+        </div>
+      </div>
+
+      <!-- Chuông thông báo & Hồ sơ Quản trị viên -->
+      <div class="flex items-center space-x-3">
+        <!-- Nút chuông thông báo -->
+        <button onclick="switchAdminTab('notifications')" class="relative w-9 h-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-600 transition shadow-2xs" title="Xem thông báo hệ thống">
+          <i class="fa-regular fa-bell text-sm"></i>
+          <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-black text-white text-[9px] font-bold flex items-center justify-center">
+            3
+          </span>
+        </button>
+
+        <!-- Thẻ Admin Profile -->
+        <div class="flex items-center space-x-2.5 pl-2 border-l border-gray-200">
+          <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+            Q
+          </div>
+          <div class="hidden sm:block text-left">
+            <span class="block text-xs font-bold text-black leading-tight">Quản trị viên</span>
+            <span class="text-[10px] text-gray-500">Quản trị viên</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- NỘI DUNG CHÍNH CUỘN TRONG TRANG -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full mx-auto">
+
+      <!-- ============================================================== -->
+      <!-- TAB 1: TỔNG QUAN HOẠT ĐỘNG (DASHBOARD - THEO HÌNH 1) ============= -->
+      <!-- ============================================================== -->
+      <div id="tab-overview" class="admin-tab active space-y-6">
+        
+        <!-- Tiêu đề & Công cụ đầu trang -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-black text-black tracking-tight">Tổng quan hoạt động</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Số liệu tổng hợp của trung tâm</p>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <div class="border border-gray-200 bg-white px-3 py-2 rounded-xl text-xs font-semibold text-gray-700 flex items-center gap-2 shadow-2xs">
+              <i class="fa-regular fa-calendar text-gray-500"></i>
+              <span>Tháng 11/2026</span>
+            </div>
+            <button onclick="openExportModal()" class="bg-black hover:bg-neutral-800 text-white text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-2 shadow-2xs">
+              <i class="fa-solid fa-download text-[11px]"></i>
+              <span>Xuất báo cáo</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Thẻ chỉ số tổng quan (Stat Cards) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Card 1: Tổng hội viên -->
+          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs hover:border-gray-300 transition">
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+              <span class="font-medium flex items-center gap-1.5">
+                <i class="fa-solid fa-user-group text-gray-400"></i>
+                Tổng hội viên
+              </span>
+            </div>
+            <div id="statTotalMembers" class="text-2xl sm:text-3xl font-black text-black tracking-tight">...</div>
+            <p class="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+              <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
+              +18 trong tuần
+            </p>
+          </div>
+
+          <!-- Card 2: Đăng ký chờ xử lý -->
+          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs hover:border-gray-300 transition">
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+              <span class="font-medium flex items-center gap-1.5">
+                <i class="fa-solid fa-clock-rotate-left text-gray-400"></i>
+                Đăng ký chờ xử lý
+              </span>
+            </div>
+            <div id="statPendingEnrollments" class="text-2xl sm:text-3xl font-black text-black tracking-tight">...</div>
+            <p class="text-[11px] text-amber-600 font-semibold mt-1">
+              Cần nhân viên xác nhận
+            </p>
+          </div>
+
+          <!-- Card 3: Lớp đang mở -->
+          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs hover:border-gray-300 transition">
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+              <span class="font-medium flex items-center gap-1.5">
+                <i class="fa-regular fa-calendar-check text-gray-400"></i>
+                Lớp đang mở
+              </span>
+            </div>
+            <div id="statTotalCourses" class="text-2xl sm:text-3xl font-black text-black tracking-tight">...</div>
+            <p class="text-[11px] text-gray-500 font-medium mt-1">
+              Còn 64 chỗ trống
+            </p>
+          </div>
+
+          <!-- Card 4: Check-in hôm nay -->
+          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs hover:border-gray-300 transition">
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+              <span class="font-medium flex items-center gap-1.5">
+                <i class="fa-solid fa-mobile-screen-button text-gray-400"></i>
+                Check-in hôm nay
+              </span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-black text-black tracking-tight">186</div>
+            <p class="text-[11px] text-gray-500 font-medium mt-1">
+              Cập nhật theo giờ
+            </p>
+          </div>
+        </div>
+
+        <!-- Khối Giữa: Biểu đồ Check-in 7 ngày & Lớp học hôm nay -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Cột Trái (7 cols): Lượt check-in 7 ngày gần nhất -->
+          <div class="lg:col-span-7 bg-white border border-gray-200/90 rounded-2xl p-6 shadow-2xs flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="font-bold text-sm text-black">Lượt check-in 7 ngày gần nhất</h3>
+                <p class="text-[11px] text-gray-500">Số lượt điểm danh tại trung tâm</p>
+              </div>
+              <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-lg text-gray-700 bg-gray-50">
+                Tuần này
+              </span>
+            </div>
+
+            <!-- Biểu đồ cột Check-in SVG chuẩn xác -->
+            <div class="h-48 w-full flex items-end justify-between gap-3 pt-6 pb-2 px-2 border-b border-gray-100">
+              <!-- T2: 142 -->
+              <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                <span class="text-[10px] font-semibold text-gray-400 group-hover:text-black">142</span>
+                <div class="w-full max-w-[38px] bg-neutral-300 group-hover:bg-neutral-500 rounded-t-md transition-all" style="height: 67%;"></div>
+                <span class="text-[11px] font-medium text-gray-500 mt-1">T2</span>
+              </div>
+              <!-- T3: 168 -->
+              <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                <span class="text-[10px] font-semibold text-gray-400 group-hover:text-black">168</span>
+                <div class="w-full max-w-[38px] bg-neutral-300 group-hover:bg-neutral-500 rounded-t-md transition-all" style="height: 80%;"></div>
+                <span class="text-[11px] font-medium text-gray-500 mt-1">T3</span>
+              </div>
+              <!-- T4: 155 -->
+              <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                <span class="text-[10px] font-semibold text-gray-400 group-hover:text-black">155</span>
+                <div class="w-full max-w-[38px] bg-neutral-300 group-hover:bg-neutral-500 rounded-t-md transition-all" style="height: 74%;"></div>
+                <span class="text-[11px] font-medium text-gray-500 mt-1">T4</span>
+              </div>
+              <!-- T5: 190 -->
+              <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                <span class="text-[10px] font-semibold text-gray-400 group-hover:text-black">190</span>
+                <div class="w-full max-w-[38px] bg-neutral-300 group-hover:bg-neutral-500 rounded-t-md transition-all" style="height: 90%;"></div>
+                <span class="text-[11px] font-medium text-gray-500 mt-1">T5</span>
+              </div>
+              <!-- T6: 176 -->
+              <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                <span class="text-[10px] font-semibold text-gray-400 group-hover:text-black">176</span>
+                <div class="w-full max-w-[38px] bg-neutral-300 group-hover:bg-neutral-500 rounded-t-md transition-all" style="height: 84%;"></div>
+                <span class="text-[11px] font-medium text-gray-500 mt-1">T6</span>
+              </div>
+              <!-- T7: 210 (Cột đen nổi bật - cao nhất) -->
+              <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                <span class="text-[10px] font-bold text-black">210</span>
+                <div class="w-full max-w-[38px] bg-black rounded-t-md transition-all shadow-xs" style="height: 100%;"></div>
+                <span class="text-[11px] font-bold text-black mt-1">T7</span>
+              </div>
+              <!-- CN: 186 -->
+              <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                <span class="text-[10px] font-semibold text-gray-400 group-hover:text-black">186</span>
+                <div class="w-full max-w-[38px] bg-neutral-300 group-hover:bg-neutral-500 rounded-t-md transition-all" style="height: 88%;"></div>
+                <span class="text-[11px] font-medium text-gray-500 mt-1">CN</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cột Phải (5 cols): Lớp học hôm nay -->
+          <div class="lg:col-span-5 bg-white border border-gray-200/90 rounded-2xl p-6 shadow-2xs">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-sm text-black">Lớp học hôm nay</h3>
+              <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-0.5 rounded-full text-gray-700 bg-gray-50">
+                4 lớp
+              </span>
+            </div>
+
+            <!-- Danh sách 4 lớp -->
+            <div class="divide-y divide-gray-100 space-y-3 pt-1">
+              <!-- Lớp 1 -->
+              <div class="flex items-center justify-between pt-2">
+                <div class="flex items-start gap-3">
+                  <span class="text-xs font-bold text-black mt-0.5">06:00</span>
+                  <div>
+                    <h4 class="text-xs font-bold text-black">Yoga buổi sáng</h4>
+                    <p class="text-[11px] text-gray-500">Lê Thị Hoa · Phòng Yoga 1</p>
+                  </div>
+                </div>
+                <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-full text-gray-700 bg-gray-50">
+                  18/20
+                </span>
+              </div>
+
+              <!-- Lớp 2 -->
+              <div class="flex items-center justify-between pt-3">
+                <div class="flex items-start gap-3">
+                  <span class="text-xs font-bold text-black mt-0.5">08:00</span>
+                  <div>
+                    <h4 class="text-xs font-bold text-black">Pilates cơ bản</h4>
+                    <p class="text-[11px] text-gray-500">Nguyễn Quốc Bảo · Phòng Studio A</p>
+                  </div>
+                </div>
+                <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-full text-gray-700 bg-gray-50">
+                  12/15
+                </span>
+              </div>
+
+              <!-- Lớp 3 (Đầy sĩ số) -->
+              <div class="flex items-center justify-between pt-3">
+                <div class="flex items-start gap-3">
+                  <span class="text-xs font-bold text-black mt-0.5">17:30</span>
+                  <div>
+                    <h4 class="text-xs font-bold text-black">Kickboxing</h4>
+                    <p class="text-[11px] text-gray-500">Trần Văn Mạnh · Phòng Studio B</p>
+                  </div>
+                </div>
+                <span class="text-[11px] font-bold bg-black text-white px-2.5 py-1 rounded-full shadow-2xs">
+                  15/15
+                </span>
+              </div>
+
+              <!-- Lớp 4 -->
+              <div class="flex items-center justify-between pt-3">
+                <div class="flex items-start gap-3">
+                  <span class="text-xs font-bold text-black mt-0.5">19:00</span>
+                  <div>
+                    <h4 class="text-xs font-bold text-black">CrossFit nâng cao</h4>
+                    <p class="text-[11px] text-gray-500">Trần Văn Mạnh · Khu Functional</p>
+                  </div>
+                </div>
+                <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-full text-gray-700 bg-gray-50">
+                  14/16
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Khối Dưới: Yêu cầu đăng ký chờ xử lý & Cảnh báo hệ thống -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Cột Trái (7 cols): Yêu cầu đăng ký khóa học chờ xử lý -->
+          <div class="lg:col-span-7 bg-white border border-gray-200/90 rounded-2xl p-6 shadow-2xs">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-sm text-black">Yêu cầu đăng ký khóa học chờ xử lý</h3>
+              <button onclick="switchAdminTab('customers')" class="text-[11px] font-bold text-black hover:underline">
+                Xem tất cả
+              </button>
+            </div>
+
+            <!-- Bảng danh sách chờ duyệt -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead>
+                  <tr class="border-b border-gray-200 text-gray-500 text-[11px]">
+                    <th class="pb-3 font-semibold">Khách hàng</th>
+                    <th class="pb-3 font-semibold">Khóa học</th>
+                    <th class="pb-3 font-semibold">Thời gian gửi</th>
+                    <th class="pb-3 font-semibold text-right">Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-gray-700">
+                  <tr class="hover:bg-gray-50/50">
+                    <td class="py-3 font-bold text-black">Nguyễn Văn An</td>
+                    <td class="py-3">Yoga buổi sáng</td>
+                    <td class="py-3 text-gray-500">07/11 - 09:12</td>
+                    <td class="py-3 text-right">
+                      <span class="border border-dashed border-gray-400 text-gray-700 px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
+                        Chờ duyệt
+                      </span>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-gray-50/50">
+                    <td class="py-3 font-bold text-black">Trần Thị Bích</td>
+                    <td class="py-3">CrossFit nâng cao</td>
+                    <td class="py-3 text-gray-500">07/11 - 08:40</td>
+                    <td class="py-3 text-right">
+                      <span class="border border-dashed border-gray-400 text-gray-700 px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
+                        Chờ duyệt
+                      </span>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-gray-50/50">
+                    <td class="py-3 font-bold text-black">Lê Hoàng Cường</td>
+                    <td class="py-3">Pilates cơ bản</td>
+                    <td class="py-3 text-gray-500">06/11 - 17:05</td>
+                    <td class="py-3 text-right">
+                      <span class="border border-dashed border-gray-400 text-gray-700 px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
+                        Chờ duyệt
+                      </span>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-gray-50/50">
+                    <td class="py-3 font-bold text-black">Phạm Minh Dũng</td>
+                    <td class="py-3">Kickboxing</td>
+                    <td class="py-3 text-gray-500">06/11 - 15:30</td>
+                    <td class="py-3 text-right">
+                      <span class="border border-dashed border-gray-400 text-gray-700 px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
+                        Chờ duyệt
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Cột Phải (5 cols): Cảnh báo & thông báo hệ thống -->
+          <div class="lg:col-span-5 bg-white border border-gray-200/90 rounded-2xl p-6 shadow-2xs">
+            <h3 class="font-bold text-sm text-black mb-4">Cảnh báo & thông báo hệ thống</h3>
+
+            <div class="space-y-3">
+              <!-- Cảnh báo 1: Lớp đầy -->
+              <div class="border border-gray-200 rounded-xl p-3.5 bg-gray-50/60 flex items-start gap-3">
+                <i class="fa-solid fa-triangle-exclamation text-amber-600 text-xs mt-0.5 shrink-0"></i>
+                <div class="text-xs">
+                  <p class="font-bold text-black">Lớp Kickboxing 17:30 đã đầy</p>
+                  <p class="text-gray-500 text-[11px] mt-0.5">Đề xuất mở thêm lớp hoặc danh sách chờ</p>
+                </div>
+              </div>
+
+              <!-- Cảnh báo 2: Trùng phòng -->
+              <div class="border border-gray-200 rounded-xl p-3.5 bg-gray-50/60 flex items-start gap-3">
+                <i class="fa-solid fa-triangle-exclamation text-red-600 text-xs mt-0.5 shrink-0"></i>
+                <div class="text-xs">
+                  <p class="font-bold text-black">Trùng lịch phòng Studio A</p>
+                  <p class="text-gray-500 text-[11px] mt-0.5">Thứ Ba 08:00 – cần điều chỉnh phòng học</p>
+                </div>
+              </div>
+
+              <!-- Cảnh báo 3: HLV chưa có lịch -->
+              <div class="border border-gray-200 rounded-xl p-3.5 bg-gray-50/60 flex items-start gap-3">
+                <i class="fa-regular fa-user text-gray-600 text-xs mt-0.5 shrink-0"></i>
+                <div class="text-xs">
+                  <p class="font-bold text-black">HLV Lê Thị Hoa chưa có lớp thứ Sáu</p>
+                  <p class="text-gray-500 text-[11px] mt-0.5">Kiểm tra phân công huấn luyện viên</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 2: QUẢN LÝ KHÁCH HÀNG (THEO HÌNH 2) ========================== -->
+      <!-- ============================================================== -->
+      <div id="tab-customers" class="admin-tab space-y-6">
+        
+        <!-- Tiêu đề -->
+        <div class="pb-2">
+          <h2 class="text-xl sm:text-2xl font-black text-black tracking-tight">Quản lý khách hàng</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Tra cứu và cập nhật hồ sơ khách hàng</p>
+        </div>
+
+        <!-- 4 Stat Cards khách hàng -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <span class="text-xs text-gray-500 font-medium">Tổng khách hàng</span>
+            <div class="text-2xl sm:text-3xl font-black text-black mt-1">1.248</div>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <span class="text-xs text-gray-500 font-medium">Đang hoạt động</span>
+            <div class="text-2xl sm:text-3xl font-black text-black mt-1">1.139</div>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <span class="text-xs text-gray-500 font-medium">Đăng ký chờ xử lý</span>
+            <div class="text-2xl sm:text-3xl font-black text-black mt-1">12</div>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <span class="text-xs text-gray-500 font-medium">Tài khoản bị khóa</span>
+            <div class="text-2xl sm:text-3xl font-black text-black mt-1">9</div>
+          </div>
+        </div>
+
+        <!-- Thanh tìm kiếm & lọc trạng thái -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div class="relative flex-1">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-400 text-xs"></i>
+            <input 
+              id="searchCustomerInput"
+              type="text" 
+              oninput="filterCustomerTable()"
+              placeholder="Tìm theo mã, tên hoặc số điện thoại..." 
+              class="w-full border border-gray-200 bg-white rounded-xl pl-9 pr-4 py-2.5 text-xs text-black placeholder-gray-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black shadow-2xs transition"
+            >
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="selectCustomerStatus" onchange="filterCustomerTable()" class="border border-gray-200 bg-white rounded-xl px-3 py-2.5 text-xs font-semibold text-gray-700 shadow-2xs focus:outline-none">
+              <option value="all">Trạng thái: Tất cả</option>
+              <option value="active">Đang hoạt động</option>
+              <option value="pending">Chờ xử lý</option>
+              <option value="locked">Bị khóa</option>
+            </select>
+            <button onclick="alert('Đã đồng bộ danh sách khách hàng mới nhất!')" class="border border-gray-200 bg-white hover:bg-gray-50 rounded-xl px-3 py-2.5 text-xs text-gray-600 transition shadow-2xs">
+              <i class="fa-solid fa-rotate"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bố cục gồm Bảng Khách hàng và Panel Chi tiết (Drawer) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <!-- Bảng dữ liệu Khách hàng -->
+          <div id="customerTableContainer" class="lg:col-span-8 bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs transition-all duration-200">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs" id="tableCustomers">
+                <thead>
+                  <tr class="border-b border-gray-200 text-gray-500 text-[11px]">
+                    <th class="pb-3 font-semibold">Mã KH</th>
+                    <th class="pb-3 font-semibold">Khách hàng</th>
+                    <th class="pb-3 font-semibold">Gói / khóa học</th>
+                    <th class="pb-3 font-semibold text-center">Check-in</th>
+                    <th class="pb-3 font-semibold">Trạng thái</th>
+                    <th class="pb-3 font-semibold text-right">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-gray-700" id="customerTbody">
+                  <!-- Row 1: KH0001 -->
+                  <tr class="hover:bg-gray-50/70 transition cursor-pointer" onclick="openCustomerDrawer('KH0001', 'Nguyễn Văn An', '0905 123 456', 'Hải Châu, Đà Nẵng', 'Khách hàng · Đang hoạt động', 'Yoga buổi sáng', 24)">
+                    <td class="py-3.5 font-bold text-black">KH0001</td>
+                    <td class="py-3.5">
+                      <div class="font-bold text-black">Nguyễn Văn An</div>
+                      <div class="text-[11px] text-gray-400">0905 123 456</div>
+                    </td>
+                    <td class="py-3.5">Yoga buổi sáng</td>
+                    <td class="py-3.5 text-center font-semibold">24</td>
+                    <td class="py-3.5">
+                      <span class="bg-black text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
+                        Đang hoạt động
+                      </span>
+                    </td>
+                    <td class="py-3.5 text-right space-x-1">
+                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+                        <i class="fa-regular fa-eye text-[11px]"></i>
+                      </button>
+                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+                        <i class="fa-solid fa-pen text-[11px]"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <!-- Row 2: KH0002 -->
+                  <tr class="hover:bg-gray-50/70 transition cursor-pointer" onclick="openCustomerDrawer('KH0002', 'Trần Thị Bích', '0914 222 333', 'Sơn Trà, Đà Nẵng', 'Khách hàng · Đang hoạt động', 'CrossFit nâng cao', 31)">
+                    <td class="py-3.5 font-bold text-black">KH0002</td>
+                    <td class="py-3.5">
+                      <div class="font-bold text-black">Trần Thị Bích</div>
+                      <div class="text-[11px] text-gray-400">0914 222 333</div>
+                    </td>
+                    <td class="py-3.5">CrossFit nâng cao</td>
+                    <td class="py-3.5 text-center font-semibold">31</td>
+                    <td class="py-3.5">
+                      <span class="bg-black text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
+                        Đang hoạt động
+                      </span>
+                    </td>
+                    <td class="py-3.5 text-right space-x-1">
+                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+                        <i class="fa-regular fa-eye text-[11px]"></i>
+                      </button>
+                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+                        <i class="fa-solid fa-pen text-[11px]"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <!-- Row 3: KH0003 -->
+                  <tr class="hover:bg-gray-50/70 transition cursor-pointer" onclick="openCustomerDrawer('KH0003', 'Lê Hoàng Cường', '0935 456 789', 'Thanh Khê, Đà Nẵng', 'Khách hàng · Chờ xử lý', 'Pilates cơ bản', 12)">
+                    <td class="py-3.5 font-bold text-black">KH0003</td>
+                    <td class="py-3.5">
+                      <div class="font-bold text-black">Lê Hoàng Cường</div>
+                      <div class="text-[11px] text-gray-400">0935 456 789</div>
+                    </td>
+                    <td class="py-3.5">Pilates cơ bản</td>
+                    <td class="py-3.5 text-center font-semibold">12</td>
+                    <td class="py-3.5">
+                      <span class="border border-dashed border-gray-400 text-gray-700 px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
+                        Chờ xử lý
+                      </span>
+                    </td>
+                    <td class="py-3.5 text-right space-x-1">
+                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+                        <i class="fa-regular fa-eye text-[11px]"></i>
+                      </button>
+                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+                        <i class="fa-solid fa-pen text-[11px]"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <!-- Row 4: KH0004 -->
+                  <tr class="hover:bg-gray-50/70 transition cursor-pointer" onclick="openCustomerDrawer('KH0004', 'Phạm Minh Dũng', '0977 111 222', 'Ngũ Hành Sơn, Đà Nẵng', 'Khách hàng · Đang hoạt động', 'Kickboxing', 18)">
+                    <td class="py-3.5 font-bold text-black">KH0004</td>
+                    <td class="py-3.5">
+                      <div class="font-bold text-black">Phạm Minh Dũng</div>
+                      <div class="text-[11px] text-gray-400">0977 111 222</div>
+                    </td>
+                    <td class="py-3.5">Kickboxing</td>
+                    <td class="py-3.5 text-center font-semibold">18</td>
+                    <td class="py-3.5">
+                      <span class="bg-black text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
+                        Đang hoạt động
+                      </span>
+                    </td>
+                    <td class="py-3.5 text-right space-x-1">
+                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+                        <i class="fa-regular fa-eye text-[11px]"></i>
+                      </button>
+                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+                        <i class="fa-solid fa-pen text-[11px]"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <!-- Row 5: KH0005 (Bị khóa) -->
+                  <tr class="hover:bg-gray-50/70 transition cursor-pointer" onclick="openCustomerDrawer('KH0005', 'Võ Thu Hà', '0868 333 444', 'Cẩm Lệ, Đà Nẵng', 'Khách hàng · Bị khóa', 'Zumba Dance', 8)">
+                    <td class="py-3.5 font-bold text-black">KH0005</td>
+                    <td class="py-3.5">
+                      <div class="font-bold text-black">Võ Thu Hà</div>
+                      <div class="text-[11px] text-gray-400">0868 333 444</div>
+                    </td>
+                    <td class="py-3.5">Zumba Dance</td>
+                    <td class="py-3.5 text-center font-semibold">8</td>
+                    <td class="py-3.5">
+                      <span class="border border-gray-300 text-gray-500 bg-gray-50 px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
+                        Bị khóa
+                      </span>
+                    </td>
+                    <td class="py-3.5 text-right space-x-1">
+                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+                        <i class="fa-regular fa-eye text-[11px]"></i>
+                      </button>
+                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+                        <i class="fa-solid fa-pen text-[11px]"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <!-- Row 6: KH0006 -->
+                  <tr class="hover:bg-gray-50/70 transition cursor-pointer" onclick="openCustomerDrawer('KH0006', 'Đặng Quốc Huy', '0902 555 666', 'Liên Chiểu, Đà Nẵng', 'Khách hàng · Đang hoạt động', 'Bodybuilding', 27)">
+                    <td class="py-3.5 font-bold text-black">KH0006</td>
+                    <td class="py-3.5">
+                      <div class="font-bold text-black">Đặng Quốc Huy</div>
+                      <div class="text-[11px] text-gray-400">0902 555 666</div>
+                    </td>
+                    <td class="py-3.5">Bodybuilding</td>
+                    <td class="py-3.5 text-center font-semibold">27</td>
+                    <td class="py-3.5">
+                      <span class="bg-black text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
+                        Đang hoạt động
+                      </span>
+                    </td>
+                    <td class="py-3.5 text-right space-x-1">
+                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+                        <i class="fa-regular fa-eye text-[11px]"></i>
+                      </button>
+                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+                        <i class="fa-solid fa-pen text-[11px]"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Phân trang phía dưới bảng -->
+            <div class="flex items-center justify-between border-t border-gray-100 pt-4 mt-2">
+              <span class="text-[11px] text-gray-500">Hiển thị 1–6 / 1.248 khách hàng</span>
+              <div class="flex items-center space-x-1">
+                <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-500 text-xs disabled:opacity-50" disabled>
+                  <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                </button>
+                <button class="w-7 h-7 rounded-lg bg-black text-white font-bold flex items-center justify-center text-xs">1</button>
+                <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-600 text-xs">2</button>
+                <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-600 text-xs">3</button>
+                <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-500 text-xs">
+                  <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drawer Hồ sơ khách hàng (Bên Phải - Cột 4 cols) -->
+          <div id="customerDrawer" class="lg:col-span-4 bg-white border border-gray-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-100 mb-4">
+              <h3 class="font-bold text-sm text-black">Hồ sơ khách hàng</h3>
+              <button onclick="closeCustomerDrawer()" class="text-gray-400 hover:text-black">
+                <i class="fa-solid fa-xmark text-sm"></i>
+              </button>
+            </div>
+
+            <!-- Avatar & Tên tóm tắt -->
+            <div class="flex items-center gap-3 mb-5">
+              <div id="drawerAvatar" class="w-11 h-11 rounded-full bg-neutral-100 border border-neutral-300 text-neutral-800 font-bold text-sm flex items-center justify-center">
+                A
+              </div>
+              <div>
+                <h4 id="drawerName" class="font-bold text-sm text-black leading-tight">Nguyễn Văn An</h4>
+                <p id="drawerCode" class="text-[11px] text-gray-500">Mã KH: KH0001</p>
+              </div>
+            </div>
+
+            <!-- Form chỉnh sửa thông tin nghiệp vụ -->
+            <form onsubmit="event.preventDefault(); saveCustomerProfile();" class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-black mb-1">Họ và tên</label>
+                <input 
+                  id="drawerInputName" 
+                  type="text" 
+                  value="Nguyễn Văn An" 
+                  class="w-full border border-gray-200 rounded-xl px-3.5 py-2 text-xs text-black focus:outline-none focus:border-black"
+                >
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-black mb-1">Số điện thoại</label>
+                <input 
+                  id="drawerInputPhone" 
+                  type="text" 
+                  value="0905 123 456" 
+                  class="w-full border border-gray-200 rounded-xl px-3.5 py-2 text-xs text-black focus:outline-none focus:border-black"
+                >
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-black mb-1">Địa chỉ</label>
+                <input 
+                  id="drawerInputAddress" 
+                  type="text" 
+                  value="Hải Châu, Đà Nẵng" 
+                  class="w-full border border-gray-200 rounded-xl px-3.5 py-2 text-xs text-black focus:outline-none focus:border-black"
+                >
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-black mb-1">Vai trò hệ thống · Trạng thái tài khoản</label>
+                <div class="border border-gray-200 bg-gray-50/80 rounded-xl px-3 py-2 text-xs text-gray-600 flex items-center gap-2">
+                  <i class="fa-solid fa-lock text-gray-400 text-[10px]"></i>
+                  <span id="drawerStatusText">Khách hàng · Đang hoạt động</span>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">
+                  Nhân viên không được sửa quyền, vai trò hoặc cấu hình bảo mật.
+                </p>
+              </div>
+
+              <!-- Nút Lưu & Hủy -->
+              <div class="pt-3 space-y-2">
+                <button type="submit" class="w-full bg-black hover:bg-neutral-800 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-2xs">
+                  Lưu thay đổi
+                </button>
+                <button type="button" onclick="closeCustomerDrawer()" class="w-full border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-2 rounded-xl text-xs transition">
+                  Hủy
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 3: QUẢN LÝ GÓI TẬP & KHÓA HỌC (THEO HÌNH 3) ================== -->
+      <!-- ============================================================== -->
+      <div id="tab-courses" class="admin-tab space-y-6">
+        
+        <!-- Tiêu đề & 2 Nút thao tác -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-black text-black tracking-tight">Quản lý gói tập & khóa học</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Khóa học, lớp học, sức chứa và huấn luyện viên phụ trách</p>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <button onclick="openModal('modalCreateClass')" class="border border-gray-200 bg-white hover:bg-gray-50 text-black text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-2xs">
+              <i class="fa-solid fa-plus text-[10px]"></i>
+              <span>Tạo lớp học</span>
+            </button>
+            <button onclick="openModal('modalCreateCourse')" class="bg-black hover:bg-neutral-800 text-white text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-1.5 shadow-2xs">
+              <i class="fa-solid fa-plus text-[10px]"></i>
+              <span>Tạo khóa học</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Segmented Tab: Khóa học | Gói tập | Lớp học & lịch lớp -->
+        <div class="flex items-center gap-2 border-b border-gray-200 pb-3">
+          <button onclick="filterCourseTab('courses')" id="tabBtnCourses" class="px-4 py-2 rounded-xl text-xs font-bold bg-black text-white shadow-2xs transition">
+            Khóa học
+          </button>
+          <button onclick="filterCourseTab('packages')" id="tabBtnPackages" class="px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:text-black hover:bg-gray-100 transition">
+            Gói tập
+          </button>
+          <button onclick="filterCourseTab('schedule')" id="tabBtnSchedule" class="px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:text-black hover:bg-gray-100 transition">
+            Lớp học & lịch lớp
+          </button>
+        </div>
+
+        <!-- 4 Stat Cards Khóa tập -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <span class="text-xs text-gray-500 font-medium">Khóa học đang kinh doanh</span>
+            <div class="text-2xl sm:text-3xl font-black text-black mt-1">6</div>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <span class="text-xs text-gray-500 font-medium">Lớp đang mở đăng ký</span>
+            <div class="text-2xl sm:text-3xl font-black text-black mt-1">12</div>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <span class="text-xs text-gray-500 font-medium">Học viên đang theo học</span>
+            <div class="text-2xl sm:text-3xl font-black text-black mt-1">114</div>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <span class="text-xs text-gray-500 font-medium">HLV được phân công</span>
+            <div class="text-2xl sm:text-3xl font-black text-black mt-1">6</div>
+          </div>
+        </div>
+
+        <!-- Lưới 6 thẻ Khóa học chi tiết -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          
+          <!-- Card 1: Yoga buổi sáng -->
+          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-300 transition">
+            <div>
+              <div class="flex items-start justify-between mb-2">
+                <h3 class="font-bold text-sm text-black">Yoga buổi sáng</h3>
+                <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
+                  Cơ bản
+                </span>
+              </div>
+              <div class="text-xs text-gray-600 space-y-1.5 mt-3">
+                <p class="flex items-center gap-2">
+                  <i class="fa-regular fa-user text-gray-400 w-3.5"></i>
+                  <span>HLV: Lê Thị Hoa</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <i class="fa-regular fa-calendar text-gray-400 w-3.5"></i>
+                  <span>Thứ 2, 4, 6 · 06:00</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <i class="fa-solid fa-door-open text-gray-400 w-3.5"></i>
+                  <span>Phòng Yoga 1</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-gray-100">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="text-gray-500">Sức chứa</span>
+                <span class="font-bold text-black">18/20</span>
+              </div>
+              <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
+                <div class="bg-black h-full rounded-full" style="width: 90%;"></div>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-xl text-gray-700 bg-gray-50">
+                  Mở đăng ký
+                </span>
+                <div class="space-x-1">
+                  <button onclick="alert('Xem chi tiết khóa Yoga buổi sáng')" class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">
+                    Chi tiết
+                  </button>
+                  <button onclick="alert('Chỉnh sửa khóa học')" class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">
+                    <i class="fa-solid fa-pen text-[10px]"></i> Sửa
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: CrossFit nâng cao -->
+          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-300 transition">
+            <div>
+              <div class="flex items-start justify-between mb-2">
+                <h3 class="font-bold text-sm text-black">CrossFit nâng cao</h3>
+                <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
+                  Nâng cao
+                </span>
+              </div>
+              <div class="text-xs text-gray-600 space-y-1.5 mt-3">
+                <p class="flex items-center gap-2">
+                  <i class="fa-regular fa-user text-gray-400 w-3.5"></i>
+                  <span>HLV: Trần Văn Mạnh</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <i class="fa-regular fa-calendar text-gray-400 w-3.5"></i>
+                  <span>Thứ 3, 5, 7 · 19:00</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <i class="fa-solid fa-door-open text-gray-400 w-3.5"></i>
+                  <span>Khu Functional</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-gray-100">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="text-gray-500">Sức chứa</span>
+                <span class="font-bold text-black">15/16</span>
+              </div>
+              <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
+                <div class="bg-black h-full rounded-full" style="width: 93%;"></div>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-xl text-gray-700 bg-gray-50">
+                  Mở đăng ký
+                </span>
+                <div class="space-x-1">
+                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">Chi tiết</button>
+                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200"><i class="fa-solid fa-pen text-[10px]"></i> Sửa</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Pilates cơ bản -->
+          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-300 transition">
+            <div>
+              <div class="flex items-start justify-between mb-2">
+                <h3 class="font-bold text-sm text-black">Pilates cơ bản</h3>
+                <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
+                  Cơ bản
+                </span>
+              </div>
+              <div class="text-xs text-gray-600 space-y-1.5 mt-3">
+                <p class="flex items-center gap-2">
+                  <i class="fa-regular fa-user text-gray-400 w-3.5"></i>
+                  <span>HLV: Nguyễn Quốc Bảo</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <i class="fa-regular fa-calendar text-gray-400 w-3.5"></i>
+                  <span>Thứ 2, 4 · 08:00</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <i class="fa-solid fa-door-open text-gray-400 w-3.5"></i>
+                  <span>Phòng Studio A</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-gray-100">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="text-gray-500">Sức chứa</span>
+                <span class="font-bold text-black">12/15</span>
+              </div>
+              <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
+                <div class="bg-black h-full rounded-full" style="width: 80%;"></div>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-xl text-gray-700 bg-gray-50">
+                  Mở đăng ký
+                </span>
+                <div class="space-x-1">
+                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">Chi tiết</button>
+                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200"><i class="fa-solid fa-pen text-[10px]"></i> Sửa</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Kickboxing (Đầy sĩ số) -->
+          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-300 transition">
+            <div>
+              <div class="flex items-start justify-between mb-2">
+                <h3 class="font-bold text-sm text-black">Kickboxing</h3>
+                <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
+                  Trung cấp
+                </span>
+              </div>
+              <div class="text-xs text-gray-600 space-y-1.5 mt-3">
+                <p class="flex items-center gap-2">
+                  <i class="fa-regular fa-user text-gray-400 w-3.5"></i>
+                  <span>HLV: Trần Văn Mạnh</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <i class="fa-regular fa-calendar text-gray-400 w-3.5"></i>
+                  <span>Thứ 3, 5 · 17:30</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <i class="fa-solid fa-door-open text-gray-400 w-3.5"></i>
+                  <span>Phòng Studio B</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-gray-100">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="text-gray-500">Sức chứa</span>
+                <span class="font-bold text-black">15/15</span>
+              </div>
+              <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
+                <div class="bg-black h-full rounded-full" style="width: 100%;"></div>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11px] font-bold bg-black text-white px-2.5 py-1 rounded-xl shadow-2xs">
+                  Đã đầy
+                </span>
+                <div class="space-x-1">
+                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">Chi tiết</button>
+                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200"><i class="fa-solid fa-pen text-[10px]"></i> Sửa</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5: Zumba Dance -->
+          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-300 transition">
+            <div>
+              <div class="flex items-start justify-between mb-2">
+                <h3 class="font-bold text-sm text-black">Zumba Dance</h3>
+                <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
+                  Cơ bản
+                </span>
+              </div>
+              <div class="text-xs text-gray-600 space-y-1.5 mt-3">
+                <p class="flex items-center gap-2">
+                  <i class="fa-regular fa-user text-gray-400 w-3.5"></i>
+                  <span>HLV: Nguyễn Quốc Bảo</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <i class="fa-regular fa-calendar text-gray-400 w-3.5"></i>
+                  <span>Thứ 6 · 19:00</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <i class="fa-solid fa-door-open text-gray-400 w-3.5"></i>
+                  <span>Phòng Studio A</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-gray-100">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="text-gray-500">Sức chứa</span>
+                <span class="font-bold text-black">9/25</span>
+              </div>
+              <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
+                <div class="bg-black h-full rounded-full" style="width: 36%;"></div>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-xl text-gray-700 bg-gray-50">
+                  Mở đăng ký
+                </span>
+                <div class="space-x-1">
+                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">Chi tiết</button>
+                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200"><i class="fa-solid fa-pen text-[10px]"></i> Sửa</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6: Bodybuilding (Ngừng kinh doanh) -->
+          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-300 transition opacity-90">
+            <div>
+              <div class="flex items-start justify-between mb-2">
+                <h3 class="font-bold text-sm text-black">Bodybuilding</h3>
+                <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
+                  Nâng cao
+                </span>
+              </div>
+              <div class="text-xs text-gray-600 space-y-1.5 mt-3">
+                <p class="flex items-center gap-2">
+                  <i class="fa-regular fa-user text-gray-400 w-3.5"></i>
+                  <span>HLV: Lê Thị Hoa</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <i class="fa-regular fa-calendar text-gray-400 w-3.5"></i>
+                  <span>Thứ 7, CN · 17:00</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <i class="fa-solid fa-door-open text-gray-400 w-3.5"></i>
+                  <span>Khu tập tạ</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-gray-100">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="text-gray-500">Sức chứa</span>
+                <span class="font-bold text-black">0/12</span>
+              </div>
+              <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
+                <div class="bg-gray-300 h-full rounded-full" style="width: 0%;"></div>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11px] font-semibold border border-gray-300 text-gray-500 bg-gray-50 px-2.5 py-1 rounded-xl">
+                  Ngừng kinh doanh
+                </span>
+                <div class="space-x-1">
+                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">Chi tiết</button>
+                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200"><i class="fa-solid fa-pen text-[10px]"></i> Sửa</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Khung Lịch lớp tuần này & Cảnh báo xung đột (Dưới cùng hình 3) -->
+        <div class="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-2xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div>
+              <h3 class="font-bold text-sm text-black">Lịch lớp tuần này</h3>
+              <p class="text-[11px] text-gray-500">Kiểm tra trùng phòng, trùng huấn luyện viên và sức chứa trước khi lưu</p>
+            </div>
+            <button onclick="openModal('modalAssignTrainer')" class="border border-gray-200 bg-white hover:bg-gray-50 text-xs font-semibold px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 text-gray-800 shadow-2xs self-start">
+              <i class="fa-solid fa-user-gear text-[11px]"></i>
+              <span>Phân công HLV</span>
+            </button>
+          </div>
+
+          <!-- Lưới 7 ngày trong tuần -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 text-xs pt-1">
+            <!-- Thứ 2 -->
+            <div class="border border-gray-200 rounded-xl p-3 bg-gray-50/50">
+              <span class="block font-bold text-black text-[11px] mb-2">Thứ 2</span>
+              <div class="space-y-1.5">
+                <div class="bg-white border border-gray-200 p-2 rounded-lg text-[10px]">
+                  <p class="font-bold text-black">Yoga</p>
+                  <p class="text-gray-500">06:00</p>
+                </div>
+                <div class="bg-white border border-gray-200 p-2 rounded-lg text-[10px]">
+                  <p class="font-bold text-black">Pilates</p>
+                  <p class="text-gray-500">08:00</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Thứ 3 -->
+            <div class="border border-gray-200 rounded-xl p-3 bg-gray-50/50">
+              <span class="block font-bold text-black text-[11px] mb-2">Thứ 3</span>
+              <div class="space-y-1.5">
+                <div class="bg-white border border-gray-200 p-2 rounded-lg text-[10px]">
+                  <p class="font-bold text-black">Kickboxing</p>
+                  <p class="text-gray-500">17:30</p>
+                </div>
+                <div class="bg-white border border-gray-200 p-2 rounded-lg text-[10px]">
+                  <p class="font-bold text-black">CrossFit</p>
+                  <p class="text-gray-500">19:00</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Thứ 4 -->
+            <div class="border border-gray-200 rounded-xl p-3 bg-gray-50/50">
+              <span class="block font-bold text-black text-[11px] mb-2">Thứ 4</span>
+              <div class="space-y-1.5">
+                <div class="bg-white border border-gray-200 p-2 rounded-lg text-[10px]">
+                  <p class="font-bold text-black">Yoga</p>
+                  <p class="text-gray-500">06:00</p>
+                </div>
+                <div class="bg-white border border-gray-200 p-2 rounded-lg text-[10px]">
+                  <p class="font-bold text-black">Pilates</p>
+                  <p class="text-gray-500">08:00</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Thứ 5 -->
+            <div class="border border-gray-200 rounded-xl p-3 bg-gray-50/50">
+              <span class="block font-bold text-black text-[11px] mb-2">Thứ 5</span>
+              <div class="space-y-1.5">
+                <div class="bg-white border border-gray-200 p-2 rounded-lg text-[10px]">
+                  <p class="font-bold text-black">Kickboxing</p>
+                  <p class="text-gray-500">17:30</p>
+                </div>
+                <div class="bg-white border border-gray-200 p-2 rounded-lg text-[10px]">
+                  <p class="font-bold text-black">CrossFit</p>
+                  <p class="text-gray-500">19:00</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Thứ 6 -->
+            <div class="border border-gray-200 rounded-xl p-3 bg-gray-50/50">
+              <span class="block font-bold text-black text-[11px] mb-2">Thứ 6</span>
+              <div class="space-y-1.5">
+                <div class="bg-white border border-gray-200 p-2 rounded-lg text-[10px]">
+                  <p class="font-bold text-black">Yoga</p>
+                  <p class="text-gray-500">06:00</p>
+                </div>
+                <div class="bg-white border border-gray-200 p-2 rounded-lg text-[10px]">
+                  <p class="font-bold text-black">Zumba</p>
+                  <p class="text-gray-500">19:00</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Thứ 7 -->
+            <div class="border border-gray-200 rounded-xl p-3 bg-gray-50/50">
+              <span class="block font-bold text-black text-[11px] mb-2">Thứ 7</span>
+              <div class="space-y-1.5">
+                <div class="bg-white border border-gray-200 p-2 rounded-lg text-[10px]">
+                  <p class="font-bold text-black">CrossFit</p>
+                  <p class="text-gray-500">19:00</p>
+                </div>
+                <div class="bg-white border border-gray-200 p-2 rounded-lg text-[10px]">
+                  <p class="font-bold text-black">Bodybuilding</p>
+                  <p class="text-gray-500">17:00</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chủ Nhật -->
+            <div class="border border-gray-200 rounded-xl p-3 bg-gray-50/50">
+              <span class="block font-bold text-black text-[11px] mb-2">CN</span>
+              <div class="space-y-1.5">
+                <div class="bg-white border border-gray-200 p-2 rounded-lg text-[10px]">
+                  <p class="font-bold text-black">Bodybuilding</p>
+                  <p class="text-gray-500">17:00</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cảnh báo xung đột phòng học -->
+          <div class="mt-4 border border-amber-200 bg-amber-50/70 rounded-xl p-3 flex items-start gap-3 text-xs text-amber-900">
+            <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5 shrink-0"></i>
+            <div>
+              <span class="font-bold">Cảnh báo xung đột:</span>
+              <span>Thứ 3 - 08:00 trùng phòng Studio A với lớp khác. Hãy chọn phòng hoặc thời gian khác.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 4: BÁO CÁO & THỐNG KÊ (THEO HÌNH 4) ========================== -->
+      <!-- ============================================================== -->
+      <div id="tab-reports" class="admin-tab space-y-6">
+        
+        <!-- Tiêu đề & Nút Xuất báo cáo -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-black text-black tracking-tight">Thống kê & báo cáo</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Báo cáo tổng hợp hoạt động của trung tâm</p>
+          </div>
+          <button onclick="openExportModal()" class="bg-black hover:bg-neutral-800 text-white text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-2 shadow-2xs self-start">
+            <i class="fa-solid fa-download text-[11px]"></i>
+            <span>Xuất báo cáo</span>
+          </button>
+        </div>
+
+        <!-- Bộ lọc phân loại & Khoảng thời gian -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-200 pb-3">
+          <div class="flex flex-wrap items-center gap-1.5 text-xs">
+            <button class="px-3.5 py-1.5 rounded-xl font-bold bg-black text-white shadow-2xs">Hội viên</button>
+            <button class="px-3.5 py-1.5 rounded-xl font-semibold text-gray-600 hover:text-black hover:bg-gray-100">Đăng ký lớp</button>
+            <button class="px-3.5 py-1.5 rounded-xl font-semibold text-gray-600 hover:text-black hover:bg-gray-100">Điểm danh</button>
+            <button class="px-3.5 py-1.5 rounded-xl font-semibold text-gray-600 hover:text-black hover:bg-gray-100">Doanh thu tại quầy</button>
+            <button class="px-3.5 py-1.5 rounded-xl font-semibold text-gray-600 hover:text-black hover:bg-gray-100">Hiệu quả lớp học</button>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="border border-gray-200 bg-white px-3 py-1.5 rounded-xl text-xs text-gray-700 flex items-center gap-2 shadow-2xs">
+              <i class="fa-regular fa-calendar text-gray-400"></i>
+              <span>01/10/2026 – 31/10/2026</span>
+            </div>
+            <button onclick="alert('Đã cập nhật số liệu theo khoảng thời gian!')" class="bg-black text-white text-xs font-semibold px-3 py-1.5 rounded-xl hover:bg-neutral-800 transition">
+              Áp dụng
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Stat Cards báo cáo -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <span class="text-xs text-gray-500 font-medium">Hội viên mới</span>
+            <div class="text-2xl sm:text-3xl font-black text-black mt-1">86</div>
+            <p class="text-[11px] text-emerald-600 font-semibold mt-1">+12% so với tháng trước</p>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <span class="text-xs text-gray-500 font-medium">Lượt đăng ký lớp</span>
+            <div class="text-2xl sm:text-3xl font-black text-black mt-1">342</div>
+            <p class="text-[11px] text-emerald-600 font-semibold mt-1">+8%</p>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <span class="text-xs text-gray-500 font-medium">Lượt điểm danh</span>
+            <div class="text-2xl sm:text-3xl font-black text-black mt-1">4.870</div>
+            <p class="text-[11px] text-gray-500 font-medium mt-1">Tỷ lệ tham gia 86%</p>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <span class="text-xs text-gray-500 font-medium">Doanh thu tại quầy</span>
+            <div class="text-2xl sm:text-3xl font-black text-black mt-1">48,6 tr</div>
+            <p class="text-[11px] text-gray-500 font-medium mt-1">Chỉ tính giao dịch đã xác nhận</p>
+          </div>
+        </div>
+
+        <!-- 2 Biểu đồ: Line Chart (Lượt đăng ký) & Bar Chart (Doanh thu tại quầy) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Line Chart (7 cols) -->
+          <div class="lg:col-span-7 bg-white border border-gray-200/90 rounded-2xl p-6 shadow-2xs flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-bold text-sm text-black">Lượt đăng ký lớp theo thời gian</h3>
+                <p class="text-[11px] text-gray-500">Tháng 10/2026</p>
+              </div>
+              <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-lg text-gray-700 bg-gray-50">
+                Theo ngày
+              </span>
+            </div>
+
+            <!-- SVG Line Chart đường gấp khúc tương tác -->
+            <div class="h-48 w-full pt-4 pb-2">
+              <svg viewBox="0 0 600 200" class="w-full h-full overflow-visible">
+                <!-- Đường lưới mờ -->
+                <line x1="40" y1="30" x2="580" y2="30" stroke="#f1f5f9" stroke-width="1" />
+                <line x1="40" y1="80" x2="580" y2="80" stroke="#f1f5f9" stroke-width="1" />
+                <line x1="40" y1="130" x2="580" y2="130" stroke="#f1f5f9" stroke-width="1" />
+                <line x1="40" y1="170" x2="580" y2="170" stroke="#e2e8f0" stroke-width="1.5" />
+
+                <!-- Đường Line biểu đồ -->
+                <polyline 
+                  fill="none" 
+                  stroke="#000000" 
+                  stroke-width="2.5" 
+                  points="60,70 140,85 220,80 300,110 380,100 460,125 540,135" 
+                />
+
+                <!-- Các điểm chốt (Data Nodes) -->
+                <circle cx="60" cy="70" r="4.5" fill="#ffffff" stroke="#000000" stroke-width="2.5" />
+                <circle cx="140" cy="85" r="4.5" fill="#ffffff" stroke="#000000" stroke-width="2.5" />
+                <circle cx="220" cy="80" r="4.5" fill="#ffffff" stroke="#000000" stroke-width="2.5" />
+                <circle cx="300" cy="110" r="4.5" fill="#ffffff" stroke="#000000" stroke-width="2.5" />
+                <circle cx="380" cy="100" r="4.5" fill="#ffffff" stroke="#000000" stroke-width="2.5" />
+                <circle cx="460" cy="125" r="4.5" fill="#ffffff" stroke="#000000" stroke-width="2.5" />
+                <circle cx="540" cy="135" r="4.5" fill="#ffffff" stroke="#000000" stroke-width="2.5" />
+
+                <!-- Nhãn trục hoành ngày -->
+                <text x="60" y="192" font-size="11" fill="#64748b" text-anchor="middle" font-family="Plus Jakarta Sans">01/10</text>
+                <text x="140" y="192" font-size="11" fill="#64748b" text-anchor="middle" font-family="Plus Jakarta Sans">05/10</text>
+                <text x="220" y="192" font-size="11" fill="#64748b" text-anchor="middle" font-family="Plus Jakarta Sans">10/10</text>
+                <text x="300" y="192" font-size="11" fill="#64748b" text-anchor="middle" font-family="Plus Jakarta Sans">15/10</text>
+                <text x="380" y="192" font-size="11" fill="#64748b" text-anchor="middle" font-family="Plus Jakarta Sans">20/10</text>
+                <text x="460" y="192" font-size="11" fill="#64748b" text-anchor="middle" font-family="Plus Jakarta Sans">25/10</text>
+                <text x="540" y="192" font-size="11" fill="#64748b" text-anchor="middle" font-family="Plus Jakarta Sans">31/10</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Bar Chart Doanh thu tại quầy theo tuần (5 cols) -->
+          <div class="lg:col-span-5 bg-white border border-gray-200/90 rounded-2xl p-6 shadow-2xs flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-sm text-black">Doanh thu tại quầy (triệu đồng)</h3>
+              <p class="text-[11px] text-gray-500">Theo tuần trong tháng</p>
+            </div>
+
+            <!-- Cột Bar Chart -->
+            <div class="h-48 w-full flex items-end justify-around gap-4 pt-6 pb-2 px-4 border-b border-gray-100">
+              <!-- Tuần 1: 9.2 -->
+              <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                <span class="text-[11px] font-semibold text-gray-500">9.2</span>
+                <div class="w-full max-w-[44px] bg-neutral-300 group-hover:bg-neutral-400 rounded-t-md transition-all" style="height: 60%;"></div>
+                <span class="text-[11px] font-medium text-gray-500 mt-1">Tuần 1</span>
+              </div>
+              <!-- Tuần 2: 11.8 -->
+              <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                <span class="text-[11px] font-semibold text-gray-500">11.8</span>
+                <div class="w-full max-w-[44px] bg-neutral-300 group-hover:bg-neutral-400 rounded-t-md transition-all" style="height: 75%;"></div>
+                <span class="text-[11px] font-medium text-gray-500 mt-1">Tuần 2</span>
+              </div>
+              <!-- Tuần 3: 13.1 -->
+              <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                <span class="text-[11px] font-semibold text-gray-500">13.1</span>
+                <div class="w-full max-w-[44px] bg-neutral-300 group-hover:bg-neutral-400 rounded-t-md transition-all" style="height: 85%;"></div>
+                <span class="text-[11px] font-medium text-gray-500 mt-1">Tuần 3</span>
+              </div>
+              <!-- Tuần 4: 14.5 (Cột đen nổi bật) -->
+              <div class="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                <span class="text-[11px] font-bold text-black">14.5</span>
+                <div class="w-full max-w-[44px] bg-black rounded-t-md transition-all shadow-xs" style="height: 98%;"></div>
+                <span class="text-[11px] font-bold text-black mt-1">Tuần 4</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bảng Hiệu quả lớp học -->
+        <div class="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-2xs">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-sm text-black">Hiệu quả lớp học</h3>
+            <span class="text-[11px] text-gray-500">Sắp xếp theo tỷ lệ điểm danh</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="border-b border-gray-200 text-gray-500 text-[11px]">
+                  <th class="pb-3 font-semibold">Lớp học</th>
+                  <th class="pb-3 font-semibold">Huấn luyện viên</th>
+                  <th class="pb-3 font-semibold">Sĩ số</th>
+                  <th class="pb-3 font-semibold">Tỷ lệ điểm danh</th>
+                  <th class="pb-3 font-semibold text-right">Hiệu quả</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 text-gray-700">
+                <tr class="hover:bg-gray-50/50">
+                  <td class="py-3 font-bold text-black">Yoga buổi sáng</td>
+                  <td class="py-3">Lê Thị Hoa</td>
+                  <td class="py-3 font-semibold">18/20</td>
+                  <td class="py-3">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-28 bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-black h-full rounded-full" style="width: 92%;"></div>
+                      </div>
+                      <span class="font-bold text-black text-[11px]">92%</span>
+                    </div>
+                  </td>
+                  <td class="py-3 text-right">
+                    <span class="bg-black text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold">Cao</span>
+                  </td>
+                </tr>
+
+                <tr class="hover:bg-gray-50/50">
+                  <td class="py-3 font-bold text-black">CrossFit nâng cao</td>
+                  <td class="py-3">Trần Văn Mạnh</td>
+                  <td class="py-3 font-semibold">15/16</td>
+                  <td class="py-3">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-28 bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-black h-full rounded-full" style="width: 88%;"></div>
+                      </div>
+                      <span class="font-bold text-black text-[11px]">88%</span>
+                    </div>
+                  </td>
+                  <td class="py-3 text-right">
+                    <span class="bg-black text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold">Cao</span>
+                  </td>
+                </tr>
+
+                <tr class="hover:bg-gray-50/50">
+                  <td class="py-3 font-bold text-black">Pilates cơ bản</td>
+                  <td class="py-3">Nguyễn Quốc Bảo</td>
+                  <td class="py-3 font-semibold">12/15</td>
+                  <td class="py-3">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-28 bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-black h-full rounded-full" style="width: 81%;"></div>
+                      </div>
+                      <span class="font-bold text-black text-[11px]">81%</span>
+                    </div>
+                  </td>
+                  <td class="py-3 text-right">
+                    <span class="border border-gray-300 text-gray-700 bg-gray-50 px-2.5 py-0.5 rounded-full text-[10px] font-semibold">Trung bình</span>
+                  </td>
+                </tr>
+
+                <tr class="hover:bg-gray-50/50">
+                  <td class="py-3 font-bold text-black">Kickboxing</td>
+                  <td class="py-3">Trần Văn Mạnh</td>
+                  <td class="py-3 font-semibold">15/15</td>
+                  <td class="py-3">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-28 bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-black h-full rounded-full" style="width: 90%;"></div>
+                      </div>
+                      <span class="font-bold text-black text-[11px]">90%</span>
+                    </div>
+                  </td>
+                  <td class="py-3 text-right">
+                    <span class="bg-black text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold">Cao</span>
+                  </td>
+                </tr>
+
+                <tr class="hover:bg-gray-50/50">
+                  <td class="py-3 font-bold text-black">Zumba Dance</td>
+                  <td class="py-3">Nguyễn Quốc Bảo</td>
+                  <td class="py-3 font-semibold">9/25</td>
+                  <td class="py-3">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-28 bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-neutral-400 h-full rounded-full" style="width: 64%;"></div>
+                      </div>
+                      <span class="font-bold text-black text-[11px]">64%</span>
+                    </div>
+                  </td>
+                  <td class="py-3 text-right">
+                    <span class="border border-dashed border-gray-400 text-gray-600 px-2.5 py-0.5 rounded-full text-[10px] font-semibold">Thấp</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Ghi chú chân bảng -->
+          <div class="mt-4 pt-3 border-t border-gray-100 flex items-start gap-2 text-[11px] text-gray-400">
+            <i class="fa-solid fa-circle-info mt-0.5"></i>
+            <span>Nếu không có dữ liệu trong khoảng thời gian đã chọn, hệ thống hiển thị kết quả bằng 0 kèm giải thích. Có thể thu hẹp khoảng thời gian nếu truy vấn quá lâu.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB 5: TRỢ LÝ AI HỖ TRỢ (THEO HÌNH 5) ============================ -->
+      <!-- ============================================================== -->
+      <div id="tab-ai-assistant" class="admin-tab space-y-6">
+        
+        <!-- Tiêu đề -->
+        <div class="pb-2">
+          <h2 class="text-xl sm:text-2xl font-black text-black tracking-tight flex items-center gap-2">
+            <span>Trợ lý AI hỗ trợ</span>
+            <i class="fa-solid fa-wand-magic-sparkles text-purple-600 text-base"></i>
+          </h2>
+          <p class="text-xs text-gray-500 mt-0.5">Hỏi nhanh về gói tập, khóa học, lịch học và quy định trung tâm</p>
+        </div>
+
+        <!-- Bố cục 2 cột: Cửa sổ Chat & Sidebar Hỗ trợ -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <!-- Khung Hội thoại Chatbot (8 cols) -->
+          <div class="lg:col-span-8 bg-white border border-gray-200/90 rounded-2xl shadow-2xs flex flex-col h-[650px] overflow-hidden">
+            
+            <!-- Header Chatbot -->
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-neutral-50/60">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center text-xs shadow-xs">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-xs text-black">Trợ lý AI FitCenter</h3>
+                  <p class="text-[10px] text-emerald-600 flex items-center gap-1 font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                    Đang trực tuyến
+                  </p>
+                </div>
+              </div>
+
+              <button onclick="resetAIChat()" class="border border-gray-200 bg-white hover:bg-gray-100 text-gray-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition shadow-2xs">
+                Cuộc trò chuyện mới
+              </button>
+            </div>
+
+            <!-- Vùng hiển thị tin nhắn (Scrollable) -->
+            <div id="chatMessageList" class="flex-1 p-5 overflow-y-auto space-y-4 text-xs">
+              
+              <!-- Ngày tháng ngăn cách -->
+              <div class="text-center my-2">
+                <span class="border border-gray-200 bg-gray-50 px-3 py-0.5 rounded-full text-[10px] text-gray-500 font-medium">
+                  Hôm nay
+                </span>
+              </div>
+
+              <!-- Message 1: AI chào mừng -->
+              <div class="flex items-start gap-2.5 max-w-[85%]">
+                <div class="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div class="space-y-1">
+                  <div class="bg-gray-100/80 rounded-2xl p-3.5 text-gray-800 leading-relaxed rounded-tl-sm">
+                    Xin chào! Mình là Trợ lý AI FitCenter. Mình có thể giúp bạn tra cứu gói tập, khóa học, lịch học và các quy định của trung tâm.
+                  </div>
+                  <span class="text-[10px] text-gray-400 block pl-1">Trợ lý AI · 09:14</span>
+                </div>
+              </div>
+
+              <!-- Message 2: Khách hỏi lịch Yoga -->
+              <div class="flex items-start justify-end gap-2.5 ml-auto max-w-[85%]">
+                <div class="space-y-1 text-right">
+                  <div class="bg-black text-white rounded-2xl p-3.5 text-left leading-relaxed rounded-tr-sm">
+                    Lớp Yoga buổi sáng thứ Hai còn chỗ không?
+                  </div>
+                  <span class="text-[10px] text-gray-400 block pr-1">Bạn · 09:13</span>
+                </div>
+              </div>
+
+              <!-- Message 3: AI trả lời kèm thẻ lịch học -->
+              <div class="flex items-start gap-2.5 max-w-[90%]">
+                <div class="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div class="space-y-2">
+                  <div class="bg-gray-100/80 rounded-2xl p-3.5 text-gray-800 leading-relaxed rounded-tl-sm space-y-2.5">
+                    <p>
+                      Lớp <span class="font-bold text-black">Yoga buổi sáng</span> sáng thứ Hai hiện <span class="font-bold text-black">còn 2/20 chỗ</span>. Bạn có thể đăng ký trực tuyến trong mục Đặt lịch tập.
+                    </p>
+
+                    <!-- Thẻ khóa học được gắn kèm trong tin nhắn -->
+                    <div class="border border-gray-200 bg-white rounded-xl p-3 shadow-2xs">
+                      <div class="flex items-center justify-between mb-1.5">
+                        <span class="font-bold text-black text-xs">Yoga buổi sáng</span>
+                        <span class="border border-gray-200 px-2 py-0.5 rounded-full text-[10px] font-semibold text-gray-600 bg-gray-50">Còn 2 chỗ</span>
+                      </div>
+                      <p class="text-[11px] text-gray-500">Thứ 2, 4, 6 · 06:00 · Phòng Yoga 1 · HLV Lê Thị Hoa</p>
+                      <button onclick="switchAdminTab('courses')" class="mt-2 text-xs font-semibold text-black underline hover:text-gray-700">
+                        Xem & đặt lịch
+                      </button>
+                    </div>
+                  </div>
+                  <span class="text-[10px] text-gray-400 block pl-1">Trợ lý AI · 09:14</span>
+                </div>
+              </div>
+
+              <!-- Message 4: Khách hỏi mua hàng online -->
+              <div class="flex items-start justify-end gap-2.5 ml-auto max-w-[85%]">
+                <div class="space-y-1 text-right">
+                  <div class="bg-black text-white rounded-2xl p-3.5 text-left leading-relaxed rounded-tr-sm">
+                    Mình có mua găng tay tập ngay trên website được không?
+                  </div>
+                  <span class="text-[10px] text-gray-400 block pr-1">Bạn · 09:13</span>
+                </div>
+              </div>
+
+              <!-- Message 5: AI giải thích quy định nghiệp vụ cốt lõi -->
+              <div class="flex items-start gap-2.5 max-w-[85%]">
+                <div class="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div class="space-y-1">
+                  <div class="bg-gray-100/80 rounded-2xl p-3.5 text-gray-800 leading-relaxed rounded-tl-sm">
+                    Website hiện chỉ hỗ trợ <span class="font-bold text-black">đăng ký khóa học trực tuyến</span>. Sản phẩm của cửa hàng chỉ được bán <span class="font-bold text-black">trực tiếp tại quầy thông qua nhân viên</span>. Bạn có muốn mình chuyển yêu cầu cho nhân viên hỗ trợ không?
+                  </div>
+                  <span class="text-[10px] text-gray-400 block pl-1">Trợ lý AI · 09:14</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Vùng Gợi ý & Nhập câu hỏi (Footer Chatbot) -->
+            <div class="p-4 border-t border-gray-100 bg-white space-y-3">
+              
+              <!-- Chips gợi ý câu hỏi nhanh -->
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button onclick="sendQuickPrompt('Lịch học của tôi')" class="border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-[11px] font-medium transition">
+                  Lịch học của tôi
+                </button>
+                <button onclick="sendQuickPrompt('Các gói tập hiện có')" class="border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-[11px] font-medium transition">
+                  Các gói tập hiện có
+                </button>
+                <button onclick="sendQuickPrompt('Quy trình hủy hoặc đổi lịch học')" class="border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-[11px] font-medium transition">
+                  Hủy / đổi lịch học
+                </button>
+                <button onclick="sendQuickPrompt('Liên hệ nhân viên')" class="border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-[11px] font-medium transition">
+                  Liên hệ nhân viên
+                </button>
+              </div>
+
+              <!-- Input gửi tin nhắn -->
+              <form onsubmit="event.preventDefault(); submitChatMessage();" class="flex items-center gap-2">
+                <input 
+                  id="chatInputText"
+                  type="text" 
+                  placeholder="Nhập câu hỏi của bạn..." 
+                  class="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-black focus:outline-none focus:border-black"
+                >
+                <button type="submit" class="bg-black hover:bg-neutral-800 text-white font-semibold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 transition">
+                  <i class="fa-solid fa-paper-plane text-[11px]"></i>
+                  <span>Gửi</span>
+                </button>
+              </form>
+
+              <p class="text-[10px] text-gray-400 text-center">
+                AI có thể chưa chính xác. Thông tin chính thức theo thông báo và quy định của trung tâm.
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Cột Thông tin & Thao tác nhanh (4 cols) -->
+          <div class="lg:col-span-4 space-y-4">
+            
+            <!-- Thẻ Liên kết nhanh -->
+            <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs">
+              <h4 class="font-bold text-xs text-black mb-3">Liên kết nhanh</h4>
+              <div class="space-y-2">
+                <button onclick="switchAdminTab('courses'); filterCourseTab('schedule');" class="w-full border border-gray-200 hover:bg-gray-50 text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-gray-800 flex items-center justify-between transition">
+                  <span class="flex items-center gap-2">
+                    <i class="fa-regular fa-calendar-check text-gray-500"></i>
+                    Đặt lịch tập
+                  </span>
+                  <i class="fa-solid fa-chevron-right text-[10px] text-gray-400"></i>
+                </button>
+                <button onclick="alert('Đang mở danh sách lịch học của học viên')" class="w-full border border-gray-200 hover:bg-gray-50 text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-gray-800 flex items-center justify-between transition">
+                  <span class="flex items-center gap-2">
+                    <i class="fa-regular fa-clock text-gray-500"></i>
+                    Lịch học của tôi
+                  </span>
+                  <i class="fa-solid fa-chevron-right text-[10px] text-gray-400"></i>
+                </button>
+                <button onclick="switchAdminTab('courses')" class="w-full border border-gray-200 hover:bg-gray-50 text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-gray-800 flex items-center justify-between transition">
+                  <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-gray-500"></i>
+                    Gói tập & khóa học
+                  </span>
+                  <i class="fa-solid fa-chevron-right text-[10px] text-gray-400"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Thẻ Cần hỗ trợ trực tiếp -->
+            <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs space-y-3">
+              <h4 class="font-bold text-xs text-black">Cần hỗ trợ trực tiếp?</h4>
+              <p class="text-[11px] text-gray-500 leading-relaxed">
+                Gửi yêu cầu để nhân viên tiếp nhận và phản hồi trong giờ làm việc.
+              </p>
+              <button onclick="alert('Đã gửi thông báo yêu cầu hỗ trợ đến nhân viên ca trực!')" class="w-full bg-black hover:bg-neutral-800 text-white font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-2xs">
+                <i class="fa-solid fa-headset text-xs"></i>
+                <span>Chuyển cho nhân viên</span>
+              </button>
+            </div>
+
+            <!-- Lưu ý nghiệp vụ -->
+            <div class="border border-gray-200 bg-gray-50/70 rounded-2xl p-4 flex items-start gap-2.5 text-[11px] text-gray-500">
+              <i class="fa-solid fa-circle-info mt-0.5 text-gray-400 shrink-0"></i>
+              <p class="leading-relaxed">
+                AI chỉ cung cấp thông tin. Việc đăng ký lớp, hủy/đổi lịch được thực hiện trong các chức năng tương ứng.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB PHỤ: TÀI KHOẢN NHÂN SỰ ==================================== -->
+      <!-- ============================================================== -->
+      <div id="tab-staff" class="admin-tab space-y-6">
+        <div class="flex items-center justify-between pb-2">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-black text-black tracking-tight">Tài khoản nhân sự</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Quản lý tài khoản và phân quyền cho Quản trị viên, Nhân viên và Huấn luyện viên</p>
+          </div>
+          <button onclick="alert('Mở form tạo tài khoản nhân sự mới')" class="bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5">
+            <i class="fa-solid fa-plus text-[10px]"></i> Tạo tài khoản
+          </button>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-gray-200 text-gray-500 text-[11px]">
+                <th class="pb-3 font-semibold">Mã NS</th>
+                <th class="pb-3 font-semibold">Họ và tên</th>
+                <th class="pb-3 font-semibold">Email</th>
+                <th class="pb-3 font-semibold">Vai trò</th>
+                <th class="pb-3 font-semibold">Trạng thái</th>
+                <th class="pb-3 font-semibold text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr>
+                <td class="py-3 font-bold">NS001</td>
+                <td class="py-3 font-bold text-black">Trần Hoàng Admin</td>
+                <td class="py-3 text-gray-500">admin@fitcenter.vn</td>
+                <td class="py-3"><span class="bg-black text-white px-2 py-0.5 rounded-full text-[10px] font-bold">Quản trị viên</span></td>
+                <td class="py-3"><span class="text-emerald-600 font-semibold text-[11px]">Đang làm việc</span></td>
+                <td class="py-3 text-right"><button class="text-gray-500 hover:text-black">Sửa</button></td>
+              </tr>
+              <tr>
+                <td class="py-3 font-bold">NS002</td>
+                <td class="py-3 font-bold text-black">Hoàng Nhân viên</td>
+                <td class="py-3 text-gray-500">nhanvien@fitcenter.vn</td>
+                <td class="py-3"><span class="border border-gray-300 text-gray-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">Nhân viên quầy</span></td>
+                <td class="py-3"><span class="text-emerald-600 font-semibold text-[11px]">Đang làm việc</span></td>
+                <td class="py-3 text-right"><button class="text-gray-500 hover:text-black">Sửa</button></td>
+              </tr>
+              <tr>
+                <td class="py-3 font-bold">HLV01</td>
+                <td class="py-3 font-bold text-black">Lê Thị Hoa</td>
+                <td class="py-3 text-gray-500">hoale@fitcenter.vn</td>
+                <td class="py-3"><span class="border border-gray-300 text-gray-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">Huấn luyện viên</span></td>
+                <td class="py-3"><span class="text-emerald-600 font-semibold text-[11px]">Đang hoạt động</span></td>
+                <td class="py-3 text-right"><button class="text-gray-500 hover:text-black">Sửa</button></td>
+              </tr>
+              <tr>
+                <td class="py-3 font-bold">HLV02</td>
+                <td class="py-3 font-bold text-black">Trần Văn Mạnh</td>
+                <td class="py-3 text-gray-500">manhtran@fitcenter.vn</td>
+                <td class="py-3"><span class="border border-gray-300 text-gray-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">Huấn luyện viên</span></td>
+                <td class="py-3"><span class="text-emerald-600 font-semibold text-[11px]">Đang hoạt động</span></td>
+                <td class="py-3 text-right"><button class="text-gray-500 hover:text-black">Sửa</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB PHỤ: SẢN PHẨM CỬA HÀNG ==================================== -->
+      <!-- ============================================================== -->
+      <div id="tab-products" class="admin-tab space-y-6">
+        <div class="flex items-center justify-between pb-2">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-black text-black tracking-tight">Danh mục sản phẩm cửa hàng</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Sản phẩm bán trực tiếp tại quầy thông qua nhân viên (không bán online)</p>
+          </div>
+          <button onclick="alert('Mở form thêm sản phẩm mới')" class="bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5">
+            <i class="fa-solid fa-plus text-[10px]"></i> Thêm sản phẩm
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-2xs">
+            <div class="h-28 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 mb-3">
+              <i class="fa-solid fa-bottle-water text-3xl"></i>
+            </div>
+            <h4 class="font-bold text-xs text-black">Nước khoáng điện giải</h4>
+            <p class="text-xs font-black text-black mt-1">20.000 đ</p>
+            <p class="text-[11px] text-gray-500">Tồn kho: 85 chai</p>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-2xs">
+            <div class="h-28 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 mb-3">
+              <i class="fa-solid fa-hand-fist text-3xl"></i>
+            </div>
+            <h4 class="font-bold text-xs text-black">Găng tay tập Gym Pro</h4>
+            <p class="text-xs font-black text-black mt-1">180.000 đ</p>
+            <p class="text-[11px] text-gray-500">Tồn kho: 24 đôi</p>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-2xs">
+            <div class="h-28 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 mb-3">
+              <i class="fa-solid fa-jar text-3xl"></i>
+            </div>
+            <h4 class="font-bold text-xs text-black">Whey Protein Isolate 2kg</h4>
+            <p class="text-xs font-black text-black mt-1">1.450.000 đ</p>
+            <p class="text-[11px] text-gray-500">Tồn kho: 12 hộp</p>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-2xs">
+            <div class="h-28 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 mb-3">
+              <i class="fa-solid fa-rug text-3xl"></i>
+            </div>
+            <h4 class="font-bold text-xs text-black">Thảm tập Yoga định tuyến</h4>
+            <p class="text-xs font-black text-black mt-1">320.000 đ</p>
+            <p class="text-[11px] text-gray-500">Tồn kho: 16 chiếc</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- TAB PHỤ: THÔNG BÁO HỆ THỐNG =================================== -->
+      <!-- ============================================================== -->
+      <div id="tab-notifications" class="admin-tab space-y-6">
+        <div class="flex items-center justify-between pb-2">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-black text-black tracking-tight">Quản lý thông báo hệ thống</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Soạn và gửi thông báo chung đến hội viên hoặc nhân sự</p>
+          </div>
+          <button onclick="alert('Soạn thông báo mới')" class="bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5">
+            <i class="fa-solid fa-plus text-[10px]"></i> Soạn thông báo
+          </button>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs divide-y divide-gray-100">
+          <div class="py-3 flex items-start justify-between">
+            <div>
+              <h4 class="font-bold text-xs text-black">Bảo trì hệ thống phòng xông hơi</h4>
+              <p class="text-[11px] text-gray-500 mt-0.5">Tạm ngưng phục vụ khu xông hơi khô ngày 10/11 để bảo dưỡng định kỳ.</p>
+              <span class="text-[10px] text-gray-400 mt-1 block">Gửi đến: Tất cả hội viên · 07/11/2026</span>
+            </div>
+            <span class="bg-black text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Đã gửi</span>
+          </div>
+          <div class="py-3 flex items-start justify-between">
+            <div>
+              <h4 class="font-bold text-xs text-black">Khai giảng lớp Kickboxing mới</h4>
+              <p class="text-[11px] text-gray-500 mt-0.5">Mở thêm ca 19:30 Thứ 3, 5 cho các học viên trong danh sách chờ.</p>
+              <span class="text-[10px] text-gray-400 mt-1 block">Gửi đến: Danh sách chờ · 06/11/2026</span>
+            </div>
+            <span class="bg-black text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Đã gửi</span>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ================= MODAL: TẠO KHÓA HỌC ================= -->
+  <div id="modalCreateCourse" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+        <h3 class="font-bold text-sm text-black">Tạo khóa học mới</h3>
+        <button onclick="closeModal('modalCreateCourse')" class="text-gray-400 hover:text-black">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+      <form onsubmit="event.preventDefault(); alert('Đã tạo khóa học thành công!'); closeModal('modalCreateCourse');" class="mt-4 space-y-3.5 text-xs">
+        <div>
+          <label class="block font-semibold text-black mb-1">Tên khóa học</label>
+          <input type="text" required placeholder="Ví dụ: Power Yoga nâng cao" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-black mb-1">Cấp độ</label>
+            <select class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+              <option>Cơ bản</option>
+              <option>Trung cấp</option>
+              <option>Nâng cao</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Sức chứa tối đa</label>
+            <input type="number" value="20" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-black mb-1">Giá khóa học (VNĐ)</label>
+          <input type="text" value="1.200.000" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+        </div>
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('modalCreateCourse')" class="px-4 py-2 border border-gray-200 rounded-xl text-gray-600 font-semibold hover:bg-gray-50">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-black text-white rounded-xl font-semibold hover:bg-neutral-800">Lưu khóa học</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: TẠO LỚP HỌC ================= -->
+  <div id="modalCreateClass" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-gray-100">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+        <h3 class="font-bold text-sm text-black">Mở lớp học mới</h3>
+        <button onclick="closeModal('modalCreateClass')" class="text-gray-400 hover:text-black">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+      <form onsubmit="event.preventDefault(); alert('Đã mở lớp học thành công!'); closeModal('modalCreateClass');" class="mt-4 space-y-3.5 text-xs">
+        <div>
+          <label class="block font-semibold text-black mb-1">Khóa học</label>
+          <select class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+            <option>Yoga buổi sáng</option>
+            <option>CrossFit nâng cao</option>
+            <option>Pilates cơ bản</option>
+            <option>Kickboxing</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-black mb-1">Phòng học</label>
+            <select class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+              <option>Phòng Yoga 1</option>
+              <option>Phòng Studio A</option>
+              <option>Phòng Studio B</option>
+              <option>Khu Functional</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Huấn luyện viên</label>
+            <select class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+              <option>Lê Thị Hoa</option>
+              <option>Trần Văn Mạnh</option>
+              <option>Nguyễn Quốc Bảo</option>
+            </select>
+          </div>
+        </div>
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('modalCreateClass')" class="px-4 py-2 border border-gray-200 rounded-xl text-gray-600 font-semibold hover:bg-gray-50">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-black text-white rounded-xl font-semibold hover:bg-neutral-800">Tạo lớp</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: PHÂN CÔNG HLV ================= -->
+  <div id="modalAssignTrainer" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-xl border border-gray-100">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+        <h3 class="font-bold text-sm text-black">Phân công Huấn luyện viên cho ca dạy</h3>
+        <button onclick="closeModal('modalAssignTrainer')" class="text-gray-400 hover:text-black">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+      <div class="mt-4 space-y-4 text-xs">
+        <p class="text-gray-500">Hệ thống sẽ tự động đối soát khung giờ bận của HLV và sức chứa phòng tập để tránh xung đột lịch trình.</p>
+        <div>
+          <label class="block font-semibold text-black mb-1">Chọn lớp học</label>
+          <select class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+            <option>Yoga buổi sáng (06:00 - Thứ 2, 4, 6)</option>
+            <option>Kickboxing ca tối (17:30 - Thứ 3, 5)</option>
+            <option>CrossFit nâng cao (19:00 - Thứ 3, 5, 7)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-black mb-1">Huấn luyện viên phụ trách</label>
+          <select class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+            <option>HLV Lê Thị Hoa (Chuyên môn: Yoga, Pilates)</option>
+            <option>HLV Trần Văn Mạnh (Chuyên môn: Boxing, CrossFit)</option>
+            <option>HLV Nguyễn Quốc Bảo (Chuyên môn: Gym, Zumba)</option>
+          </select>
+        </div>
+        <div class="border border-emerald-200 bg-emerald-50/70 p-3 rounded-xl text-emerald-800 text-[11px] flex items-center gap-2">
+          <i class="fa-solid fa-circle-check text-emerald-600"></i>
+          <span>Huấn luyện viên khả dụng, không có xung đột lịch vào khung giờ này.</span>
+        </div>
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('modalAssignTrainer')" class="px-4 py-2 border border-gray-200 rounded-xl text-gray-600 font-semibold hover:bg-gray-50">Hủy</button>
+          <button type="button" onclick="alert('Đã cập nhật phân công HLV!'); closeModal('modalAssignTrainer');" class="px-4 py-2 bg-black text-white rounded-xl font-semibold hover:bg-neutral-800">Xác nhận phân công</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT ĐIỀU KHIỂN GIAO DIỆN ADMIN ================= -->
+  <script>
+    // 1. Chuyển đổi các Tab trong Admin Portal
+    function switchAdminTab(tabId) {
+      // Ẩn tất cả các tab
+      document.querySelectorAll('.admin-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+
+      // Bỏ kích hoạt các nút sidebar
+      document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.classList.remove('bg-gray-100/90', 'text-black');
+        item.classList.add('text-gray-600');
+      });
+
+      // Kích hoạt tab được chọn
+      const targetTab = document.getElementById('tab-' + tabId);
+      if (targetTab) {
+        targetTab.classList.add('active');
+      }
+
+      // Đổi màu nút sidebar tương ứng
+      const activeBtn = document.querySelector(`.sidebar-item[data-tab="${tabId}"]`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-gray-600');
+        activeBtn.classList.add('bg-gray-100/90', 'text-black');
+      }
+
+      // Cập nhật tiêu đề trên Header
+      const headerMap = {
+        'overview': { title: 'Tổng quan', sub: 'Thứ Bảy, 07 tháng 11, 2026' },
+        'customers': { title: 'Quản lý khách hàng', sub: 'Tra cứu và cập nhật hồ sơ khách hàng' },
+        'courses': { title: 'Quản lý gói tập & khóa học', sub: 'Khóa học, lớp học, sức chứa và huấn luyện viên phụ trách' },
+        'reports': { title: 'Thống kê & báo cáo', sub: 'Báo cáo tổng hợp hoạt động của trung tâm' },
+        'ai-assistant': { title: 'Trợ lý AI hỗ trợ', sub: 'Hỏi nhanh về gói tập, khóa học, lịch học và quy định trung tâm' },
+        'staff': { title: 'Tài khoản nhân sự', sub: 'Phân quyền và tài khoản ban quản trị' },
+        'products': { title: 'Sản phẩm cửa hàng', sub: 'Quản lý mặt hàng bán trực tiếp tại quầy' },
+        'notifications': { title: 'Thông báo hệ thống', sub: 'Quản trị thông báo đến người dùng' }
+      };
+
+      if (headerMap[tabId]) {
+        document.getElementById('headerTitle').textContent = headerMap[tabId].title;
+        document.getElementById('headerSubtitle').textContent = headerMap[tabId].sub;
+      }
+
+      // Đóng sidebar trên mobile nếu đang mở
+      const sidebar = document.getElementById('sidebar');
+      if (window.innerWidth < 768 && !sidebar.classList.contains('hidden')) {
+        sidebar.classList.add('hidden');
+      }
+
+      // Cuộn lên đầu trang
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 2. Chuyển tab nhỏ trong trang Gói tập & Khóa học
+    function filterCourseTab(type) {
+      document.getElementById('tabBtnCourses').className = 'px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:text-black hover:bg-gray-100 transition';
+      document.getElementById('tabBtnPackages').className = 'px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:text-black hover:bg-gray-100 transition';
+      document.getElementById('tabBtnSchedule').className = 'px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:text-black hover:bg-gray-100 transition';
+
+      if (type === 'courses') {
+        document.getElementById('tabBtnCourses').className = 'px-4 py-2 rounded-xl text-xs font-bold bg-black text-white shadow-2xs transition';
+      } else if (type === 'packages') {
+        document.getElementById('tabBtnPackages').className = 'px-4 py-2 rounded-xl text-xs font-bold bg-black text-white shadow-2xs transition';
+      } else if (type === 'schedule') {
+        document.getElementById('tabBtnSchedule').className = 'px-4 py-2 rounded-xl text-xs font-bold bg-black text-white shadow-2xs transition';
+      }
+    }
+
+    // 3. Mở / Đóng Drawer Hồ sơ khách hàng
+    function openCustomerDrawer(code, name, phone, address, status, course, checkins) {
+      const drawer = document.getElementById('customerDrawer');
+      drawer.classList.remove('hidden');
+      
+      document.getElementById('drawerName').textContent = name;
+      document.getElementById('drawerCode').textContent = 'Mã KH: ' + code;
+      document.getElementById('drawerAvatar').textContent = name.split(' ').pop().charAt(0);
+      document.getElementById('drawerInputName').value = name;
+      document.getElementById('drawerInputPhone').value = phone;
+      document.getElementById('drawerInputAddress').value = address;
+      document.getElementById('drawerStatusText').textContent = status;
+    }
+
+    function closeCustomerDrawer() {
+      const drawer = document.getElementById('customerDrawer');
+      drawer.classList.add('hidden');
+    }
+
+    function saveCustomerProfile() {
+      const newName = document.getElementById('drawerInputName').value;
+      alert(`Đã lưu thay đổi hồ sơ khách hàng: ${newName}`);
+      document.getElementById('drawerName').textContent = newName;
+    }
+
+    // 4. Tìm kiếm và lọc Khách hàng theo thời gian thực
+    function filterCustomerTable() {
+      const query = (document.getElementById('searchCustomerInput').value || '').toLowerCase();
+      const statusFilter = document.getElementById('selectCustomerStatus').value;
+      const rows = document.querySelectorAll('#customerTbody tr');
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        let matchesQuery = text.includes(query);
+        let matchesStatus = true;
+
+        if (statusFilter === 'active') {
+          matchesStatus = text.includes('đang hoạt động');
+        } else if (statusFilter === 'pending') {
+          matchesStatus = text.includes('chờ xử lý');
+        } else if (statusFilter === 'locked') {
+          matchesStatus = text.includes('bị khóa');
+        }
+
+        if (matchesQuery && matchesStatus) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    // 5. Trợ lý AI Chatbot tương tác
+    function sendQuickPrompt(promptText) {
+      document.getElementById('chatInputText').value = promptText;
+      submitChatMessage();
+    }
+
+    function submitChatMessage() {
+      const input = document.getElementById('chatInputText');
+      const text = (input.value || '').trim();
+      if (!text) return;
+
+      const chatList = document.getElementById('chatMessageList');
+
+      // 1. Thêm tin nhắn của User
+      const userHtml = `
+        <div class="flex items-start justify-end gap-2.5 ml-auto max-w-[85%] animate-in fade-in duration-200">
+          <div class="space-y-1 text-right">
+            <div class="bg-black text-white rounded-2xl p-3.5 text-left leading-relaxed rounded-tr-sm">
+              ${escapeHtml(text)}
+            </div>
+            <span class="text-[10px] text-gray-400 block pr-1">Bạn · Vừa xong</span>
+          </div>
+        </div>
+      `;
+      chatList.insertAdjacentHTML('beforeend', userHtml);
+      input.value = '';
+      chatList.scrollTop = chatList.scrollHeight;
+
+      // 2. Mô phỏng AI phản hồi sau 400ms theo đúng quy tắc nghiệp vụ FitCenter
+      setTimeout(() => {
+        let aiReply = "Mình đã ghi nhận câu hỏi của bạn. Bạn có thể tra cứu chi tiết hơn tại các mục nghiệp vụ hoặc yêu cầu chuyển tiếp nhân viên quầy tư vấn.";
+        const lower = text.toLowerCase();
+
+        if (lower.includes('yoga') || lower.includes('chỗ') || lower.includes('lớp')) {
+          aiReply = "Lớp <strong>Yoga buổi sáng</strong> hiện còn 2/20 chỗ (Thứ 2, 4, 6 lúc 06:00). Bạn có thể vào tab <strong>Gói tập & khóa học</strong> để mở danh sách đăng ký học viên.";
+        } else if (lower.includes('mua') || lower.includes('găng') || lower.includes('online') || lower.includes('sản phẩm')) {
+          aiReply = "Theo quy định của FitCenter, <strong>sản phẩm chỉ được bán trực tiếp tại quầy thông qua nhân viên</strong> để đảm bảo kiểm soát chất lượng và kho hàng. Website chỉ hỗ trợ đăng ký khóa học trực tuyến.";
+        } else if (lower.includes('hủy') || lower.includes('đổi') || lower.includes('lịch')) {
+          aiReply = "Hội viên có thể gửi yêu cầu hủy hoặc đổi lịch học trước giờ bắt đầu ít nhất 2 tiếng trong mục <strong>Lịch học của tôi</strong>. Quản trị viên và Nhân viên sẽ nhận thông báo để phê duyệt.";
+        } else if (lower.includes('gói') || lower.includes('khóa')) {
+          aiReply = "Trung tâm hiện có 6 khóa học đang mở (Yoga, Pilates, Kickboxing, CrossFit, Zumba, Bodybuilding) và các gói thẻ tập Gym tháng, quý, năm linh hoạt.";
+        }
+
+        const aiHtml = `
+          <div class="flex items-start gap-2.5 max-w-[85%] animate-in fade-in duration-200">
+            <div class="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div class="space-y-1">
+              <div class="bg-gray-100/80 rounded-2xl p-3.5 text-gray-800 leading-relaxed rounded-tl-sm">
+                ${aiReply}
+              </div>
+              <span class="text-[10px] text-gray-400 block pl-1">Trợ lý AI · Vừa xong</span>
+            </div>
+          </div>
+        `;
+        chatList.insertAdjacentHTML('beforeend', aiHtml);
+        chatList.scrollTop = chatList.scrollHeight;
+      }, 450);
+    }
+
+    function resetAIChat() {
+      if (confirm('Bắt đầu cuộc trò chuyện mới với Trợ lý AI?')) {
+        location.reload();
+      }
+    }
+
+    // 6. Quản lý Modal
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function openExportModal() {
+      alert('Đang tạo tệp Excel báo cáo thống kê hoạt động trung tâm (Tháng 11/2026)...\nTải xuống hoàn tất: BaoCao_FitCenter_11_2026.xlsx');
+    }
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('hidden');
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Tự động đồng bộ số liệu thật từ MySQL Backend API
+    async function loadAdminRealData() {
+      // Kiểm tra thông tin phiên đăng nhập
+      const userJson = localStorage.getItem('fitcenter_user');
+      if (userJson) {
+        try {
+          const user = JSON.parse(userJson);
+          const nameEl = document.getElementById('adminSidebarName');
+          const emailEl = document.getElementById('adminSidebarEmail');
+          const avatarEl = document.getElementById('adminSidebarAvatar');
+          if (nameEl) nameEl.innerText = user.fullName || 'Quản trị viên';
+          if (emailEl) emailEl.innerText = user.email || 'admin@fitcenter.vn';
+          if (avatarEl && user.fullName) {
+            avatarEl.innerText = user.fullName.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'Q';
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      try {
+        const API_BASE = (window.location.origin.includes(':3000')) ? '' : 'http://localhost:3000';
+        const res = await fetch(`${API_BASE}/api/admin/stats`);
+        const data = await res.json();
+        if (data.success && data.stats) {
+          const totalMembersEl = document.getElementById('statTotalMembers');
+          if (totalMembersEl) totalMembersEl.innerText = data.stats.totalMembers;
+          const pendingEl = document.getElementById('statPendingEnrollments');
+          if (pendingEl) pendingEl.innerText = data.stats.pendingEnrollments;
+          const coursesEl = document.getElementById('statTotalCourses');
+          if (coursesEl) coursesEl.innerText = data.stats.totalCourses;
+        }
+      } catch (e) {
+        console.warn('Chưa kết nối API admin stats:', e);
+      }
+    }
+
+    function logoutAdmin() {
+      if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi Cổng Quản trị?')) {
+        localStorage.removeItem('fitcenter_user');
+        window.location.href = 'dang_nhap.html';
+      }
+    }
+    window.addEventListener('DOMContentLoaded', loadAdminRealData);
+  </script>
+
+</body>
+</html>
