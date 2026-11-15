@@ -172,6 +172,25 @@
         </div>
       </div>
 
+      <!-- Banner Tư Vấn Thể Trạng & BMI Bằng AI -->
+      <div class="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 rounded-2xl p-5 text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center space-x-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-white text-2xl shadow-inner shrink-0">
+            <i class="fa-solid fa-heart-pulse"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h3 class="font-bold text-sm sm:text-base">Tư Vấn Thể Trạng & Gợi Ý Khóa Tập Bằng AI</h3>
+              <span class="px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold uppercase tracking-wider">AI Tư Vấn</span>
+            </div>
+            <p class="text-xs text-white/90 mt-0.5">Nhập tuổi, chiều cao, cân nặng, giới tính để AI tính BMI và chọn giáo án phù hợp nhất với bạn</p>
+          </div>
+        </div>
+        <button onclick="startBmiConsultationFlow()" class="px-4 py-2.5 bg-white text-orange-600 hover:bg-orange-50 font-bold rounded-xl text-xs shadow transition transform hover:scale-105 active:scale-95 shrink-0 flex items-center gap-1.5">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Nhận Tư Vấn Ngay
+        </button>
+      </div>
+
       <!-- 3 Thẻ trạng thái nhanh -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <!-- Thẻ 1: Gói tập hiện tại -->
@@ -1398,11 +1417,428 @@
       }
     }
 
+    // ==============================================================
+    // 7. CHATBOT TƯ VẤN KHÁCH HÀNG (TRỢ LÝ ẢO KẾT NỐI MYSQL)
+    // ==============================================================
+    let isChatOpen = false;
+
+    function toggleChatWindow() {
+      const chatWin = document.getElementById('chatWindow');
+      isChatOpen = !isChatOpen;
+      if (isChatOpen) {
+        chatWin.classList.remove('hidden');
+        document.getElementById('chatInput').focus();
+        scrollToChatBottom();
+      } else {
+        chatWin.classList.add('hidden');
+      }
+    }
+
+    function scrollToChatBottom() {
+      const container = document.getElementById('chatMessages');
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
+    }
+
+    function formatBotMarkdown(text) {
+      if (!text) return '';
+      let html = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      
+      // **In đậm**
+      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // *In nghiêng*
+      html = html.replace(/\*(.*?)\*/g, '<em class="text-gray-600">$1</em>');
+      // Dấu gạch / chấm đầu dòng
+      html = html.replace(/^[ \t]*[•\-][ \t]+(.*)$/gm, '<li class="ml-4 list-disc text-gray-700 my-0.5">$1</li>');
+      // Đổi xuống dòng
+      html = html.replace(/\n/g, '<br>');
+      return html;
+    }
+
+    function appendUserMessage(text) {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'flex justify-end';
+      div.innerHTML = `
+        <div class="bg-gradient-to-r from-orange-500 to-amber-500 text-white p-3 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] text-xs leading-relaxed">
+          ${text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+        </div>
+      `;
+      container.appendChild(div);
+      scrollToChatBottom();
+    }
+
+    function appendBotMessage(htmlContent) {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'flex items-start space-x-2';
+      div.innerHTML = `
+        <div class="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs flex-shrink-0 mt-0.5 shadow">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <div class="bg-white p-3.5 rounded-2xl rounded-tl-none border border-gray-200 text-gray-800 shadow-sm max-w-[85%] leading-relaxed text-xs">
+          ${htmlContent}
+        </div>
+      `;
+      container.appendChild(div);
+      scrollToChatBottom();
+    }
+
+    function showTypingIndicator() {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.id = 'botTypingIndicator';
+      div.className = 'flex items-start space-x-2';
+      div.innerHTML = `
+        <div class="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs flex-shrink-0 mt-0.5 shadow">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <div class="bg-white px-4 py-3 rounded-2xl rounded-tl-none border border-gray-200 text-gray-500 shadow-sm flex items-center space-x-1.5 text-xs">
+          <span class="inline-block w-2 h-2 rounded-full bg-orange-400 animate-bounce"></span>
+          <span class="inline-block w-2 h-2 rounded-full bg-orange-400 animate-bounce [animation-delay:0.2s]"></span>
+          <span class="inline-block w-2 h-2 rounded-full bg-orange-400 animate-bounce [animation-delay:0.4s]"></span>
+          <span class="text-gray-400 ml-1 text-[11px]">Đang tra cứu MySQL...</span>
+        </div>
+      `;
+      container.appendChild(div);
+      scrollToChatBottom();
+    }
+
+    function hideTypingIndicator() {
+      const indicator = document.getElementById('botTypingIndicator');
+      if (indicator) indicator.remove();
+    }
+
+    async function sendChatMessage(rawMessage) {
+      const msg = (rawMessage || '').trim();
+      if (!msg) return;
+
+      appendUserMessage(msg);
+      showTypingIndicator();
+
+      const btnSend = document.getElementById('btnSendChat');
+      const input = document.getElementById('chatInput');
+      if (btnSend) btnSend.disabled = true;
+      if (input) input.disabled = true;
+
+      const user = getStoredUser();
+
+      try {
+        const res = await fetch(`${API_BASE}/api/customer/chatbot`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: msg, memberId: user.id })
+        });
+        const data = await res.json();
+        hideTypingIndicator();
+
+        if (data.success && data.reply) {
+          let botHtml = formatBotMarkdown(data.reply);
+          if (data.needBmiForm) {
+            botHtml += renderBmiFormBubble();
+          } else if (data.data && data.data.bmi) {
+            botHtml += `
+              <div class="mt-3 pt-2.5 border-t border-gray-100 flex flex-wrap gap-2">
+                <button onclick="switchTab('courses'); toggleChatWindow();" class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold text-[11px] shadow transition flex items-center gap-1">
+                  <i class="fa-solid fa-arrow-right"></i> Xem & Đăng ký Khóa học
+                </button>
+                <button onclick="switchTab('published-schedule'); toggleChatWindow();" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-bold text-[11px] transition flex items-center gap-1">
+                  <i class="fa-regular fa-calendar-check"></i> Đặt lịch ca học
+                </button>
+              </div>
+            `;
+          }
+          appendBotMessage(botHtml);
+        } else {
+          appendBotMessage('Dạ xin lỗi anh/chị, em tạm thời không truy vấn được dữ liệu: ' + (data.message || 'Lỗi không xác định'));
+        }
+      } catch (err) {
+        hideTypingIndicator();
+        appendBotMessage('⚠️ Không thể kết nối với máy chủ Backend (http://localhost:3000). Vui lòng kiểm tra server!');
+      } finally {
+        if (btnSend) btnSend.disabled = false;
+        if (input) {
+          input.disabled = false;
+          input.value = '';
+          input.focus();
+        }
+        scrollToChatBottom();
+      }
+    }
+
+    // ==============================================================
+    // 8. TƯ VẤN THỂ TRẠNG & TÍNH BMI (TUỔI, GIỚI TÍNH, CHIỀU CAO, CÂN NẶNG)
+    // ==============================================================
+    function renderBmiFormBubble() {
+      const formId = 'bmi_form_' + Date.now();
+      return `
+        <div id="${formId}" class="bg-orange-50/90 border border-orange-200 rounded-2xl p-3.5 mt-2.5 shadow-sm text-xs text-gray-800">
+          <div class="flex items-center space-x-2 font-bold text-orange-800 mb-2">
+            <div class="w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs">
+              <i class="fa-solid fa-calculator"></i>
+            </div>
+            <span>Thông tin thể trạng để AI tính BMI:</span>
+          </div>
+          <p class="text-[11px] text-gray-600 mb-2.5">Vui lòng nhập số liệu của bạn để AI tính BMI và đề xuất khóa tập chuẩn nhất từ CSDL:</p>
+          
+          <div class="grid grid-cols-2 gap-2 mb-2.5">
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-700 mb-1">🎂 Tuổi</label>
+              <input type="number" id="${formId}_age" value="24" min="10" max="99" class="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-semibold text-gray-800 focus:ring-2 focus:ring-orange-500 focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-700 mb-1">⚥ Giới tính</label>
+              <select id="${formId}_gender" class="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-semibold text-gray-800 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                <option value="male">Nam 👦</option>
+                <option value="female">Nữ 👧</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-700 mb-1">📏 Chiều cao (cm)</label>
+              <input type="number" id="${formId}_height" placeholder="Ví dụ: 170" value="170" min="100" max="230" class="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-semibold text-gray-800 focus:ring-2 focus:ring-orange-500 focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-700 mb-1">⚖️ Cân nặng (kg)</label>
+              <input type="number" id="${formId}_weight" placeholder="Ví dụ: 65" value="65" min="30" max="200" class="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-semibold text-gray-800 focus:ring-2 focus:ring-orange-500 focus:outline-none" />
+            </div>
+          </div>
+
+          <button type="button" onclick="submitChatBmiForm('${formId}')" class="w-full py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold rounded-xl shadow text-xs flex items-center justify-center space-x-1.5 transition active:scale-95">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Tính BMI & Nhận Tư Vấn Khóa Tập</span>
+          </button>
+        </div>
+      `;
+    }
+
+    function startBmiConsultationFlow() {
+      if (!isChatOpen) {
+        toggleChatWindow();
+      }
+      const introHtml = `
+        <p class="font-bold text-orange-600 mb-1">🎯 Tư vấn thể trạng & Gợi ý khóa tập bằng AI</p>
+        <p>Em là Trợ lý AI FitCenter. Để em tính chỉ số BMI và phân tích lộ trình tập luyện tốt nhất, bạn hãy điền số liệu bên dưới nhé:</p>
+        ${renderBmiFormBubble()}
+      `;
+      appendBotMessage(introHtml);
+    }
+
+    async function submitChatBmiForm(formId) {
+      const ageInput = document.getElementById(`${formId}_age`);
+      const genderInput = document.getElementById(`${formId}_gender`);
+      const heightInput = document.getElementById(`${formId}_height`);
+      const weightInput = document.getElementById(`${formId}_weight`);
+
+      const age = Number(ageInput?.value) || 24;
+      const gender = genderInput?.value || 'male';
+      const height = Number(heightInput?.value);
+      const weight = Number(weightInput?.value);
+
+      if (!height || !weight || height <= 80 || weight <= 25) {
+        alert('Vui lòng nhập chiều cao (từ 100cm) và cân nặng (từ 30kg) hợp lệ!');
+        return;
+      }
+
+      const genderText = (gender === 'female') ? 'Nữ 👧' : 'Nam 👦';
+      appendUserMessage(`Tôi là ${genderText}, ${age} tuổi, cao ${height} cm, nặng ${weight} kg. Nhờ FitCenter tính chỉ số BMI và tư vấn khóa tập phù hợp.`);
+      showTypingIndicator();
+
+      const user = getStoredUser();
+
+      try {
+        const res = await fetch(`${API_BASE}/api/customer/bmi-consult`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            memberId: user.id,
+            age,
+            gender,
+            heightCm: height,
+            weightKg: weight
+          })
+        });
+        const data = await res.json();
+        hideTypingIndicator();
+
+        if (data.success && data.reply) {
+          let botHtml = formatBotMarkdown(data.reply);
+          botHtml += `
+            <div class="mt-3 pt-2.5 border-t border-gray-100 flex flex-wrap gap-2">
+              <button onclick="switchTab('courses'); toggleChatWindow();" class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold text-[11px] shadow transition flex items-center gap-1">
+                <i class="fa-solid fa-arrow-right"></i> Xem & Đăng ký Khóa học
+              </button>
+              <button onclick="switchTab('published-schedule'); toggleChatWindow();" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-bold text-[11px] transition flex items-center gap-1">
+                <i class="fa-regular fa-calendar-check"></i> Đặt lịch ca học
+              </button>
+            </div>
+          `;
+          appendBotMessage(botHtml);
+        } else {
+          appendBotMessage('Không thể tính toán chỉ số: ' + (data.message || 'Lỗi không xác định'));
+        }
+      } catch (err) {
+        hideTypingIndicator();
+        appendBotMessage('⚠️ Lỗi kết nối máy chủ khi tính chỉ số BMI!');
+      } finally {
+        scrollToChatBottom();
+      }
+    }
+
+    function handleChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('chatInput');
+      const text = input.value;
+      if (text.trim()) {
+        sendChatMessage(text);
+      }
+    }
+
+    function sendQuickPrompt(promptText) {
+      if (!isChatOpen) {
+        toggleChatWindow();
+      }
+      sendChatMessage(promptText);
+    }
+
+    function clearChatMessages() {
+      const container = document.getElementById('chatMessages');
+      const user = getStoredUser();
+      container.innerHTML = `
+        <div class="flex items-start space-x-2">
+          <div class="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs flex-shrink-0 mt-0.5 shadow">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="bg-white p-3.5 rounded-2xl rounded-tl-none border border-gray-200 text-gray-800 shadow-sm max-w-[85%] leading-relaxed text-xs">
+            <p class="font-semibold text-orange-600 mb-1">Dạ xin chào ${user.fullName || 'anh/chị'}! 👋</p>
+            <p>Lịch sử trò chuyện đã được làm mới. Em có thể hỗ trợ anh/chị tra cứu thông tin gì về thẻ tập, lịch học, HLV hay quầy nước uống ạ?</p>
+          </div>
+        </div>
+      `;
+    }
+
     // Khởi tạo khi tải trang
     document.addEventListener('DOMContentLoaded', () => {
       getStoredUser();
       loadDashboard();
     });
   </script>
+
+  <!-- ========================================== -->
+  <!-- NÚT CHATBOT NỔI VÀ KHUNG CHAT TRA CỨU MYSQL -->
+  <!-- ========================================== -->
+  <div id="chatbotFloatingContainer" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <!-- Cửa sổ Chat Popup -->
+    <div id="chatWindow" class="hidden mb-4 w-96 max-w-[calc(100vw-2rem)] h-[540px] max-h-[82vh] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden transition-all duration-300">
+      <!-- Chat Header -->
+      <div class="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white p-4 flex items-center justify-between shadow-md">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-white text-lg shadow-inner">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h3 class="font-bold text-sm tracking-wide">Trợ Lý FitCenter AI</h3>
+              <span class="inline-block w-2 h-2 rounded-full bg-green-400 animate-pulse" title="Trực tuyến"></span>
+            </div>
+            <p class="text-[11px] text-white/90">Tra cứu trực tiếp CSDL MySQL</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-1">
+          <button onclick="clearChatMessages()" title="Làm mới đoạn chat" class="w-8 h-8 rounded-lg hover:bg-white/20 flex items-center justify-center text-white/90 transition text-xs">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+          <button onclick="toggleChatWindow()" title="Thu nhỏ" class="w-8 h-8 rounded-lg hover:bg-white/20 flex items-center justify-center text-white transition text-sm">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Danh sách tin nhắn -->
+      <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 text-sm">
+        <div class="flex items-start space-x-2">
+          <div class="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs flex-shrink-0 mt-0.5 shadow">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="bg-white p-3.5 rounded-2xl rounded-tl-none border border-gray-200 text-gray-800 shadow-sm max-w-[85%] leading-relaxed text-xs">
+            <p class="font-semibold text-orange-600 mb-1">Dạ xin chào quý hội viên! 👋</p>
+            <p>Em là <strong>Trợ lý ảo FitCenter</strong> kết nối trực tiếp với hệ thống cơ sở dữ liệu. Em có thể giải đáp ngay:</p>
+            <ul class="list-disc list-inside mt-2 space-y-1 text-gray-700">
+              <li>🎯 <b>Tư vấn thể trạng & tính BMI gợi ý khóa tập</b></li>
+              <li>💳 <b>Gói tập & hạn sử dụng thẻ</b></li>
+              <li>📅 <b>Lịch học cá nhân & lớp hôm nay</b></li>
+              <li>💰 <b>Bảng giá các gói tập & khóa học</b></li>
+              <li>🏆 <b>Đội ngũ Huấn luyện viên (PT)</b></li>
+              <li>🥤 <b>Sản phẩm quầy & nước uống</b></li>
+            </ul>
+            <p class="mt-2 text-gray-500 text-[11px]">Bấm các gợi ý nhanh bên dưới hoặc nhập câu hỏi nhé!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gợi ý nhanh (Quick chips) -->
+      <div class="px-3 py-2 bg-white border-t border-gray-100 overflow-x-auto flex space-x-1.5">
+        <button onclick="startBmiConsultationFlow()" class="whitespace-nowrap px-3 py-1 text-xs bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold rounded-full shadow-sm transition flex items-center gap-1.5">
+          <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> 🎯 Tư vấn thể trạng (BMI)
+        </button>
+        <button onclick="sendQuickPrompt('Gói tập của tôi')" class="whitespace-nowrap px-2.5 py-1 text-xs bg-orange-50 hover:bg-orange-100 text-orange-700 font-semibold rounded-full border border-orange-200 transition">
+          💳 Gói của tôi
+        </button>
+        <button onclick="sendQuickPrompt('Lịch học của tôi')" class="whitespace-nowrap px-2.5 py-1 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-full border border-blue-200 transition">
+          📅 Lịch của tôi
+        </button>
+        <button onclick="sendQuickPrompt('Hôm nay có những lớp nào?')" class="whitespace-nowrap px-2.5 py-1 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-full border border-emerald-200 transition">
+          🔥 Lớp hôm nay
+        </button>
+        <button onclick="sendQuickPrompt('Bảng giá gói tập')" class="whitespace-nowrap px-2.5 py-1 text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-full border border-amber-200 transition">
+          💰 Bảng giá
+        </button>
+        <button onclick="sendQuickPrompt('Danh sách huấn luyện viên')" class="whitespace-nowrap px-2.5 py-1 text-xs bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold rounded-full border border-purple-200 transition">
+          🏆 Đội ngũ HLV
+        </button>
+        <button onclick="sendQuickPrompt('Quầy có bán những sản phẩm gì?')" class="whitespace-nowrap px-2.5 py-1 text-xs bg-teal-50 hover:bg-teal-100 text-teal-700 font-semibold rounded-full border border-teal-200 transition">
+          🥤 Quầy nước
+        </button>
+      </div>
+
+      <!-- Ô nhập chat -->
+      <form id="chatForm" onsubmit="handleChatSubmit(event)" class="p-2.5 bg-white border-t border-gray-200 flex items-center space-x-2">
+        <input 
+          id="chatInput" 
+          type="text" 
+          placeholder="Hỏi về gói tập, lịch, HLV, giá gói..." 
+          autocomplete="off"
+          class="flex-1 px-3.5 py-2 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white text-gray-800 transition"
+        />
+        <button 
+          id="btnSendChat" 
+          type="submit" 
+          class="w-9 h-9 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white flex items-center justify-center shadow-md hover:shadow transition transform active:scale-95 disabled:opacity-50"
+        >
+          <i class="fa-solid fa-paper-plane text-xs"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Nút Chatbot nổi (Floating button) -->
+    <button 
+      id="btnChatToggle" 
+      onclick="toggleChatWindow()" 
+      class="relative group flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-4 py-3.5 rounded-full shadow-2xl hover:shadow-orange-500/50 transition-all duration-300 transform hover:scale-105 active:scale-95"
+      title="Mở Trợ lý FitCenter AI"
+    >
+      <div class="relative flex items-center justify-center">
+        <i class="fa-solid fa-robot text-xl"></i>
+        <span class="absolute -top-1 -right-1 flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-white"></span>
+        </span>
+      </div>
+      <span class="font-bold text-sm tracking-wide pr-1 hidden sm:inline-block">Trợ lý AI</span>
+    </button>
+  </div>
 </body>
 </html>

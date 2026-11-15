@@ -826,6 +826,452 @@ app.post('/api/customer/change-password', async (req, res) => {
 });
 
 // =====================================================================
+// 2.8 TÍNH BMI, PHÂN TÍCH THỂ TRẠNG & TƯ VẤN KHÓA TẬP BẰNG AI
+// =====================================================================
+function tryParseBmiText(text) {
+  const t = (text || '').toLowerCase();
+  let age = null, gender = 'male', heightCm = null, weightKg = null;
+  
+  if (t.includes('nữ') || t.includes('chị') || t.includes('gái') || t.includes('female')) gender = 'female';
+  else if (t.includes('nam') || t.includes('anh') || t.includes('trai') || t.includes('male')) gender = 'male';
+
+  const ageMatch = t.match(/(\d{1,2})\s*tuổi/) || t.match(/tuổi\s*[:=]?\s*(\d{1,2})/);
+  if (ageMatch) age = Number(ageMatch[1]);
+
+  const h1mMatch = t.match(/1m(\d{1,2})/i);
+  if (h1mMatch) {
+    heightCm = 100 + Number(h1mMatch[1].padEnd(2, '0').slice(0, 2));
+  } else {
+    const hMatch = t.match(/(?:cao|chiều cao)\s*[:=]?\s*(\d{2,3})/i) || t.match(/(\d{3})\s*cm/i);
+    if (hMatch) heightCm = Number(hMatch[1]);
+  }
+
+  const wMatch = t.match(/(?:nặng|cân nặng)\s*[:=]?\s*(\d{2,3}(?:\.\d+)?)/i) || t.match(/(\d{2,3}(?:\.\d+)?)\s*(?:kg|kí|ký)/i);
+  if (wMatch) weightKg = Number(wMatch[1]);
+
+  if (heightCm && weightKg && heightCm >= 100 && weightKg >= 30) {
+    return { age: age || 24, gender, heightCm, weightKg };
+  }
+  return null;
+}
+
+async function performBmiAnalysis({ age, gender, heightCm, weightKg, memberId }) {
+  const hM = Number(heightCm) / 100;
+  const wKg = Number(weightKg);
+  const userAge = Number(age) || 24;
+  const bmi = Number((wKg / (hM * hM)).toFixed(2));
+  const minNormalWeight = Number((18.5 * hM * hM).toFixed(1));
+  const maxNormalWeight = Number((22.9 * hM * hM).toFixed(1));
+
+  // Truy vấn dữ liệu thực từ MySQL FitCenter
+  const [courses] = await db.query('SELECT * FROM courses WHERE is_active = 1');
+  const [plans] = await db.query('SELECT * FROM membership_plans WHERE is_active = 1');
+  const [trainers] = await db.query(`
+    SELECT a.full_name, t.specialties, t.biography 
+    FROM trainers t JOIN accounts a ON t.account_id = a.id 
+    WHERE a.role = 'trainer' AND a.status = 'active'
+  `);
+
+  let status = '';
+  let evaluation = '';
+  let matchedCourses = [];
+  let matchedPlan = plans[0];
+  let matchedTrainer = trainers[0];
+  let advice = '';
+
+  const isFemale = (String(gender).toLowerCase() === 'female' || String(gender).toLowerCase() === 'nữ');
+  const genderLabel = isFemale ? 'Nữ' : 'Nam';
+
+  if (bmi < 18.5) {
+    status = 'GẦY (THIẾU CÂN)';
+    evaluation = `Chỉ số BMI **${bmi}** cho thấy cơ thể bạn đang thiếu năng lượng và cơ bắp. Mục tiêu lúc này là **TĂNG CÂN & TĂNG KHỐI LƯỢNG CƠ BẮP (Hypertrophy)**, kích thích hệ tiêu hóa hấp thu dinh dưỡng và xây dựng nền tảng thể lực săn chắc.`;
+    matchedCourses = courses.filter(c => c.code.includes('BODYBUILD') || c.code.includes('YOGA'));
+    matchedPlan = plans.find(p => p.duration_months === 3) || plans[0];
+    matchedTrainer = trainers.find(t => t.specialties.toLowerCase().includes('thể hình') || t.specialties.toLowerCase().includes('bodybuilding')) || trainers[0];
+    advice = 'Ăn thặng dư 300 - 500 kcal/ngày, bổ sung Whey Protein Isolate sau buổi tập. Hạn chế cardio kéo dài, tập trung vào các bài tập kháng lực phát triển đa khớp (Squat, Deadlift, Bench Press).';
+  } else if (bmi < 23.0) {
+    status = 'CÂN ĐỐI / LÝ TƯỞNG';
+    evaluation = `Chúc mừng bạn! Chỉ số BMI **${bmi}** là thể trạng chuẩn đẹp theo tiêu chuẩn người châu Á. Mục tiêu lý tưởng lúc này là **SIẾT CƠ (Lean Muscle), TĂNG SỨC BỀN & GIỮ DÁNG CHUẨN**.`;
+    if (isFemale) {
+      matchedCourses = courses.filter(c => c.code.includes('PILATES') || c.code.includes('ZUMBA') || c.code.includes('YOGA'));
+      matchedTrainer = trainers.find(t => t.specialties.toLowerCase().includes('pilates') || t.specialties.toLowerCase().includes('yoga')) || trainers[0];
+    } else {
+      matchedCourses = courses.filter(c => c.code.includes('CROSSFIT') || c.code.includes('KICKBOX') || c.code.includes('BODYBUILD'));
+      matchedTrainer = trainers.find(t => t.specialties.toLowerCase().includes('kickbox') || t.specialties.toLowerCase().includes('crossfit')) || trainers[0];
+    }
+    matchedPlan = plans.find(p => p.duration_months === 3) || plans[0];
+    advice = 'Duy trì tập luyện đều đặn 3 - 4 buổi/tuần, kết hợp cả rèn luyện cơ bắp lẫn cardio tim mạch. Uống đủ 2 - 2.5 lít nước khoáng mỗi ngày.';
+  } else if (bmi < 25.0) {
+    status = 'TIỀN THỪA CÂN (CẦN GIẢM MỠ)';
+    evaluation = `Chỉ số BMI **${bmi}** cho thấy cơ thể bắt đầu tích mỡ thừa tại vùng eo, bắp tay hoặc đùi. Đây là thời điểm vàng để **ĐỐT MỠ TOÀN THÂN (Fat Burn) & SIẾT CƠ LÕI**, ngăn chặn tích mỡ nội tạng.`;
+    matchedCourses = courses.filter(c => c.code.includes('KICKBOX') || c.code.includes('ZUMBA') || c.code.includes('CROSSFIT'));
+    matchedPlan = plans.find(p => p.duration_months === 3) || plans[0];
+    matchedTrainer = trainers.find(t => t.specialties.toLowerCase().includes('kickbox') || t.specialties.toLowerCase().includes('giảm mỡ')) || trainers[0];
+    advice = 'Tập các bộ môn đốt calo cao 4 buổi/tuần, cắt giảm đường, đồ uống có ga, trà sữa và hạn chế tinh bột nhanh sau 19h tối.';
+  } else {
+    status = 'THỪA CÂN / BÉO PHÌ';
+    evaluation = `Chỉ số BMI **${bmi}** ở mức cao, lượng mỡ thừa có thể tạo áp lực lên cột sống và khớp gối. Bạn cần một lộ trình **GIẢM CÂN KHOA HỌC & BẢO VỆ XƯƠNG KHỚP**, ưu tiên vận động nhịp nhàng trước khi tập nặng.`;
+    matchedCourses = courses.filter(c => c.code.includes('ZUMBA') || c.code.includes('PILATES') || c.code.includes('YOGA'));
+    matchedPlan = plans.find(p => p.duration_months === 12) || plans[plans.length - 1];
+    matchedTrainer = trainers.find(t => t.specialties.toLowerCase().includes('yoga') || t.specialties.toLowerCase().includes('giảm mỡ')) || trainers[0];
+    advice = 'Không nên tập nặng đột ngột gây chấn thương khớp gối. Nên bắt đầu bằng đi bộ nhanh trên máy dốc, Zumba, Pilates kết hợp chế độ ăn thâm hụt calo kiên trì.';
+  }
+
+  let ageAdvice = '';
+  if (userAge >= 45) {
+    ageAdvice = `\n💡 *Lưu ý độ tuổi ${userAge}:* Nên khởi động kỹ các khớp trước buổi tập, hạn chế các bài nhảy bật gắt và dành 10 phút thả lỏng hạ nhiệt sau buổi tập.`;
+  } else if (userAge < 22) {
+    ageAdvice = `\n💡 *Lưu ý độ tuổi ${userAge}:* Cơ thể đang trong giai đoạn phát triển thể chất vàng, khả năng phục hồi rất nhanh, thuận lợi xây dựng sức mạnh vượt trội.`;
+  }
+
+  // Lưu vào database nếu có memberId
+  if (memberId) {
+    try {
+      await db.query(`
+        INSERT INTO body_measurements (member_id, recorded_by, measured_at, height_cm, weight_kg)
+        VALUES (?, ?, NOW(), ?, ?)
+      `, [memberId, memberId, heightCm, weightKg]);
+
+      await db.query(`
+        UPDATE members SET fitness_goal = ? WHERE account_id = ?
+      `, [`Tư vấn BMI ${bmi} (${status})`, memberId]);
+    } catch (e) {
+      console.error('Lỗi cập nhật body_measurements:', e.message);
+    }
+  }
+
+  let text = `🎯 **KẾT QUẢ PHÂN TÍCH THỂ TRẠNG & TƯ VẤN KHÓA TẬP AI**\n\n`;
+  text += `👤 **Hồ sơ:** ${genderLabel}, **${userAge} tuổi** | Chiều cao: **${heightCm} cm** | Cân nặng: **${weightKg} kg**\n`;
+  text += `📊 **Chỉ số BMI:** **${bmi}** — Trạng thái: **${status}**\n`;
+  text += `⚖️ **Cân nặng lý tưởng theo chiều cao:** Từ **${minNormalWeight} kg** đến **${maxNormalWeight} kg**\n\n`;
+  text += `🔍 **ĐÁNH GIÁ CHUYÊN MÔN:**\n${evaluation}${ageAdvice}\n\n`;
+  
+  text += `🏋️‍♂️ **KHÓA HỌC PHÙ HỢP NHẤT TẠI FITCENTER:**\n`;
+  matchedCourses.slice(0, 2).forEach((c, i) => {
+    const priceStr = Number(c.price_vnd).toLocaleString('vi-VN') + ' đ';
+    text += `${i + 1}. **${c.name}** [Mã: \`${c.code}\`] — **${priceStr}**\n`;
+    text += `   • *Mô tả:* ${c.description || 'Lớp tập nhóm cùng HLV chuyên nghiệp'}\n`;
+  });
+
+  if (matchedPlan) {
+    const planPrice = Number(matchedPlan.price_vnd).toLocaleString('vi-VN') + ' đ';
+    text += `\n💳 **GÓI TẬP ĐỀ XUẤT:** **Gói ${matchedPlan.name}** (${planPrice} / ${matchedPlan.duration_months} tháng)\n`;
+  }
+
+  if (matchedTrainer) {
+    text += `🏆 **HUẤN LUYỆN VIÊN ĐỀ XUẤT:** **${matchedTrainer.full_name}** (*${matchedTrainer.specialties || 'HLV FitCenter'}*)\n`;
+  }
+
+  text += `\n🥗 **LỜI KHUYÊN DINH DƯỠNG & SINH HOẠT:**\n${advice}\n\n`;
+  text += `✅ *Thông tin chỉ số BMI (${bmi}) đã được tự động lưu vào hồ sơ hội viên của bạn trong hệ thống MySQL!*`;
+
+  return {
+    bmi,
+    status,
+    minNormalWeight,
+    maxNormalWeight,
+    matchedCourses,
+    matchedPlan,
+    matchedTrainer,
+    advice,
+    formattedText: text
+  };
+}
+
+// API Tư vấn BMI độc lập
+app.post('/api/customer/bmi-consult', async (req, res) => {
+  try {
+    const { memberId, age, gender, heightCm, weightKg } = req.body;
+    if (!heightCm || !weightKg) {
+      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp chiều cao và cân nặng hợp lệ!' });
+    }
+    const result = await performBmiAnalysis({
+      age: Number(age) || 24,
+      gender: gender || 'male',
+      heightCm: Number(heightCm),
+      weightKg: Number(weightKg),
+      memberId: Number(memberId) || 6
+    });
+
+    res.json({
+      success: true,
+      data: result,
+      reply: result.formattedText
+    });
+  } catch (error) {
+    console.error('Lỗi BMI consultation:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// =====================================================================
+// 2.9 CHATBOT TƯ VẤN KHÁCH HÀNG (DỰA TRÊN DỮ LIỆU MYSQL FITCENTER)
+// =====================================================================
+app.post('/api/customer/chatbot', async (req, res) => {
+  try {
+    const { message, memberId } = req.body;
+    const rawQuery = (message || '').trim().toLowerCase();
+    const currentMemberId = Number(memberId) || 6;
+
+    if (!rawQuery) {
+      return res.json({
+        success: true,
+        reply: 'Dạ em chào anh/chị! Em có thể giúp gì cho anh/chị về gói tập, lịch học, huấn luyện viên hay dịch vụ tại FitCenter ạ?'
+      });
+    }
+
+    // 0. Ý định: Tư vấn thể trạng, tính BMI & gợi ý khóa tập
+    if (
+      rawQuery.includes('tư vấn') || rawQuery.includes('bmi') || rawQuery.includes('thể trạng') ||
+      rawQuery.includes('gợi ý khóa') || rawQuery.includes('chọn khóa') || rawQuery.includes('nên tập') ||
+      rawQuery.includes('khóa nào hợp') || rawQuery.includes('lớp nào hợp') || rawQuery.includes('tập gì') ||
+      rawQuery.includes('chiều cao') || rawQuery.includes('cân nặng')
+    ) {
+      const parsed = tryParseBmiText(rawQuery);
+      if (parsed) {
+        const result = await performBmiAnalysis({
+          ...parsed,
+          memberId: currentMemberId
+        });
+        return res.json({
+          success: true,
+          data: result,
+          reply: result.formattedText
+        });
+      }
+
+      return res.json({
+        success: true,
+        needBmiForm: true,
+        reply: 'Dạ để em có thể tính chỉ số BMI và tư vấn khóa học, giáo án tập luyện chuẩn xác nhất cho thể trạng của bạn, bạn vui lòng cho em biết: **Tuổi, Giới tính, Chiều cao (cm) và Cân nặng (kg)** hoặc điền nhanh vào bảng thông tin bên dưới nhé! 👇'
+      });
+    }
+
+    // 1. Ý định: Hỏi về thông tin cá nhân (gói của tôi, lịch của tôi, hạn thẻ, inbody)
+    if (
+      rawQuery.includes('của tôi') || rawQuery.includes('của em') || rawQuery.includes('của mình') ||
+      rawQuery.includes('hạn thẻ') || rawQuery.includes('hạn gói') || rawQuery.includes('thẻ của tôi') ||
+      rawQuery.includes('lịch của tôi') || rawQuery.includes('buổi học của tôi') || rawQuery.includes('mã thẻ') ||
+      rawQuery.includes('tiến độ') || rawQuery.includes('inbody') || rawQuery.includes('tài khoản của tôi')
+    ) {
+      const [members] = await db.query(`
+        SELECT a.full_name, a.email, a.phone, m.member_code, m.fitness_goal
+        FROM accounts a
+        JOIN members m ON a.id = m.account_id
+        WHERE a.id = ?
+      `, [currentMemberId]);
+
+      if (members.length === 0) {
+        return res.json({
+          success: true,
+          reply: 'Dạ em không tìm thấy hồ sơ hội viên của anh/chị trong cơ sở dữ liệu. Anh/chị hãy đăng nhập lại nhé!'
+        });
+      }
+      const member = members[0];
+
+      // Gói tập đang kích hoạt
+      const [memberships] = await db.query(`
+        SELECT ms.*, mp.name AS plan_name, DATEDIFF(ms.ends_before, CURDATE()) AS days_left
+        FROM memberships ms
+        JOIN membership_plans mp ON ms.plan_id = mp.id
+        WHERE ms.member_id = ? AND ms.status = 'activated'
+        ORDER BY ms.ends_before DESC LIMIT 1
+      `, [currentMemberId]);
+
+      // Lịch học sắp tới
+      const [nextSessions] = await db.query(`
+        SELECT c.name AS class_name, r.name AS room_name, at.full_name AS trainer_name, s.starts_at, s.ends_at
+        FROM session_bookings b
+        JOIN class_sessions s ON b.session_id = s.id
+        JOIN classes c ON s.class_id = c.id
+        JOIN courses co ON c.course_id = co.id
+        JOIN rooms r ON s.room_id = r.id
+        LEFT JOIN trainers t ON s.trainer_id = t.account_id
+        LEFT JOIN accounts at ON t.account_id = at.id
+        WHERE b.member_id = ? AND b.status = 'booked' AND s.ends_at >= NOW()
+        ORDER BY s.starts_at ASC LIMIT 1
+      `, [currentMemberId]);
+
+      let reply = `Dạ xin chào **${member.full_name}** (Mã hội viên: **${member.member_code}**)! 👋\n\n`;
+
+      if (memberships.length > 0) {
+        const ms = memberships[0];
+        const expiryDate = new Date(ms.ends_before).toLocaleDateString('vi-VN');
+        reply += `💳 **Gói tập hiện tại:** Gói **${ms.plan_name}**\n`;
+        reply += `⏳ **Hạn sử dụng:** Đến ngày **${expiryDate}** (còn **${ms.days_left} ngày**).\n\n`;
+      } else {
+        reply += `💳 **Gói tập:** Anh/chị hiện chưa kích hoạt gói tập nào. Hãy vào mục *Gói & Khóa học* để đăng ký nhé!\n\n`;
+      }
+
+      if (nextSessions.length > 0) {
+        const next = nextSessions[0];
+        const nextTime = new Date(next.starts_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        const nextDate = new Date(next.starts_at).toLocaleDateString('vi-VN');
+        reply += `📅 **Lớp học sắp tới:** Môn **${next.class_name}** lúc **${nextTime} ngày ${nextDate}** tại phòng **${next.room_name}** (HLV: ${next.trainer_name || 'FitCenter Coach'}).`;
+      } else {
+        reply += `📅 **Lịch học tiếp theo:** Anh/chị chưa đăng ký ca học sắp tới nào. Anh/chị có thể vào tab *Lịch công bố* để chọn ca phù hợp nha!`;
+      }
+
+      return res.json({ success: true, reply });
+    }
+
+    // 2. Ý định: Hỏi về Gói tập / Bảng giá / Chi phí
+    if (
+      rawQuery.includes('gói') || rawQuery.includes('giá') || rawQuery.includes('bảng giá') ||
+      rawQuery.includes('chi phí') || rawQuery.includes('bao nhiêu tiền') || rawQuery.includes('standard') ||
+      rawQuery.includes('vip') || rawQuery.includes('diamond') || rawQuery.includes('thẻ tập')
+    ) {
+      const [plans] = await db.query('SELECT * FROM membership_plans WHERE is_active = 1 ORDER BY duration_months ASC');
+      let reply = '🏋️‍♂️ **BẢNG GIÁ GÓI TẬP THÀNH VIÊN TẠI FITCENTER:**\n\n';
+      plans.forEach((p, idx) => {
+        const price = Number(p.price_vnd).toLocaleString('vi-VN') + ' đ';
+        reply += `${idx + 1}. **Gói ${p.name}**: **${price}** (${p.duration_months} tháng)\n`;
+        reply += `   • *Quyền lợi:* ${p.description || 'Tập gym không giới hạn khung giờ, miễn phí tủ đồ và phòng tắm nước nóng.'}\n`;
+      });
+      reply += '\n👉 Anh/chị có thể đăng ký trực tuyến ngay tại tab **Gói & Khóa học** hoặc thanh toán tại quầy lễ tân ạ!';
+      return res.json({ success: true, reply });
+    }
+
+    // 3. Ý định: Hỏi về Khóa học / Lớp học (Yoga, Kickboxing, Pilates, Zumba, CrossFit...)
+    if (
+      rawQuery.includes('khóa học') || rawQuery.includes('lớp') || rawQuery.includes('yoga') ||
+      rawQuery.includes('kickbox') || rawQuery.includes('boxing') || rawQuery.includes('pilates') ||
+      rawQuery.includes('zumba') || rawQuery.includes('crossfit') || rawQuery.includes('bodybuilding')
+    ) {
+      const [courses] = await db.query('SELECT * FROM courses WHERE is_active = 1 ORDER BY id ASC');
+      let reply = '📋 **DANH SÁCH KHÓA HỌC & LỚP NHÓM TẠI FITCENTER:**\n\n';
+      courses.forEach((c, idx) => {
+        const price = Number(c.price_vnd).toLocaleString('vi-VN') + ' đ';
+        reply += `${idx + 1}. **${c.name}** [${c.code}]: **${price}**\n`;
+        reply += `   • *Mô tả:* ${c.description || 'Lớp tập nhóm cùng huấn luyện viên quốc tế chuyên nghiệp.'}\n`;
+      });
+      reply += '\n👉 Bạn có thể đăng ký giữ chỗ từng ca học tại tab **Thời khóa biểu** hoặc đăng ký trọn khóa tại tab **Gói & Khóa học**!';
+      return res.json({ success: true, reply });
+    }
+
+    // 4. Ý định: Quy định đổi / hủy lịch học / chính sách
+    if (rawQuery.includes('hủy') || rawQuery.includes('đổi') || rawQuery.includes('quy định') || rawQuery.includes('chính sách')) {
+      const reply = 
+        '📌 **QUY ĐỊNH HỦY & ĐỔI LỊCH HỌC TẠI FITCENTER:**\n\n' +
+        '• Học viên có thể **Đổi ca học** hoặc **Hủy ca học** trực tuyến trước giờ bắt đầu tối thiểu **02 tiếng** mà không bị tính trừ buổi học.\n' +
+        '• Để thao tác, bạn chỉ cần vào tab **Lịch của tôi**, bấm nút *Đổi lịch* hoặc *Hủy lịch* bên cạnh ca học tương ứng.\n' +
+        '• Sau thời hạn 02 tiếng, vui lòng liên hệ trực tiếp quầy lễ tân để được hỗ trợ.';
+      return res.json({ success: true, reply });
+    }
+
+    // 5. Ý định: Hỏi về Lịch tập / Thời khóa biểu / Ca học hôm nay / tuần này
+    if (
+      rawQuery.includes('lịch') || rawQuery.includes('thời khóa biểu') || rawQuery.includes('ca học') ||
+      rawQuery.includes('hôm nay có') || rawQuery.includes('giờ tập') || rawQuery.includes('chỗ trống')
+    ) {
+      const [sessions] = await db.query(`
+        SELECT s.starts_at, s.ends_at, s.capacity, s.reserved_places, (s.capacity - s.reserved_places) AS available_slots,
+               c.name AS class_name, r.name AS room_name, at.full_name AS trainer_name
+        FROM class_sessions s
+        JOIN classes c ON s.class_id = c.id
+        JOIN rooms r ON s.room_id = r.id
+        LEFT JOIN trainers t ON s.trainer_id = t.account_id
+        LEFT JOIN accounts at ON t.account_id = at.id
+        WHERE s.status = 'published' AND s.starts_at >= CURDATE()
+        ORDER BY s.starts_at ASC
+        LIMIT 5
+      `);
+
+      if (sessions.length === 0) {
+        return res.json({
+          success: true,
+          reply: 'Hiện tại chưa có ca học nào được công bố trong tuần này. Anh/chị vui lòng kiểm tra lại sau nhé!'
+        });
+      }
+
+      let reply = '📅 **CÁC CA HỌC ĐANG MỞ CHỖ TRỐNG SẮP TỚI:**\n\n';
+      sessions.forEach((s, idx) => {
+        const d = new Date(s.starts_at);
+        const dayStr = `${d.getDate()}/${d.getMonth() + 1}`;
+        const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        reply += `${idx + 1}. **${s.class_name}** — Ngày ${dayStr} lúc **${timeStr}**\n`;
+        reply += `   • Phòng: ${s.room_name} | HLV: ${s.trainer_name || 'HLV FitCenter'}\n`;
+        reply += `   • Còn trống: **${s.available_slots}/${s.capacity} chỗ**\n`;
+      });
+      reply += '\n👉 Anh/chị vào tab **Lịch công bố** để bấm đăng ký giữ chỗ ngay nhé!';
+      return res.json({ success: true, reply });
+    }
+
+    // 5. Ý định: Hỏi về Huấn luyện viên (PT, Coach, Thầy giáo, Chuyên gia)
+    if (
+      rawQuery.includes('huấn luyện viên') || rawQuery.includes('hlv') || rawQuery.includes('pt') ||
+      rawQuery.includes('coach') || rawQuery.includes('thầy') || rawQuery.includes('cô') || rawQuery.includes('kèm')
+    ) {
+      const [trainers] = await db.query(`
+        SELECT a.full_name, a.email, a.phone, t.specialties, t.biography
+        FROM trainers t
+        JOIN accounts a ON t.account_id = a.id
+        WHERE a.role = 'trainer' AND a.status = 'active'
+      `);
+      let reply = '🏆 **ĐỘI NGŨ HUẤN LUYỆN VIÊN CHUYÊN NGHIỆP TẠI FITCENTER:**\n\n';
+      trainers.forEach((t, idx) => {
+        reply += `${idx + 1}. **${t.full_name}**\n`;
+        reply += `   • *Chuyên môn:* ${t.specialties || 'Thể hình, Thể lực nâng cao'}\n`;
+        reply += `   • *Kinh nghiệm:* ${t.biography || 'Chứng chỉ quốc tế, tận tâm theo sát học viên'}\n`;
+      });
+      reply += '\n👉 Khi đăng ký các lớp nhóm hoặc gói PT 1-1, bạn sẽ được các huấn luyện viên trực tiếp kèm cặp và sửa kỹ thuật!';
+      return res.json({ success: true, reply });
+    }
+
+    // 6. Ý định: Hỏi về Sản phẩm quầy bar (nước uống, whey, đồ tập)
+    if (
+      rawQuery.includes('sản phẩm') || rawQuery.includes('nước') || rawQuery.includes('whey') ||
+      rawQuery.includes('mua') || rawQuery.includes('quầy') || rawQuery.includes('phụ kiện')
+    ) {
+      const [products] = await db.query('SELECT * FROM products WHERE is_active = 1');
+      let reply = '🥤 **CÁC SẢN PHẨM PHỤC VỤ TẠI QUẦY LỄ TÂN FITCENTER:**\n\n';
+      products.forEach((p, idx) => {
+        const price = Number(p.sale_price_vnd).toLocaleString('vi-VN') + ' đ';
+        reply += `${idx + 1}. **${p.name}** [${p.category}]: **${price}** (Còn ${p.stock_quantity} món)\n`;
+      });
+      reply += '\n👉 Anh/chị có thể thanh toán trực tiếp tại quầy lễ tân bằng tiền mặt hoặc chuyển khoản QR nhé!';
+      return res.json({ success: true, reply });
+    }
+
+    // 7. Ý định: Giờ mở cửa, cơ sở vật chất, địa chỉ, xông hơi, locker
+    if (
+      rawQuery.includes('giờ') || rawQuery.includes('địa chỉ') || rawQuery.includes('ở đâu') ||
+      rawQuery.includes('tiện ích') || rawQuery.includes('sauna') || rawQuery.includes('xông hơi') ||
+      rawQuery.includes('locker') || rawQuery.includes('phòng tắm')
+    ) {
+      const reply = 
+        '🏢 **THÔNG TIN TRUNG TÂM FITCENTER:**\n\n' +
+        '⏰ **Giờ mở cửa:** Từ 05:30 đến 21:30 hàng ngày (kể cả Thứ 7 & Chủ Nhật).\n' +
+        '📍 **Địa chỉ:** Quận Hải Châu, TP. Đà Nẵng.\n' +
+        '🚿 **Tiện ích dịch vụ:**\n' +
+        '   • Tủ locker khóa từ an toàn & phòng tắm nước nóng miễn phí.\n' +
+        '   • Đo chỉ số cơ thể InBody định kỳ phân tích mỡ, cơ.\n' +
+        '   • Phòng xông hơi khô Sauna & bể sục Jacuzzi thư giãn phục hồi cơ bắp.\n' +
+        '   • Wifi tốc độ cao & bãi đỗ xe ô tô/xe máy rộng rãi an ninh.';
+      return res.json({ success: true, reply });
+    }
+
+    // Mặc định: Trả lời thông minh & gợi ý
+    const defaultReply = 
+      'Dạ em là **Trợ lý Ảo FitCenter AI**! Em có thể tra cứu trực tiếp dữ liệu từ hệ thống để trả lời anh/chị:\n\n' +
+      '💡 **Bạn có thể thử hỏi em:**\n' +
+      '• *"Gói tập của tôi còn hạn bao lâu?"*\n' +
+      '• *"Bảng giá các gói tập gym?"*\n' +
+      '• *"Lịch học các lớp hôm nay?"*\n' +
+      '• *"Danh sách huấn luyện viên?"*\n' +
+      '• *"Trung tâm mở cửa từ mấy giờ?"*\n' +
+      '• *"Quầy có bán nước khoáng hay Whey không?"*\n\n' +
+      'Anh/chị cần em hỗ trợ thông tin gì ạ?';
+
+    return res.json({ success: true, reply: defaultReply });
+
+  } catch (error) {
+    console.error('Lỗi Chatbot API:', error);
+    res.status(500).json({ success: false, message: 'Lỗi chatbot: ' + error.message });
+  }
+});
+
+// =====================================================================
 // 3. ADMIN & GENERAL APIS
 // =====================================================================
 
