@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitCenter - Cổng Nhân viên (Staff Portal) | CDIO SE447G</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['"Plus Jakarta Sans"','sans-serif']}}}}</script>
+<style>
+body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialiased}
+.tab{display:none}.tab.active{display:block;animation:fi .2s ease-in-out}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:9999px}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:1rem}
+.btn{background:#000;color:#fff;font-size:.75rem;font-weight:600;padding:.55rem 1rem;border-radius:.75rem;transition:.15s}
+.btn:hover{background:#262626}
+.btn-o{border:1px solid #e5e7eb;background:#fff;font-size:.75rem;font-weight:600;padding:.45rem .8rem;border-radius:.75rem;color:#374151}
+.btn-o:hover{background:#f9fafb;color:#000}
+.inp{border:1px solid #e5e7eb;border-radius:.75rem;padding:.6rem .85rem;font-size:.8rem;width:100%;outline:none;background:#fff}
+.inp:focus{border-color:#000}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:9999px;display:inline-block}
+th{font-size:11px;font-weight:600;color:#6b7280;text-align:left;padding:.6rem 1rem;background:#f9fafb}
+td{padding:.7rem 1rem;font-size:.75rem;border-top:1px solid #f3f4f6}
+:focus-visible{outline:2px solid #000;outline-offset:2px}
+</style>
+</head>
+<body class="bg-neutral-50 text-slate-900 min-h-screen flex flex-col md:flex-row selection:bg-black selection:text-white">
+
+<!-- ============ SIDEBAR ============ -->
+<aside id="sidebar" class="w-full md:w-64 bg-white border-r border-gray-200 flex md:flex-col justify-between shrink-0 md:min-h-screen z-30 hidden md:flex">
+  <div>
+    <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center"><i class="fa-solid fa-dumbbell text-xs"></i></div>
+        <div><span class="font-extrabold text-base text-black block leading-none">FitCenter</span><span class="text-[11px] text-gray-500 font-medium block mt-1">Staff Portal</span></div>
+      </div>
+      <button onclick="toggleSidebar()" class="md:hidden text-gray-500"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+    <nav class="p-3 space-y-1 text-xs font-semibold text-gray-600" id="nav"></nav>
+  </div>
+  <div class="p-4 border-t border-gray-100">
+    <div class="flex items-center gap-3 mb-3">
+      <div id="sbAvatar" class="w-9 h-9 rounded-full bg-neutral-200 text-neutral-800 font-bold text-xs flex items-center justify-center border border-neutral-300">NV</div>
+      <div class="truncate"><p id="sbName" class="text-xs font-bold text-black leading-tight">Nhân viên</p><p id="sbEmail" class="text-[11px] text-gray-500 truncate">staff@fitcenter.vn</p></div>
+    </div>
+    <button onclick="logoutStaff()" class="flex items-center gap-2 text-xs text-gray-500 hover:text-red-600 font-medium py-1"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Đăng xuất</span></button>
+  </div>
+</aside>
+
+<!-- ============ MAIN ============ -->
+<div class="flex-1 flex flex-col min-h-screen overflow-x-hidden">
+  <header class="bg-white border-b border-gray-200 h-16 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20">
+    <div class="flex items-center gap-3">
+      <button onclick="toggleSidebar()" class="md:hidden text-gray-600 p-1.5"><i class="fa-solid fa-bars text-lg"></i></button>
+      <div><h1 id="title" class="text-base sm:text-lg font-bold text-black leading-tight">Tổng quan</h1><p id="today" class="text-xs text-gray-500"></p></div>
+    </div>
+    <button onclick="go('notif')" class="relative w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50" aria-label="Thông báo">
+      <i class="fa-regular fa-bell text-sm"></i><span id="bell" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+    </button>
+  </header>
+
+  <main class="p-4 sm:p-8 max-w-6xl w-full mx-auto">
+
+    <!-- TỔNG QUAN -->
+    <section id="tab-overview" class="tab active">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stats"></div>
+      <div class="grid lg:grid-cols-3 gap-4 mt-4">
+        <div class="card p-5 lg:col-span-2">
+          <h3 class="text-sm font-bold mb-3">Hoạt động gần đây</h3>
+          <ul id="activity" class="divide-y divide-gray-100 text-xs"></ul>
+        </div>
+        <div class="card p-5">
+          <h3 class="text-sm font-bold mb-3">Thao tác nhanh</h3>
+          <div class="space-y-2">
+            <button onclick="go('checkin')" class="btn-o w-full text-left flex items-center gap-2"><i class="fa-solid fa-qrcode w-4"></i>Check-in hội viên</button>
+            <button onclick="go('enroll')" class="btn-o w-full text-left flex items-center gap-2"><i class="fa-solid fa-hourglass-half w-4"></i>Danh sách chờ lớp đầy</button>
+            <button onclick="go('pos')" class="btn-o w-full text-left flex items-center gap-2"><i class="fa-solid fa-cash-register w-4"></i>Bán hàng tại quầy</button>
+            <button onclick="go('invoice')" class="btn-o w-full text-left flex items-center gap-2"><i class="fa-solid fa-file-invoice w-4"></i>Hóa đơn &amp; thanh toán</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHECK-IN -->
+    <section id="tab-checkin" class="tab">
+      <div class="grid lg:grid-cols-5 gap-4">
+        <div class="card p-5 lg:col-span-2 self-start">
+          <h3 class="text-sm font-bold">Ghi nhận check-in</h3>
+          <p class="text-xs text-gray-500 mt-1 mb-4">Quét mã QR hoặc nhập mã thẻ hội viên.</p>
+          <div class="flex gap-2">
+            <input id="ciCode" class="inp uppercase" placeholder="VD: KH0001" onkeydown="if(event.key==='Enter')doCheckin()">
+            <button class="btn shrink-0" onclick="doCheckin()">Check-in</button>
+          </div>
+          <div id="ciResult" class="mt-4"></div>
+        </div>
+        <div class="card lg:col-span-3 overflow-hidden">
+          <div class="p-5 pb-3 flex items-center justify-between"><h3 class="text-sm font-bold">Lượt vào hôm nay</h3><span id="ciCount" class="badge bg-gray-100 text-gray-700"></span></div>
+          <div class="overflow-x-auto"><table class="w-full"><thead><tr><th>Giờ</th><th>Hội viên</th><th>Gói tập</th><th>Điểm danh lớp</th></tr></thead><tbody id="ciRows"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LỚP ĐẦY & DANH SÁCH CHỜ -->
+    <section id="tab-enroll" class="tab">
+      <div id="clsCards" class="grid sm:grid-cols-2 xl:grid-cols-4 gap-3"></div>
+      <div class="grid lg:grid-cols-3 gap-4 mt-4">
+        <div class="card lg:col-span-2 overflow-hidden self-start">
+          <div class="p-5 pb-3">
+            <div class="flex flex-wrap items-center justify-between gap-2"><h3 class="text-sm font-bold" id="wlTitle">Danh sách chờ</h3><span id="wlInfo" class="badge bg-gray-100 text-gray-700"></span></div>
+            <div class="flex gap-2 mt-3">
+              <input id="wlCode" class="inp uppercase" placeholder="Mã thẻ hội viên muốn vào lớp (VD: KH0002)" onkeydown="if(event.key==='Enter')addWaitFromInput()">
+              <button class="btn shrink-0" onclick="addWaitFromInput()">Thêm vào danh sách chờ</button>
+            </div>
+            <p class="text-[11px] text-gray-400 mt-2">Chỉ áp dụng khi lớp đã hết chỗ. Khi có chỗ trống, hệ thống thông báo cho khách đứng đầu danh sách.</p>
+          </div>
+          <div class="overflow-x-auto"><table class="w-full"><thead><tr><th>Thứ tự</th><th>Hội viên</th><th>Vào danh sách</th><th>Trạng thái</th><th class="text-right">Xử lý</th></tr></thead><tbody id="wlRows"></tbody></table></div>
+        </div>
+        <div class="space-y-4">
+          <div class="card p-5">
+            <h3 class="text-sm font-bold mb-1">Yêu cầu hủy / đổi lớp</h3>
+            <p class="text-[11px] text-gray-400 mb-3">Xác nhận sẽ giải phóng chỗ và báo cho khách đang chờ.</p>
+            <div id="reqList" class="space-y-3"></div>
+          </div>
+          <div class="card p-5">
+            <h3 class="text-sm font-bold mb-3">Đã thông báo cho khách</h3>
+            <ul id="sentList" class="space-y-2 text-xs"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BÁN HÀNG -->
+    <section id="tab-pos" class="tab">
+      <div class="grid lg:grid-cols-3 gap-4">
+        <div class="lg:col-span-2">
+          <input id="posSearch" oninput="renderProducts()" class="inp mb-4" placeholder="Tìm sản phẩm...">
+          <div id="products" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+        </div>
+        <div class="card p-5 self-start lg:sticky lg:top-20">
+          <h3 class="text-sm font-bold mb-3">Giỏ hàng</h3>
+          <div id="cart" class="space-y-2 text-xs max-h-72 overflow-y-auto"></div>
+          <div class="border-t border-gray-100 mt-3 pt-3 space-y-3">
+            <input id="posMember" class="inp uppercase" placeholder="Mã hội viên (không bắt buộc)">
+            <select id="posPay" class="inp"><option>Tiền mặt</option><option>Chuyển khoản</option><option>Thẻ</option></select>
+            <div class="flex justify-between text-sm font-bold"><span>Tổng cộng</span><span id="cartTotal">0đ</span></div>
+            <button class="btn w-full py-2.5" onclick="checkout()"><i class="fa-solid fa-receipt mr-1.5"></i>Thanh toán</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HÓA ĐƠN -->
+    <section id="tab-invoice" class="tab">
+      <div class="flex flex-wrap gap-2 mb-4 items-center">
+        <input id="invSearch" oninput="renderInvoices()" class="inp max-w-xs" placeholder="Tìm theo mã hóa đơn hoặc khách...">
+        <select id="invStatus" onchange="renderInvoices()" class="inp max-w-[10rem]"><option value="">Tất cả</option><option>Đã thanh toán</option><option>Chưa thanh toán</option></select>
+      </div>
+      <div class="card overflow-hidden"><div class="overflow-x-auto">
+        <table class="w-full"><thead><tr><th>Mã HĐ</th><th>Thời gian</th><th>Khách</th><th>Nội dung</th><th>Tổng tiền</th><th>Trạng thái</th><th class="text-right">Thao tác</th></tr></thead><tbody id="invRows"></tbody></table>
+      </div></div>
+    </section>
+
+    <!-- THÔNG BÁO -->
+    <section id="tab-notif" class="tab">
+      <div class="flex justify-between items-center mb-4"><p class="text-xs text-gray-500">Thông báo gửi đến tài khoản của bạn</p><button class="btn-o" onclick="readAll()">Đánh dấu đã đọc tất cả</button></div>
+      <div id="notifList" class="space-y-2"></div>
+    </section>
+  </main>
+</div>
+
+<!-- MODAL HÓA ĐƠN -->
+<div id="modal" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onclick="if(event.target===this)closeModal()">
+  <div class="bg-white rounded-2xl w-full max-w-sm p-6" id="modalBody"></div>
+</div>
+<div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg hidden z-50"></div>
+
+<script>
+/* ========== DỮ LIỆU MẪU (thay bằng fetch API khi backend sẵn sàng) ========== */
+// const API_BASE = window.location.origin.includes(':3000') ? '' : 'http://localhost:3000';
+const vnd = n => n.toLocaleString('vi-VN') + 'đ';
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const hm = () => new Date().toTimeString().slice(0,5);
+
+const S = {
+  members: {
+    KH0001:{name:'Nguyễn Văn An',plan:'Gold',exp:'2027-02-10',active:true},
+    KH0002:{name:'Trần Thị Bích',plan:'Silver',exp:'2026-12-05',active:true},
+    KH0003:{name:'Lê Hoàng Nam',plan:'Basic',exp:'2026-10-30',active:false},
+    KH0004:{name:'Phạm Minh Châu',plan:'Gold',exp:'2027-01-18',active:true}
+  },
+  classes:['Yoga buổi sáng 06:00','Pilates cơ bản 08:00','Kickboxing 17:30','CrossFit nâng cao 19:00'],
+  checkins:[{t:'06:02',code:'KH0002',cls:'Yoga buổi sáng 06:00'},{t:'06:15',code:'KH0004',cls:''}],
+  cls:[
+    {id:1,name:'Yoga buổi sáng',time:'06:00',coach:'Lê Thị Hoa',cap:20,enrolled:20,held:0},
+    {id:2,name:'Pilates cơ bản',time:'08:00',coach:'Nguyễn Quốc Bảo',cap:15,enrolled:12,held:0},
+    {id:3,name:'Kickboxing',time:'17:30',coach:'Trần Văn Mạnh',cap:15,enrolled:15,held:0},
+    {id:4,name:'CrossFit nâng cao',time:'19:00',coach:'Trần Văn Mạnh',cap:16,enrolled:16,held:0}
+  ],
+  wait:[
+    {id:1,cls:1,code:'KH0001',t:'05/11 09:20',st:'Đang chờ'},
+    {id:2,cls:1,code:'KH0004',t:'06/11 14:05',st:'Đang chờ'},
+    {id:3,cls:3,code:'KH0002',t:'06/11 18:40',st:'Đang chờ'}
+  ],
+  reqs:[
+    {id:1,code:'KH0003',type:'Hủy',from:3,to:null,st:'Chờ xử lý'},
+    {id:2,code:'KH0002',type:'Đổi lớp',from:1,to:2,st:'Chờ xử lý'}
+  ],
+  sent:[], selCls:1,
+  products:[
+    {id:1,name:'Nước suối 500ml',price:10000,icon:'droplet'},
+    {id:2,name:'Nước điện giải',price:20000,icon:'bottle-water'},
+    {id:3,name:'Whey Protein 1 ly',price:45000,icon:'blender'},
+    {id:4,name:'Khăn tập',price:60000,icon:'shirt'},
+    {id:5,name:'Găng tay tập',price:180000,icon:'hand-fist'},
+    {id:6,name:'Bình lắc 700ml',price:95000,icon:'flask'}
+  ],
+  cart:{},
+  invoices:[
+    {id:'HD2001',time:'07/11 06:40',who:'Trần Thị Bích',desc:'Gia hạn gói Silver',total:1200000,st:'Đã thanh toán',pay:'Chuyển khoản'},
+    {id:'HD2002',time:'07/11 08:10',who:'Khách lẻ',desc:'Nước suối x2',total:20000,st:'Đã thanh toán',pay:'Tiền mặt'}
+  ],
+  notifs:[
+    {t:'Ca trực 17:00 – 22:00 hôm nay tại quầy lễ tân',time:'08:00',read:false},
+    {t:'Quản lý nhắc đối soát doanh thu cuối ca',time:'Hôm qua',read:false},
+    {t:'Có 2 yêu cầu hủy/đổi lớp đang chờ xử lý',time:'Hôm qua',read:true}
+  ],
+  activity:[], tab:'overview'
+};
+const TABS=[['overview','Tổng quan','table-cells-large'],['checkin','Check-in & điểm danh','qrcode'],['enroll','Lớp đầy & danh sách chờ','hourglass-half'],['pos','Bán hàng tại quầy','cash-register'],['invoice','Hóa đơn & thanh toán','file-invoice'],['notif','Thông báo','bell']];
+const TITLES=Object.fromEntries(TABS.map(t=>[t[0],t[1]]));
+
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.remove('hidden');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.add('hidden'),2200)}
+function log(icon,text){S.activity.unshift({icon,text,t:hm()});S.activity=S.activity.slice(0,8);renderOverview()}
+const $=id=>document.getElementById(id);
+
+/* ========== ĐIỀU HƯỚNG ========== */
+function renderNav(){
+  $('nav').innerHTML=TABS.map(([id,l,ic])=>`<button onclick="go('${id}')" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition ${S.tab===id?'text-black bg-gray-100':'hover:bg-gray-100/80 hover:text-black'}"><i class="fa-solid fa-${ic} text-sm w-4 text-center"></i><span>${l}</span>${id==='enroll'&&pending()?`<span class="ml-auto bg-black text-white text-[9px] px-1.5 py-0.5 rounded-full">${pending()}</span>`:''}</button>`).join('');
+}
+function go(id){
+  S.tab=id;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  $('tab-'+id).classList.add('active');$('title').textContent=TITLES[id];
+  if(window.innerWidth<768)$('sidebar').classList.add('hidden');
+  renderAll();window.scrollTo(0,0);
+}
+function toggleSidebar(){$('sidebar').classList.toggle('hidden')}
+
+/* ========== TỔNG QUAN ========== */
+const pending=()=>S.reqs.filter(r=>r.st==='Chờ xử lý').length;
+const revenue=()=>S.invoices.filter(i=>i.st==='Đã thanh toán').reduce((s,i)=>s+i.total,0);
+function renderOverview(){
+  const unread=S.notifs.filter(n=>!n.read).length;
+  const cards=[['Check-in hôm nay',S.checkins.length,'qrcode'],['Yêu cầu hủy/đổi lớp',pending(),'right-left'],['Doanh thu quầy',vnd(revenue()),'wallet'],['Thông báo chưa đọc',unread,'bell']];
+  $('stats').innerHTML=cards.map(([l,v,ic])=>`<div class="card p-5"><div class="flex items-center gap-2 text-xs text-gray-500"><i class="fa-solid fa-${ic}"></i>${l}</div><p class="text-2xl font-extrabold mt-3 text-black">${v}</p></div>`).join('');
+  $('activity').innerHTML=S.activity.length?S.activity.map(a=>`<li class="py-2.5 flex items-center gap-3"><i class="fa-solid fa-${a.icon} w-4 text-gray-400"></i><span class="flex-1">${esc(a.text)}</span><span class="text-gray-400">${a.t}</span></li>`).join(''):'<li class="py-6 text-center text-gray-400">Chưa có hoạt động nào trong ca này. Bắt đầu bằng việc check-in hội viên.</li>';
+  $('bell').textContent=unread;$('bell').classList.toggle('hidden',!unread);
+}
+
+/* ========== CHECK-IN & ĐIỂM DANH ========== */
+function doCheckin(){
+  const code=$('ciCode').value.trim().toUpperCase(),m=S.members[code],box=$('ciResult');
+  if(!code)return toast('Nhập mã thẻ hội viên');
+  if(!m){box.innerHTML=`<div class="rounded-xl bg-red-50 border border-red-100 p-4 text-xs text-red-700"><b>Không tìm thấy thẻ ${esc(code)}.</b><br>Kiểm tra lại mã hoặc hướng dẫn khách đăng ký tài khoản.</div>`;return}
+  const expired=new Date(m.exp)<new Date();
+  if(!m.active||expired){box.innerHTML=`<div class="rounded-xl bg-red-50 border border-red-100 p-4 text-xs text-red-700"><b>${esc(m.name)} – gói ${m.plan} đã hết hạn.</b><br>Từ chối check-in và đề nghị khách gia hạn gói tập.</div>`;return}
+  if(S.checkins.some(c=>c.code===code))box.innerHTML=`<div class="rounded-xl bg-amber-50 border border-amber-100 p-4 text-xs text-amber-800"><b>${esc(m.name)} đã check-in hôm nay.</b></div>`;
+  else{S.checkins.unshift({t:hm(),code,cls:''});log('qrcode',`Check-in ${m.name} (${code})`);
+    box.innerHTML=`<div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4 text-xs text-emerald-800"><b>Check-in thành công: ${esc(m.name)}</b><br>Gói ${m.plan} · hết hạn ${m.exp.split('-').reverse().join('/')}</div>`}
+  $('ciCode').value='';renderCheckins();
+}
+function setClass(i,v){const c=S.checkins[i];c.cls=v;if(v)log('clipboard-check',`Điểm danh ${S.members[c.code].name}: ${v}`);renderCheckins()}
+function renderCheckins(){
+  $('ciCount').textContent=S.checkins.length+' lượt';
+  $('ciRows').innerHTML=S.checkins.map((c,i)=>`<tr><td>${c.t}</td><td class="font-semibold">${esc(S.members[c.code].name)}<div class="text-gray-400 font-normal">${c.code}</div></td><td>${S.members[c.code].plan}</td><td><select class="inp py-1.5 text-xs" onchange="setClass(${i},this.value)"><option value="">Chưa điểm danh</option>${S.classes.map(k=>`<option ${k===c.cls?'selected':''}>${k}</option>`).join('')}</select></td></tr>`).join('');
+}
+
+/* ========== LỚP ĐẦY & DANH SÁCH CHỜ ========== */
+// Mỗi thao tác ghi dữ liệu dưới đây cần gọi API tương ứng (POST/PATCH) khi có backend.
+const avail=c=>c.cap-c.enrolled-c.held;
+const cname=id=>{const c=S.cls.find(x=>x.id===id);return c.name+' '+c.time};
+const mname=code=>S.members[code]?S.members[code].name:code;
+const wStyle={'Đang chờ':'bg-gray-100 text-gray-700','Đã thông báo':'bg-amber-100 text-amber-800','Đã đăng ký':'bg-emerald-100 text-emerald-800','Hết hạn':'bg-red-100 text-red-700'};
+
+// Thông báo cho khách đứng đầu danh sách mỗi khi lớp có chỗ trống
+function autoNotify(clsId){
+  const c=S.cls.find(x=>x.id===clsId);
+  while(avail(c)>0){
+    const w=S.wait.find(x=>x.cls===clsId&&x.st==='Đang chờ');
+    if(!w)break;
+    w.st='Đã thông báo';c.held++;
+    S.sent.unshift({t:hm(),text:`${mname(w.code)} – lớp ${cname(clsId)} đã có chỗ, mời đăng ký trong 24 giờ`});
+    S.sent=S.sent.slice(0,6);
+    log('bell',`Báo ${mname(w.code)}: lớp ${cname(clsId)} có chỗ trống`);
+    toast(`Đã thông báo cho ${mname(w.code)}`);
+  }
+}
+function freeSlot(clsId){S.cls.find(x=>x.id===clsId).enrolled--;autoNotify(clsId)}
+
+function addWait(clsId,code){
+  const c=S.cls.find(x=>x.id===clsId);
+  if(!code)return toast('Nhập mã thẻ hội viên');
+  if(!S.members[code])return toast('Không tìm thấy hội viên '+code);
+  if(avail(c)>0)return toast('Lớp còn chỗ, khách có thể đăng ký trực tiếp');
+  if(S.wait.some(w=>w.cls===clsId&&w.code===code&&(w.st==='Đang chờ'||w.st==='Đã thông báo')))return toast('Khách đã có trong danh sách chờ lớp này');
+  S.wait.push({id:Date.now(),cls:clsId,code,t:'Hôm nay '+hm(),st:'Đang chờ'});
+  log('hourglass-half',`Thêm ${mname(code)} vào danh sách chờ ${cname(clsId)}`);
+  toast('Đã thêm vào danh sách chờ');renderAll();
+}
+function addWaitFromInput(){addWait(S.selCls,$('wlCode').value.trim().toUpperCase());$('wlCode').value=''}
+
+function waitAction(id,act){
+  const w=S.wait.find(x=>x.id===id),c=S.cls.find(x=>x.id===w.cls);
+  if(act==='remove'){S.wait=S.wait.filter(x=>x.id!==id)}
+  else if(act==='done'){w.st='Đã đăng ký';c.held--;c.enrolled++;log('circle-check',`${mname(w.code)} đã đăng ký vào ${cname(w.cls)}`)}
+  else if(act==='expire'){w.st='Hết hạn';c.held--;log('clock',`${mname(w.code)} bỏ lỡ chỗ lớp ${cname(w.cls)}`);autoNotify(w.cls)}
+  renderAll();
+}
+
+function processReq(id){
+  const r=S.reqs.find(x=>x.id===id);
+  if(r.type==='Đổi lớp'){S.cls.find(x=>x.id===r.to).enrolled++}
+  r.st='Đã xử lý';log('right-left',`${r.type} lớp: ${mname(r.code)} rời ${cname(r.from)}`);
+  freeSlot(r.from);toast('Đã xử lý yêu cầu');renderAll();
+}
+function reqToWait(id){const r=S.reqs.find(x=>x.id===id);S.selCls=r.to;addWait(r.to,r.code)}
+
+function renderEnroll(){
+  $('clsCards').innerHTML=S.cls.map(c=>{
+    const full=avail(c)<=0,n=S.wait.filter(w=>w.cls===c.id&&w.st==='Đang chờ').length,pct=Math.round((c.enrolled+c.held)/c.cap*100);
+    return `<button onclick="S.selCls=${c.id};renderEnroll()" class="card p-4 text-left transition ${S.selCls===c.id?'border-black ring-1 ring-black':'hover:border-gray-400'}">
+      <div class="flex justify-between items-start gap-2"><div><p class="text-xs font-bold">${c.name}</p><p class="text-[11px] text-gray-500">${c.time} · ${c.coach}</p></div>
+      <span class="badge ${full?'bg-red-100 text-red-700':'bg-emerald-100 text-emerald-800'}">${full?'Đã đầy':'Còn '+avail(c)+' chỗ'}</span></div>
+      <div class="h-1.5 bg-gray-100 rounded-full mt-3 overflow-hidden"><div class="h-full ${full?'bg-black':'bg-gray-400'}" style="width:${pct}%"></div></div>
+      <p class="text-[11px] text-gray-500 mt-2">${c.enrolled}/${c.cap} học viên${c.held?` · giữ chỗ ${c.held}`:''} · ${n} đang chờ</p></button>`}).join('');
+  const c=S.cls.find(x=>x.id===S.selCls),list=S.wait.filter(w=>w.cls===c.id);
+  $('wlTitle').textContent='Danh sách chờ – '+cname(c.id);
+  $('wlInfo').textContent=avail(c)>0?`Còn ${avail(c)} chỗ`:'Lớp đã đầy';
+  let pos=0;
+  $('wlRows').innerHTML=list.length?list.map(w=>{
+    const waiting=w.st==='Đang chờ';if(waiting)pos++;
+    const act=w.st==='Đã thông báo'?`<button class="btn" onclick="waitAction(${w.id},'done')">Khách đã đăng ký</button> <button class="btn-o" onclick="waitAction(${w.id},'expire')">Hết hạn</button>`:waiting?`<button class="btn-o" onclick="waitAction(${w.id},'remove')">Xóa</button>`:'';
+    return `<tr><td class="font-semibold">${waiting?'#'+pos:'–'}</td><td>${esc(mname(w.code))}<div class="text-gray-400">${w.code}</div></td><td>${w.t}</td><td><span class="badge ${wStyle[w.st]}">${w.st}</span></td><td class="text-right whitespace-nowrap">${act}</td></tr>`}).join('')
+    :'<tr><td colspan="5" class="text-center text-gray-400 py-8">Chưa có khách nào chờ lớp này. Khi lớp đầy, nhập mã thẻ ở trên để thêm khách vào danh sách.</td></tr>';
+  const open=S.reqs.filter(r=>r.st==='Chờ xử lý');
+  $('reqList').innerHTML=open.length?open.map(r=>{
+    const to=r.to?S.cls.find(x=>x.id===r.to):null,blocked=to&&avail(to)<=0;
+    return `<div class="rounded-xl border border-gray-200 p-3 text-xs"><p class="font-semibold">${esc(mname(r.code))} <span class="badge bg-gray-100 text-gray-700 ml-1">${r.type}</span></p>
+      <p class="text-gray-500 mt-1">${r.type==='Hủy'?'Hủy lớp ':'Từ '}${cname(r.from)}${to?' → '+cname(r.to):''}</p>
+      <div class="mt-2">${blocked?`<p class="text-[11px] text-amber-700 mb-2">Lớp đích đã đầy.</p><button class="btn-o" onclick="reqToWait(${r.id})">Đưa vào danh sách chờ lớp đích</button>`:`<button class="btn" onclick="processReq(${r.id})">Xác nhận ${r.type==='Hủy'?'hủy lớp':'đổi lớp'}</button>`}</div></div>`}).join('')
+    :'<p class="text-xs text-gray-400">Không có yêu cầu nào đang chờ.</p>';
+  $('sentList').innerHTML=S.sent.length?S.sent.map(m=>`<li class="flex gap-2"><i class="fa-solid fa-paper-plane text-gray-400 mt-0.5"></i><span class="flex-1">${esc(m.text)}</span><span class="text-gray-400">${m.t}</span></li>`).join(''):'<li class="text-gray-400">Chưa có thông báo nào được gửi.</li>';
+  renderNav();
+}
+
+/* ========== BÁN HÀNG TẠI QUẦY ========== */
+function renderProducts(){
+  const q=$('posSearch').value.toLowerCase();
+  $('products').innerHTML=S.products.filter(p=>p.name.toLowerCase().includes(q)).map(p=>`<button onclick="addCart(${p.id})" class="card p-4 text-left hover:border-black transition"><i class="fa-solid fa-${p.icon} text-gray-400"></i><p class="text-xs font-semibold mt-3">${p.name}</p><p class="text-xs text-gray-500 mt-1">${vnd(p.price)}</p></button>`).join('')||'<p class="text-xs text-gray-400 col-span-full py-6">Không tìm thấy sản phẩm phù hợp.</p>';
+}
+function addCart(id){S.cart[id]=(S.cart[id]||0)+1;renderCart()}
+function qty(id,d){S.cart[id]+=d;if(S.cart[id]<=0)delete S.cart[id];renderCart()}
+const cartTotal=()=>Object.entries(S.cart).reduce((s,[id,q])=>s+S.products.find(p=>p.id==id).price*q,0);
+function renderCart(){
+  const ids=Object.keys(S.cart);
+  $('cart').innerHTML=ids.length?ids.map(id=>{const p=S.products.find(p=>p.id==id);return `<div class="flex items-center gap-2"><div class="flex-1"><p class="font-semibold">${p.name}</p><p class="text-gray-500">${vnd(p.price)}</p></div><button class="btn-o px-2 py-1" onclick="qty(${id},-1)" aria-label="Giảm">−</button><span class="w-5 text-center font-semibold">${S.cart[id]}</span><button class="btn-o px-2 py-1" onclick="qty(${id},1)" aria-label="Tăng">+</button></div>`}).join(''):'<p class="text-gray-400 py-4 text-center">Chọn sản phẩm bên trái để thêm vào giỏ.</p>';
+  $('cartTotal').textContent=vnd(cartTotal());
+}
+function checkout(){
+  if(!Object.keys(S.cart).length)return toast('Giỏ hàng đang trống');
+  const code=$('posMember').value.trim().toUpperCase();
+  if(code&&!S.members[code])return toast('Mã hội viên không tồn tại');
+  const desc=Object.entries(S.cart).map(([id,q])=>S.products.find(p=>p.id==id).name+' x'+q).join(', ');
+  const inv={id:'HD'+(2001+S.invoices.length),time:'Hôm nay '+hm(),who:code?S.members[code].name:'Khách lẻ',desc,total:cartTotal(),st:'Đã thanh toán',pay:$('posPay').value};
+  S.invoices.unshift(inv);S.cart={};$('posMember').value='';log('cash-register',`Bán hàng ${inv.id} – ${vnd(inv.total)}`);
+  renderAll();showInvoice(inv.id);
+}
+
+/* ========== HÓA ĐƠN & THANH TOÁN ========== */
+function payInvoice(id,m){const i=S.invoices.find(x=>x.id===id);i.st='Đã thanh toán';i.pay=m;log('money-bill',`Thu tiền ${id} – ${vnd(i.total)}`);closeModal();toast('Đã ghi nhận thanh toán');renderAll()}
+function showInvoice(id){
+  const i=S.invoices.find(x=>x.id===id);
+  $('modalBody').innerHTML=`<div class="flex justify-between items-start"><div><h3 class="font-extrabold text-base">Hóa đơn ${i.id}</h3><p class="text-xs text-gray-500">${i.time}</p></div><button onclick="closeModal()" aria-label="Đóng"><i class="fa-solid fa-xmark text-gray-400"></i></button></div>
+  <dl class="text-xs mt-4 space-y-2"><div class="flex justify-between"><dt class="text-gray-500">Khách</dt><dd class="font-semibold">${esc(i.who)}</dd></div><div class="flex justify-between gap-4"><dt class="text-gray-500">Nội dung</dt><dd class="font-semibold text-right">${esc(i.desc)}</dd></div><div class="flex justify-between"><dt class="text-gray-500">Thanh toán</dt><dd class="font-semibold">${i.pay||'Chưa thu'}</dd></div><div class="flex justify-between text-sm border-t border-gray-100 pt-3"><dt class="font-bold">Tổng cộng</dt><dd class="font-extrabold">${vnd(i.total)}</dd></div></dl>
+  <div class="mt-5 flex gap-2">${i.st==='Chưa thanh toán'?['Tiền mặt','Chuyển khoản','Thẻ'].map(m=>`<button class="btn flex-1" onclick="payInvoice('${i.id}','${m}')">${m}</button>`).join(''):`<button class="btn-o flex-1" onclick="window.print()"><i class="fa-solid fa-print mr-1"></i>In hóa đơn</button><button class="btn flex-1" onclick="closeModal()">Xong</button>`}</div>`;
+  $('modal').classList.remove('hidden');
+}
+function closeModal(){$('modal').classList.add('hidden')}
+function renderInvoices(){
+  const q=$('invSearch').value.toLowerCase(),st=$('invStatus').value;
+  const rows=S.invoices.filter(i=>(!st||i.st===st)&&(i.id+i.who).toLowerCase().includes(q));
+  $('invRows').innerHTML=rows.length?rows.map(i=>`<tr><td class="font-semibold">${i.id}</td><td>${i.time}</td><td>${esc(i.who)}</td><td class="max-w-[14rem] truncate">${esc(i.desc)}</td><td class="font-semibold">${vnd(i.total)}</td><td><span class="badge ${i.st==='Đã thanh toán'?'bg-emerald-100 text-emerald-800':'bg-amber-100 text-amber-800'}">${i.st}</span></td><td class="text-right"><button class="${i.st==='Chưa thanh toán'?'btn':'btn-o'}" onclick="showInvoice('${i.id}')">${i.st==='Chưa thanh toán'?'Thu tiền':'Xem'}</button></td></tr>`).join(''):'<tr><td colspan="7" class="text-center text-gray-400 py-8">Không tìm thấy hóa đơn phù hợp.</td></tr>';
+}
+
+/* ========== THÔNG BÁO ========== */
+function readAll(){S.notifs.forEach(n=>n.read=true);renderAll()}
+function renderNotifs(){
+  $('notifList').innerHTML=S.notifs.map((n,i)=>`<button onclick="S.notifs[${i}].read=true;renderAll()" class="card w-full text-left p-4 flex items-start gap-3 ${n.read?'':'border-black'}"><span class="w-2 h-2 rounded-full mt-1.5 ${n.read?'bg-gray-200':'bg-black'}"></span><span class="flex-1 text-xs ${n.read?'text-gray-500':'font-semibold text-black'}">${esc(n.t)}</span><span class="text-[11px] text-gray-400">${n.time}</span></button>`).join('');
+}
+
+/* ========== PHIÊN ĐĂNG NHẬP ========== */
+function renderAll(){renderNav();renderOverview();renderCheckins();renderEnroll();renderProducts();renderCart();renderInvoices();renderNotifs()}
+function logoutStaff(){if(confirm('Bạn có chắc chắn muốn đăng xuất khỏi Cổng Nhân viên?')){localStorage.removeItem('fitcenter_user');window.location.href='dang_nhap.html'}}
+window.addEventListener('DOMContentLoaded',()=>{
+  $('today').textContent=new Date().toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+  try{const u=JSON.parse(localStorage.getItem('fitcenter_user')||'null');
+    if(u){$('sbName').textContent=u.fullName||'Nhân viên';$('sbEmail').textContent=u.email||'';
+      $('sbAvatar').textContent=(u.fullName||'NV').split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase()}}catch(e){console.error(e)}
+  renderAll();
+});
+</script>
+</body>
+</html>
