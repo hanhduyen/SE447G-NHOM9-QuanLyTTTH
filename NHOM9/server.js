@@ -258,6 +258,10 @@ app.use('/api/customer', customerRouter);
 // 3. ADMIN & NHÂN VIÊN APIS (ADMIN PORTAL)
 // =====================================================================
 
+// API dành riêng cho nhân viên
+const staffRouter = require('./routes/staffRoutes');
+app.use('/api/staff', staffRouter);
+
 // GET /api/admin/stats (Thống kê tổng quan Admin)
 app.get('/api/admin/stats', async (req, res) => {
   try {
