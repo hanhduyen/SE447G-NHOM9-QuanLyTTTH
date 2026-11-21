@@ -5,7 +5,7 @@ const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '123456',
-  database: process.env.DB_NAME || 'fitcenter',
+  database: process.env.DB_NAME || 'QuanLyTrungTamTheHinh',
   port: Number(process.env.DB_PORT) || 3306,
   waitForConnections: true,
   connectionLimit: 10,
@@ -17,7 +17,7 @@ const pool = mysql.createPool({
 async function testConnection() {
   try {
     const connection = await pool.getConnection();
-    console.log('✅ Kết nối MySQL (database: fitcenter) thành công!');
+    console.log(`✅ Kết nối MySQL (database: ${process.env.DB_NAME || 'QuanLyTrungTamTheHinh'}) thành công!`);
     connection.release();
   } catch (error) {
     console.error('❌ Lỗi kết nối MySQL:', error.message);

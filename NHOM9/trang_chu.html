@@ -142,17 +142,17 @@
         <!-- Cột phải: 3 thẻ thống kê -->
         <div class="flex flex-wrap sm:flex-nowrap gap-4 w-full lg:w-auto">
           <div class="border border-gray-200 rounded-2xl px-6 py-4 text-center min-w-[110px] flex-1 sm:flex-initial bg-white shadow-sm">
-            <div class="text-2xl sm:text-3xl font-extrabold text-black">1.200+</div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-black" id="homeStatMembers">1.200+</div>
             <div class="text-xs text-gray-500 font-medium mt-1">Hội viên</div>
           </div>
 
           <div class="border border-gray-200 rounded-2xl px-6 py-4 text-center min-w-[110px] flex-1 sm:flex-initial bg-white shadow-sm">
-            <div class="text-2xl sm:text-3xl font-extrabold text-black">12</div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-black" id="homeStatTrainers">12</div>
             <div class="text-xs text-gray-500 font-medium mt-1">Huấn luyện viên</div>
           </div>
 
           <div class="border border-gray-200 rounded-2xl px-6 py-4 text-center min-w-[110px] flex-1 sm:flex-initial bg-white shadow-sm">
-            <div class="text-2xl sm:text-3xl font-extrabold text-black">6</div>
+            <div class="text-2xl sm:text-3xl font-extrabold text-black" id="homeStatCourses">6</div>
             <div class="text-xs text-gray-500 font-medium mt-1">Khóa học</div>
           </div>
         </div>
@@ -300,22 +300,22 @@
         <div class="space-y-4 text-xs sm:text-sm text-gray-700">
           <div class="flex items-center space-x-3.5">
             <i class="fa-solid fa-location-dot text-gray-500 w-5 text-center text-sm"></i>
-            <span>Số 12, Đường Số 1, Quận Hải Châu, Đà Nẵng</span>
+            <span id="homeCenterAddress">Số 12, Đường Số 1, Quận Hải Châu, Đà Nẵng</span>
           </div>
 
           <div class="flex items-center space-x-3.5">
             <i class="fa-solid fa-phone text-gray-500 w-5 text-center text-sm"></i>
-            <span class="font-mono">0900 000 000</span>
+            <span class="font-mono" id="homeCenterPhone">0900 000 000</span>
           </div>
 
           <div class="flex items-center space-x-3.5">
             <i class="fa-regular fa-envelope text-gray-500 w-5 text-center text-sm"></i>
-            <span>lienhe@fitcenter.vn</span>
+            <span id="homeCenterEmail">lienhe@fitcenter.vn</span>
           </div>
 
           <div class="flex items-center space-x-3.5">
             <i class="fa-regular fa-clock text-gray-500 w-5 text-center text-sm"></i>
-            <span>Thứ 2 – Chủ nhật: 05:30 – 22:00</span>
+            <span id="homeCenterHours">Thứ 2 – Chủ nhật: 05:30 – 22:00</span>
           </div>
         </div>
 
@@ -367,8 +367,9 @@
       }
     }
 
-    // Kiểm tra trạng thái đăng nhập từ LocalStorage
-    document.addEventListener('DOMContentLoaded', () => {
+    // Kiểm tra trạng thái đăng nhập từ LocalStorage & Đồng bộ số liệu từ Backend CSDL
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Kiểm tra phiên đăng nhập
       const userJson = localStorage.getItem('fitcenter_user');
       if (userJson) {
         try {
@@ -391,7 +392,7 @@
                 <a href="${targetPage}" class="px-3.5 py-1.5 rounded-xl bg-black text-white text-xs font-semibold hover:bg-gray-800 transition shadow-sm">
                   Cổng ${roleTitle}
                 </a>
-                <button onclick="logout()" class="px-2.5 py-1.5 rounded-xl border border-gray-300 text-xs text-gray-500 hover:text-red-600 transition">
+                <button onclick="logout()" class="px-2.5 py-1.5 rounded-xl border border-gray-300 text-xs text-gray-500 hover:text-red-600 transition" title="Đăng xuất">
                   <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </button>
               </div>
@@ -400,6 +401,36 @@
         } catch (e) {
           console.error(e);
         }
+      }
+
+      // 2. Đồng bộ số liệu thật từ API Public Info
+      try {
+        const API_BASE = (window.location.origin.includes(':3000')) ? '' : 'http://localhost:3000';
+        const res = await fetch(`${API_BASE}/api/public/info`);
+        const data = await res.json();
+        if (data.success && data.data) {
+          const { stats, center } = data.data;
+          if (stats) {
+            const mEl = document.getElementById('homeStatMembers');
+            if (mEl && stats.members) mEl.innerText = stats.members + '+';
+            const tEl = document.getElementById('homeStatTrainers');
+            if (tEl && stats.trainers) tEl.innerText = stats.trainers;
+            const cEl = document.getElementById('homeStatCourses');
+            if (cEl && stats.courses) cEl.innerText = stats.courses;
+          }
+          if (center) {
+            const addrEl = document.getElementById('homeCenterAddress');
+            if (addrEl && center.DiaChi) addrEl.innerText = center.DiaChi;
+            const phoneEl = document.getElementById('homeCenterPhone');
+            if (phoneEl && center.SoDienThoai) phoneEl.innerText = center.SoDienThoai;
+            const emailEl = document.getElementById('homeCenterEmail');
+            if (emailEl && center.Email) emailEl.innerText = center.Email;
+            const hoursEl = document.getElementById('homeCenterHours');
+            if (hoursEl && center.GioMoCua) hoursEl.innerText = center.GioMoCua;
+          }
+        }
+      } catch (err) {
+        console.warn('Chưa kết nối API public info:', err);
       }
     });
 

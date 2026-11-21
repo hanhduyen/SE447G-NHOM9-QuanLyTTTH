@@ -164,22 +164,6 @@
         </p>
       </div>
 
-      <!-- Tài khoản trải nghiệm nhanh cho hội đồng / giảng viên -->
-      <div class="mt-5 p-3 rounded-2xl bg-gray-50 border border-gray-200/80 text-[11px] text-gray-600 space-y-1.5">
-        <span class="block font-bold text-black text-[10px] uppercase tracking-wider">Tài khoản demo nghiệm thu:</span>
-        <div class="flex flex-wrap gap-1.5 pt-0.5">
-          <button type="button" onclick="quickFill('admin@fitcenter.vn', '123456')" class="px-2 py-1 bg-white border border-gray-200 rounded-lg text-black font-semibold hover:border-black transition">
-            Admin
-          </button>
-          <button type="button" onclick="quickFill('hlv.tuan@fitcenter.vn', '123456')" class="px-2 py-1 bg-white border border-gray-200 rounded-lg text-black font-semibold hover:border-black transition">
-            HLV
-          </button>
-          <button type="button" onclick="quickFill('an.nguyen@email.com', '123456')" class="px-2 py-1 bg-white border border-gray-200 rounded-lg text-black font-semibold hover:border-black transition">
-            Hội viên
-          </button>
-        </div>
-      </div>
-
       <!-- Nút Quay lại trang chủ -->
       <div class="text-center mt-6 pt-4 border-t border-gray-100">
         <a href="trang_chu.html" class="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-black transition font-medium">
@@ -198,12 +182,6 @@
   </button>
 
   <script>
-    // Điền nhanh tài khoản demo
-    function quickFill(email, pass) {
-      document.getElementById('inputEmail').value = email;
-      document.getElementById('inputPassword').value = pass;
-    }
-
     // Ẩn/Hiện mật khẩu
     function togglePassword() {
       const input = document.getElementById('inputPassword');

@@ -69,10 +69,16 @@
           <i class="fa-regular fa-calendar-check mr-1.5 text-gray-600"></i> Lịch học của tôi
         </button>
         <button onclick="switchTab('published-schedule')" class="tab-nav-btn px-3.5 py-2 rounded-xl transition text-gray-600 hover:text-black hover:bg-gray-100" data-tab="published-schedule">
-          <i class="fa-regular fa-calendar-days mr-1.5 text-gray-600"></i> Thời khóa biểu trung tâm
+          <i class="fa-regular fa-calendar-days mr-1.5 text-gray-600"></i> Thời khóa biểu
         </button>
         <button onclick="switchTab('courses')" class="tab-nav-btn px-3.5 py-2 rounded-xl transition text-gray-600 hover:text-black hover:bg-gray-100" data-tab="courses">
-          <i class="fa-solid fa-dumbbell mr-1.5 text-gray-600"></i> Gói tập & Khóa học
+          <i class="fa-solid fa-dumbbell mr-1.5 text-gray-600"></i> Gói & Khóa học
+        </button>
+        <button onclick="switchTab('billing')" class="tab-nav-btn px-3.5 py-2 rounded-xl transition text-gray-600 hover:text-black hover:bg-gray-100" data-tab="billing">
+          <i class="fa-solid fa-receipt mr-1.5 text-gray-600"></i> Hóa đơn & Điểm danh
+        </button>
+        <button onclick="switchTab('fitness-support')" class="tab-nav-btn px-3.5 py-2 rounded-xl transition text-gray-600 hover:text-black hover:bg-gray-100" data-tab="fitness-support">
+          <i class="fa-solid fa-heart-pulse mr-1.5 text-gray-600"></i> Thể chất & Hỗ trợ
         </button>
         <button onclick="switchTab('profile')" class="tab-nav-btn px-3.5 py-2 rounded-xl transition text-gray-600 hover:text-black hover:bg-gray-100" data-tab="profile">
           <i class="fa-regular fa-user mr-1.5 text-gray-600"></i> Hồ sơ cá nhân
@@ -115,9 +121,11 @@
   <div class="lg:hidden bg-white border-b border-gray-200 px-4 py-2 flex items-center gap-1 overflow-x-auto text-xs whitespace-nowrap">
     <button onclick="switchTab('dashboard')" class="mobile-tab-btn px-3 py-1.5 rounded-lg bg-gray-100 font-bold" data-tab="dashboard">Tổng quan</button>
     <button onclick="switchTab('my-schedule')" class="mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium" data-tab="my-schedule">Lịch của tôi</button>
-    <button onclick="switchTab('published-schedule')" class="mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium" data-tab="published-schedule">Lịch công bố</button>
+    <button onclick="switchTab('published-schedule')" class="mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium" data-tab="published-schedule">Thời khóa biểu</button>
     <button onclick="switchTab('courses')" class="mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium" data-tab="courses">Gói & Khóa học</button>
-    <button onclick="switchTab('notifications')" class="mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium" data-tab="notifications">Thông báo (3)</button>
+    <button onclick="switchTab('billing')" class="mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium" data-tab="billing">Hóa đơn & Điểm danh</button>
+    <button onclick="switchTab('fitness-support')" class="mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium" data-tab="fitness-support">Thể chất & Hỗ trợ</button>
+    <button onclick="switchTab('notifications')" class="mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium" data-tab="notifications">Thông báo</button>
     <button onclick="switchTab('profile')" class="mobile-tab-btn px-3 py-1.5 rounded-lg text-gray-600 font-medium" data-tab="profile">Hồ sơ</button>
   </div>
 
@@ -305,51 +313,57 @@
     <div id="tab-published-schedule" class="portal-tab space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-200">
         <div>
-          <h2 class="text-xl font-bold text-black">Thời khóa biểu trung tâm</h2>
-          <p class="text-xs text-gray-500 mt-0.5">Danh sách các lớp học được công bố trong tuần. Chọn ca học phù hợp để đăng ký chỗ trống</p>
+          <div class="flex items-center gap-2.5">
+            <h2 class="text-xl font-bold text-black">Thời khóa biểu trung tâm</h2>
+            <span id="customerScheduleTotalBadge" class="bg-black text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">10 ca học</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">Danh sách các lớp học được công bố từ CSDL. Chọn ca học phù hợp để đăng ký chỗ trống trực tuyến</p>
         </div>
         <div class="flex items-center gap-2">
-          <button class="p-2 border border-gray-200 bg-white rounded-lg text-xs hover:bg-gray-50"><i class="fa-solid fa-chevron-left"></i></button>
-          <span class="text-xs font-bold text-black bg-white px-3 py-2 border border-gray-200 rounded-lg">Tuần 15/11 – 21/11/2026</span>
-          <button class="p-2 border border-gray-200 bg-white rounded-lg text-xs hover:bg-gray-50"><i class="fa-solid fa-chevron-right"></i></button>
+          <button onclick="alert('Đang xem tuần hiện tại')" class="p-2 border border-gray-200 bg-white rounded-lg text-xs hover:bg-gray-50 text-gray-700 transition" title="Tuần trước">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <span id="customerScheduleWeekLabel" class="text-xs font-bold text-black bg-white px-3.5 py-2 border border-gray-200 rounded-lg shadow-2xs">
+            Tuần 23/11 – 29/11/2026
+          </span>
+          <button onclick="alert('Đang xem tuần hiện tại')" class="p-2 border border-gray-200 bg-white rounded-lg text-xs hover:bg-gray-50 text-gray-700 transition" title="Tuần tiếp theo">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+
+          <!-- Nút chuyển chế độ xem (Danh sách mặc định như lúc đầu / Lưới tuần) -->
+          <div class="ml-2 flex items-center bg-gray-100 p-1 rounded-xl text-xs font-semibold">
+            <button id="viewBtnList" onclick="setScheduleViewMode('list')" class="px-3 py-1.5 rounded-lg bg-white text-black font-bold shadow-2xs transition">
+              <i class="fa-solid fa-list mr-1"></i> Danh sách
+            </button>
+            <button id="viewBtnGrid" onclick="setScheduleViewMode('grid')" class="px-3 py-1.5 rounded-lg text-gray-600 hover:text-black transition">
+              <i class="fa-solid fa-table-cells mr-1"></i> Lưới tuần
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Bộ chọn thứ trong tuần -->
-      <div class="grid grid-cols-7 gap-2 text-center text-xs">
-        <button class="p-3 rounded-2xl bg-black text-white font-bold shadow-xs">
-          <span class="block text-[10px] uppercase font-normal opacity-70">Hôm nay</span>
-          <span class="text-base font-black">CN 15</span>
-        </button>
-        <button class="p-3 rounded-2xl bg-white border border-gray-200 text-gray-700 hover:border-black transition">
-          <span class="block text-[10px] text-gray-400 uppercase">Thứ 2</span>
-          <span class="text-base font-bold">16</span>
-        </button>
-        <button class="p-3 rounded-2xl bg-white border border-gray-200 text-gray-700 hover:border-black transition">
-          <span class="block text-[10px] text-gray-400 uppercase">Thứ 3</span>
-          <span class="text-base font-bold">17</span>
-        </button>
-        <button class="p-3 rounded-2xl bg-white border border-gray-200 text-gray-700 hover:border-black transition">
-          <span class="block text-[10px] text-gray-400 uppercase">Thứ 4</span>
-          <span class="text-base font-bold">18</span>
-        </button>
-        <button class="p-3 rounded-2xl bg-white border border-gray-200 text-gray-700 hover:border-black transition">
-          <span class="block text-[10px] text-gray-400 uppercase">Thứ 5</span>
-          <span class="text-base font-bold">19</span>
-        </button>
-        <button class="p-3 rounded-2xl bg-white border border-gray-200 text-gray-700 hover:border-black transition">
-          <span class="block text-[10px] text-gray-400 uppercase">Thứ 6</span>
-          <span class="text-base font-bold">20</span>
-        </button>
-        <button class="p-3 rounded-2xl bg-white border border-gray-200 text-gray-700 hover:border-black transition">
-          <span class="block text-[10px] text-gray-400 uppercase">Thứ 7</span>
-          <span class="text-base font-bold">21</span>
+      <!-- Bộ chọn thứ trong tuần (Dạng thẻ to đẹp như ban đầu + nút Tất cả) -->
+      <div id="scheduleDayFilterBar" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 text-center text-xs">
+        <button class="p-3.5 rounded-2xl bg-black text-white font-bold shadow-xs">
+          <span class="block text-[10px] uppercase font-normal opacity-70">Lịch học</span>
+          <span class="text-base font-black">Tất cả</span>
         </button>
       </div>
 
-      <!-- Danh sách lớp học mở hôm nay -->
-      <div id="publishedScheduleList" class="space-y-4">
-        <div class="text-center py-8 text-gray-400 text-xs">Đang tải lịch học công bố...</div>
+      <!-- Chế độ 1: Danh sách chi tiết các ca học (Mặc định như ban đầu, to đẹp, rõ ràng) -->
+      <div id="publishedScheduleListView" class="space-y-3.5">
+        <div id="publishedScheduleList" class="space-y-3.5">
+          <div class="text-center py-8 text-gray-400 text-xs">
+            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Đang tải thời khóa biểu công bố...
+          </div>
+        </div>
+      </div>
+
+      <!-- Chế độ 2: Lưới Thời khóa biểu 7 ngày (Weekly Timetable Grid) -->
+      <div id="publishedScheduleGridView" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 text-xs">
+        <div class="col-span-full py-10 text-center text-gray-400 text-xs">
+          <i class="fa-solid fa-spinner fa-spin mr-1"></i> Đang tải thời khóa biểu tuần từ CSDL...
+        </div>
       </div>
     </div>
 
@@ -510,6 +524,179 @@
       </div>
     </div>
 
+    <!-- =============================================================== -->
+    <!-- TAB 7: HÓA ĐƠN THANH TOÁN & NHẬT KÝ ĐIỂM DANH -->
+    <!-- =============================================================== -->
+    <div id="tab-billing" class="portal-tab space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-200">
+        <div>
+          <h2 class="text-xl font-bold text-black">Hóa đơn & Nhật ký hoạt động</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Tra cứu chi tiết hóa đơn thanh toán, nhật ký điểm danh tại phòng tập và lịch sử đổi/hủy lớp</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="loadBillingAndRecords()" class="text-xs px-3.5 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 flex items-center gap-1.5 font-semibold text-gray-700 transition">
+            <i class="fa-solid fa-rotate text-gray-500"></i> Làm mới dữ liệu
+          </button>
+        </div>
+      </div>
+
+      <!-- 1. Danh sách Hóa đơn thanh toán -->
+      <div class="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-black flex items-center gap-2">
+            <i class="fa-solid fa-file-invoice text-emerald-600"></i> Lịch sử Hóa đơn & Giao dịch trực tuyến
+          </h3>
+          <span class="text-xs text-gray-400">Bảng HoaDon & ChiTietHoaDon</span>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-gray-200 text-gray-400 font-semibold uppercase tracking-wider text-[10px]">
+                <th class="py-2.5 px-3">Mã HĐ</th>
+                <th class="py-2.5 px-3">Loại hóa đơn</th>
+                <th class="py-2.5 px-3">Nội dung thanh toán</th>
+                <th class="py-2.5 px-3">Tổng tiền</th>
+                <th class="py-2.5 px-3">Hình thức</th>
+                <th class="py-2.5 px-3">Thời gian lập</th>
+                <th class="py-2.5 px-3 text-right">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody id="invoicesTableBody" class="divide-y divide-gray-100">
+              <tr>
+                <td colspan="7" class="text-center py-6 text-gray-400 text-xs">Đang tải lịch sử hóa đơn...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Grid 2 cột: Nhật ký điểm danh + Lịch sử yêu cầu đổi/hủy -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Cột 1: Nhật ký Điểm danh -->
+        <div class="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-black flex items-center gap-2">
+              <i class="fa-solid fa-clipboard-user text-blue-600"></i> Lịch sử Điểm danh vào phòng tập
+            </h3>
+            <span class="text-[11px] text-gray-400 font-mono">DiemDanh</span>
+          </div>
+
+          <div id="checkinsList" class="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+            <div class="text-center py-8 text-gray-400 text-xs">Đang tải dữ liệu điểm danh...</div>
+          </div>
+        </div>
+
+        <!-- Cột 2: Lịch sử yêu cầu Đổi/Hủy ca -->
+        <div class="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-black flex items-center gap-2">
+              <i class="fa-solid fa-arrow-right-arrow-left text-amber-600"></i> Lịch sử Yêu cầu Đổi / Hủy ca học
+            </h3>
+            <span class="text-[11px] text-gray-400 font-mono">YeuCauDoiHuyLich</span>
+          </div>
+
+          <div id="requestsList" class="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+            <div class="text-center py-8 text-gray-400 text-xs">Đang tải yêu cầu đổi hủy...</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =============================================================== -->
+    <!-- TAB 8: TIẾN ĐỘ THỂ CHẤT INBODY & HỘP THƯ HỖ TRỢ -->
+    <!-- =============================================================== -->
+    <div id="tab-fitness-support" class="portal-tab space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-200">
+        <div>
+          <h2 class="text-xl font-bold text-black">Thể chất InBody & Hộp thư Hỗ trợ</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Theo dõi các chỉ số thể chất theo đợt đánh giá, nhận xét của HLV và gửi phản hồi tới ban quản lý trung tâm</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="loadFitnessAndSupport()" class="text-xs px-3.5 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 flex items-center gap-1.5 font-semibold text-gray-700 transition">
+            <i class="fa-solid fa-rotate text-gray-500"></i> Cập nhật
+          </button>
+        </div>
+      </div>
+
+      <!-- Phần A: Tiến độ InBody & Đánh giá của HLV -->
+      <div class="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+          <div>
+            <h3 class="text-sm font-bold text-black flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-indigo-600"></i> Nhật ký Đánh giá Thể chất & Tiến độ tập luyện
+            </h3>
+            <p class="text-xs text-gray-500 mt-0.5">Dữ liệu ghi nhận từ HLV phụ trách lớp (bảng KetQuaHocVien)</p>
+          </div>
+        </div>
+
+        <div id="progressContainer" class="space-y-3">
+          <div class="text-center py-6 text-gray-400 text-xs">Đang tải dữ liệu thể chất...</div>
+        </div>
+      </div>
+
+      <!-- Phần B: Hộp thư Hỗ trợ & Khiếu nại (PhanHoiHoTro) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Cột trái: Form gửi phản hồi mới -->
+        <div class="bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+          <div>
+            <h3 class="text-sm font-bold text-black flex items-center gap-2">
+              <i class="fa-regular fa-paper-plane text-orange-600"></i> Gửi ý kiến & Đóng góp
+            </h3>
+            <p class="text-xs text-gray-500 mt-0.5">Gửi thắc mắc hoặc phản ánh dịch vụ tới trung tâm</p>
+          </div>
+
+          <form onsubmit="handleSendFeedback(event)" class="space-y-3.5 text-xs">
+            <div>
+              <label class="block font-semibold text-gray-700 mb-1">Loại phản hồi</label>
+              <select id="fbCategory" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-black focus:outline-none focus:border-black">
+                <option value="1">1 - Dịch vụ & Gói tập</option>
+                <option value="2">2 - Cơ sở vật chất & Thiết bị</option>
+                <option value="3">3 - Huấn luyện viên & Lớp học</option>
+                <option value="4">4 - Khác / Đóng góp ý kiến</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block font-semibold text-gray-700 mb-1">Tiêu đề</label>
+              <input id="fbTitle" type="text" required placeholder="Nhập tiêu đề ngắn gọn..." class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black focus:outline-none focus:border-black">
+            </div>
+
+            <div>
+              <label class="block font-semibold text-gray-700 mb-1">Nội dung chi tiết</label>
+              <textarea id="fbContent" rows="4" required placeholder="Mô tả cụ thể trải nghiệm hoặc ý kiến của bạn..." class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black focus:outline-none focus:border-black"></textarea>
+            </div>
+
+            <div class="pt-1">
+              <button type="submit" id="btnSubmitFeedback" class="w-full py-2.5 bg-black hover:bg-gray-800 text-white rounded-xl font-semibold transition flex items-center justify-center gap-2 shadow-sm">
+                <i class="fa-solid fa-paper-plane text-xs"></i> Gửi phản hồi ngay
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Cột phải: Danh sách phản hồi đã gửi & Trạng thái xử lý -->
+        <div class="lg:col-span-2 bg-white border border-gray-200 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div>
+              <h3 class="text-sm font-bold text-black flex items-center gap-2">
+                <i class="fa-solid fa-comments text-emerald-600"></i> Lịch sử phản hồi & Câu trả lời từ trung tâm
+              </h3>
+              <p class="text-xs text-gray-500 mt-0.5">Theo dõi trạng thái xử lý từ đội ngũ quản lý</p>
+            </div>
+          </div>
+
+          <div id="feedbackList" class="space-y-3 max-h-[460px] overflow-y-auto pr-1">
+            <div class="text-center py-8 text-gray-400 text-xs">Đang tải lịch sử phản hồi...</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </main>
 
   <!-- ================= MODAL 1: YÊU CẦU HỦY LỊCH HỌC ================= -->
@@ -652,8 +839,8 @@
       } catch (e) {
         console.error(e);
       }
-      // Demo fallback nếu chưa đăng nhập qua form: mặc định tài khoản Hội viên Nguyễn Văn An (id: 6)
-      currentUser = { id: 6, fullName: 'Nguyễn Văn An', memberCode: 'KH0001', email: 'an.nguyen@email.com', role: 'member' };
+      // Demo fallback nếu chưa đăng nhập qua form: mặc định tài khoản Hội viên Võ Văn An (id: 5)
+      currentUser = { id: 5, fullName: 'Võ Văn An', memberCode: 'KH000005', email: 'kh01@gym.local', role: 'member' };
       localStorage.setItem('fitcenter_user', JSON.stringify(currentUser));
       return currentUser;
     }
@@ -661,6 +848,16 @@
     // Tiện ích format
     function formatVND(amount) {
       return Number(amount || 0).toLocaleString('vi-VN') + ' đ';
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
     function formatTime(isoStr) {
@@ -731,6 +928,8 @@
       if (tabId === 'my-schedule') loadMySchedule();
       if (tabId === 'published-schedule') loadPublishedSchedule();
       if (tabId === 'courses') loadCoursesAndPlans();
+      if (tabId === 'billing') loadBillingAndRecords();
+      if (tabId === 'fitness-support') loadFitnessAndSupport();
       if (tabId === 'notifications') loadNotifications();
       if (tabId === 'profile') loadProfile();
     }
@@ -916,67 +1115,299 @@
     }
 
     // ==============================================================
-    // 3. TẢI THỜI KHÓA BIỂU CÔNG BỐ (PUBLISHED SCHEDULE)
+    // 3. TẢI VÀ ĐIỀU KHIỂN THỜI KHÓA BIỂU CÔNG BỐ (PUBLISHED SCHEDULE)
     // ==============================================================
+    let currentScheduleFilterDay = 0; // 0: Tất cả, 2: T2, 3: T3, ..., 7: T7, 1: CN
+    let scheduleViewMode = 'list'; // Mặc định dạng Danh sách như ban đầu
+
+    function setScheduleViewMode(mode) {
+      scheduleViewMode = mode;
+      const gridView = document.getElementById('publishedScheduleGridView');
+      const listView = document.getElementById('publishedScheduleListView');
+      const btnGrid = document.getElementById('viewBtnGrid');
+      const btnList = document.getElementById('viewBtnList');
+
+      if (mode === 'grid') {
+        if (gridView) gridView.classList.remove('hidden');
+        if (listView) listView.classList.add('hidden');
+        if (btnGrid) btnGrid.className = 'px-3 py-1.5 rounded-lg bg-white text-black font-bold shadow-2xs transition';
+        if (btnList) btnList.className = 'px-3 py-1.5 rounded-lg text-gray-600 hover:text-black transition';
+        renderPublishedScheduleGrid();
+      } else {
+        if (gridView) gridView.classList.add('hidden');
+        if (listView) listView.classList.remove('hidden');
+        if (btnGrid) btnGrid.className = 'px-3 py-1.5 rounded-lg text-gray-600 hover:text-black transition';
+        if (btnList) btnList.className = 'px-3 py-1.5 rounded-lg bg-white text-black font-bold shadow-2xs transition';
+        renderPublishedScheduleList();
+      }
+    }
+
+    function selectScheduleDayFilter(dayNum) {
+      currentScheduleFilterDay = dayNum;
+      renderScheduleDayFilterBar();
+      if (scheduleViewMode === 'grid') {
+        renderPublishedScheduleGrid();
+      } else {
+        renderPublishedScheduleList();
+      }
+    }
+
+    function renderScheduleDayFilterBar() {
+      const bar = document.getElementById('scheduleDayFilterBar');
+      if (!bar) return;
+
+      const days = [
+        { dayNum: 0, label: 'Lịch học', title: 'Tất cả', date: 'Tất cả' },
+        { dayNum: 2, label: 'Thứ 2', title: '23/11', date: '23/11' },
+        { dayNum: 3, label: 'Thứ 3', title: '24/11', date: '24/11' },
+        { dayNum: 4, label: 'Thứ 4', title: '25/11', date: '25/11' },
+        { dayNum: 5, label: 'Thứ 5', title: '26/11', date: '26/11' },
+        { dayNum: 6, label: 'Thứ 6', title: '27/11', date: '27/11' },
+        { dayNum: 7, label: 'Thứ 7', title: '28/11', date: '28/11' },
+        { dayNum: 1, label: 'Chủ nhật', title: '29/11', date: '29/11' }
+      ];
+
+      bar.innerHTML = days.map(d => {
+        const count = (d.dayNum === 0) 
+          ? publishedSessionsCache.length 
+          : publishedSessionsCache.filter(s => {
+              if (s.day_of_week !== undefined && s.day_of_week !== null) {
+                return Number(s.day_of_week) === d.dayNum;
+              }
+              const dt = new Date(s.starts_at || s.session_date);
+              return (dt.getDay() + 1) === d.dayNum;
+            }).length;
+
+        const isActive = (currentScheduleFilterDay === d.dayNum);
+        const cardClass = isActive 
+          ? 'bg-black text-white font-bold shadow-xs ring-1 ring-black' 
+          : 'bg-white border border-gray-200/90 text-gray-700 hover:border-black hover:text-black transition';
+
+        return `
+          <button type="button" onclick="selectScheduleDayFilter(${d.dayNum})" class="p-3 sm:p-3.5 rounded-2xl flex flex-col justify-center items-center cursor-pointer transition text-center ${cardClass}">
+            <span class="block text-[10px] uppercase font-bold tracking-wider ${isActive ? 'text-white/70' : 'text-gray-400'}">${d.label}</span>
+            <span class="text-sm sm:text-base font-black mt-0.5 ${isActive ? 'text-white' : 'text-black'}">${d.title}</span>
+            <span class="text-[9px] font-semibold mt-0.5 ${isActive ? 'text-white/80' : 'text-gray-500'}">${count} ca</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderPublishedScheduleGrid() {
+      const grid = document.getElementById('publishedScheduleGridView');
+      if (!grid) return;
+
+      const daysMap = [
+        { dayNum: 2, label: 'Thứ 2' },
+        { dayNum: 3, label: 'Thứ 3' },
+        { dayNum: 4, label: 'Thứ 4' },
+        { dayNum: 5, label: 'Thứ 5' },
+        { dayNum: 6, label: 'Thứ 6' },
+        { dayNum: 7, label: 'Thứ 7' },
+        { dayNum: 1, label: 'Chủ nhật' }
+      ];
+
+      const visibleDays = (currentScheduleFilterDay === 0) 
+        ? daysMap 
+        : daysMap.filter(d => d.dayNum === currentScheduleFilterDay);
+
+      grid.className = (currentScheduleFilterDay === 0) 
+        ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 text-xs' 
+        : 'grid grid-cols-1 max-w-xl mx-auto gap-3 text-xs';
+
+      grid.innerHTML = visibleDays.map(d => {
+        const sessions = publishedSessionsCache.filter(s => {
+          if (s.day_of_week !== undefined && s.day_of_week !== null) {
+            return Number(s.day_of_week) === d.dayNum;
+          }
+          const dt = new Date(s.starts_at || s.session_date);
+          return (dt.getDay() + 1) === d.dayNum;
+        });
+
+        const cardsHtml = sessions.length === 0
+          ? `<div class="p-4 rounded-xl border border-dashed border-gray-200 text-center text-gray-400 text-xs">Không có ca học</div>`
+          : sessions.map(s => {
+              let bookBtn = '';
+              if (s.is_booked_by_me) {
+                const statusText = s.my_booking_status === 1 ? 'Chờ duyệt' : s.my_booking_status === 5 ? 'Danh sách chờ' : 'Đã đăng ký';
+                bookBtn = `<button type="button" onclick="alert('Bạn đã đăng ký lớp học này (${escapeHtml(s.class_name)}) rồi! Vui lòng theo dõi trong mục Lịch học của tôi.')" class="w-full py-1.5 text-center bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-lg font-bold text-[10px] transition cursor-pointer" title="Bạn đã đăng ký lớp này"><i class="fa-solid fa-check"></i> ${statusText}</button>`;
+              } else if (s.available_slots <= 0) {
+                bookBtn = `<span class="inline-block w-full py-1.5 text-center bg-gray-100 text-gray-400 rounded-lg font-bold text-[10px]">Hết chỗ</span>`;
+              } else {
+                bookBtn = `<button onclick="registerSessionBooking(${s.session_id}, '${escapeHtml(s.class_name)}')" class="w-full py-1.5 text-center bg-black hover:bg-neutral-800 text-white rounded-lg font-bold text-[10px] transition shadow-2xs active:scale-95">Đăng ký ca</button>`;
+              }
+
+              return `
+                <div class="bg-white border border-gray-200/90 hover:border-black p-3 rounded-2xl space-y-2 shadow-2xs transition flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <span class="font-bold text-black text-xs leading-snug line-clamp-2" title="${escapeHtml(s.class_name)}">${escapeHtml(s.class_name)}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] text-gray-500 mb-1">
+                      <span class="font-mono font-bold text-gray-800"><i class="fa-regular fa-clock text-gray-400"></i> ${s.start_time || formatTime(s.starts_at)} - ${s.end_time || formatTime(s.ends_at)}</span>
+                    </div>
+                    <div class="text-[10px] text-gray-600 space-y-0.5">
+                      <p><i class="fa-solid fa-door-open text-gray-400"></i> ${escapeHtml(s.room_name)}</p>
+                      <p class="truncate"><i class="fa-regular fa-user text-gray-400"></i> ${escapeHtml(s.trainer_name || 'FitCenter')}</p>
+                    </div>
+                  </div>
+                  <div class="pt-2 border-t border-gray-100 space-y-1.5">
+                    <div class="flex items-center justify-between text-[10px]">
+                      <span class="${s.available_slots > 0 ? 'text-emerald-600 font-semibold' : 'text-red-500'}">
+                        ${s.available_slots > 0 ? 'Còn ' + s.available_slots + ' chỗ' : 'Đã hết chỗ'}
+                      </span>
+                      <span class="text-gray-400">${s.reserved_places}/${s.capacity}</span>
+                    </div>
+                    ${bookBtn}
+                  </div>
+                </div>
+              `;
+            }).join('');
+
+        return `
+          <div class="border border-gray-200 rounded-2xl p-3 bg-gray-50/60 flex flex-col min-h-[160px]">
+            <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-200/80">
+              <span class="font-black text-black text-xs uppercase">${d.label}</span>
+              <span class="text-[10px] font-bold text-gray-600 bg-white border border-gray-200 px-2 py-0.5 rounded-full">${sessions.length} ca</span>
+            </div>
+            <div class="space-y-2 flex-1">
+              ${cardsHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderPublishedScheduleList() {
+      const listEl = document.getElementById('publishedScheduleList');
+      if (!listEl) return;
+
+      const filtered = (currentScheduleFilterDay === 0)
+        ? publishedSessionsCache
+        : publishedSessionsCache.filter(s => {
+            if (s.day_of_week !== undefined && s.day_of_week !== null) {
+              return Number(s.day_of_week) === currentScheduleFilterDay;
+            }
+            const dt = new Date(s.starts_at || s.session_date);
+            return (dt.getDay() + 1) === currentScheduleFilterDay;
+          });
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+          <div class="bg-white border border-gray-200 rounded-2xl p-10 text-center text-gray-400 text-xs space-y-2">
+            <i class="fa-regular fa-calendar-xmark text-3xl text-gray-300 block mb-1"></i>
+            <p class="font-bold text-gray-700">Không có ca học nào trong ngày đã chọn</p>
+            <p class="text-[11px] text-gray-400">Vui lòng chọn ngày khác hoặc nhấn "Tất cả" để xem toàn bộ lịch công bố.</p>
+            <button onclick="selectScheduleDayFilter(0)" class="mt-2 px-3 py-1.5 bg-black text-white text-[11px] font-bold rounded-xl hover:bg-neutral-800 transition shadow-2xs">
+              Xem tất cả ca học
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(s => {
+        let actionButton = '';
+        if (s.is_booked_by_me) {
+          const statusText = s.my_booking_status === 1 ? 'Đang chờ duyệt' : s.my_booking_status === 5 ? 'Danh sách chờ' : 'Bạn đã đăng ký ca này';
+          actionButton = `
+            <button type="button" onclick="alert('Bạn đã đăng ký lớp học này (${escapeHtml(s.class_name)}) rồi! Vui lòng theo dõi trong mục Lịch học của tôi.')" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold shrink-0 transition cursor-pointer" title="Bạn đã đăng ký lớp này">
+              <i class="fa-solid fa-circle-check"></i> ${statusText}
+            </button>
+          `;
+        } else if (s.available_slots <= 0) {
+          actionButton = `
+            <span class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gray-100 text-gray-400 border border-gray-200 text-xs font-semibold cursor-not-allowed shrink-0">
+              Đã đủ học viên
+            </span>
+          `;
+        } else {
+          actionButton = `
+            <button onclick="registerSessionBooking(${s.session_id}, '${escapeHtml(s.class_name)}')" class="px-5 py-2.5 rounded-xl bg-black hover:bg-neutral-800 text-white text-xs font-bold transition shrink-0 active:scale-95 shadow-sm hover:shadow flex items-center gap-2">
+              <span>Đăng ký ca</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+          `;
+        }
+
+        const dayLabelStr = s.starts_at ? getDayLabel(s.starts_at) : '';
+        const startTimeStr = s.start_time || formatTime(s.starts_at);
+        const endTimeStr = s.end_time || formatTime(s.ends_at);
+
+        return `
+          <div class="bg-white border border-gray-200/90 hover:border-black rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs hover:shadow-xs transition group">
+            <div class="flex items-start gap-4">
+              <!-- Khung giờ học -->
+              <div class="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-200/90 group-hover:border-black/30 flex flex-col items-center justify-center font-bold text-black shrink-0 transition">
+                <span class="text-sm font-black tracking-tight">${startTimeStr}</span>
+                <span class="text-[10px] text-gray-400 font-semibold tracking-tighter">${endTimeStr}</span>
+              </div>
+              <div class="space-y-1">
+                <div class="flex items-center gap-2 flex-wrap text-xs">
+                  <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-800 text-[10px] font-bold px-2.5 py-0.5 rounded-md border border-gray-200/60">
+                    <i class="fa-solid fa-door-open text-gray-400 text-[9px]"></i> ${escapeHtml(s.room_name)}
+                  </span>
+                  <span class="font-mono text-[10px] font-bold text-gray-400">${s.class_code || ''}</span>
+                  <span class="text-[11px] font-semibold text-gray-500">· ${dayLabelStr}</span>
+                </div>
+                <h3 class="font-extrabold text-sm sm:text-base text-black group-hover:text-black transition">
+                  ${escapeHtml(s.class_name)}
+                </h3>
+                <div class="flex items-center gap-4 text-xs text-gray-600 flex-wrap pt-0.5">
+                  <span class="flex items-center gap-1.5">
+                    <i class="fa-regular fa-user text-gray-400"></i>
+                    <span>HLV: <strong class="text-black font-semibold">${escapeHtml(s.trainer_name || 'FitCenter Coach')}</strong></span>
+                  </span>
+                  <span class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-users text-gray-400"></i>
+                    <span>Sĩ số: <strong class="text-black font-semibold">${s.reserved_places}/${s.capacity}</strong></span>
+                    <span class="text-[11px] ${s.available_slots > 0 ? 'text-emerald-600 font-bold' : 'text-red-500 font-bold'}">
+                      (${s.available_slots > 0 ? 'Còn ' + s.available_slots + ' chỗ' : 'Đã hết chỗ'})
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="shrink-0 flex items-center justify-end sm:justify-start pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+              ${actionButton}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     async function loadPublishedSchedule() {
       const user = getStoredUser();
+      const gridEl = document.getElementById('publishedScheduleGridView');
       const listEl = document.getElementById('publishedScheduleList');
+      const totalBadge = document.getElementById('customerScheduleTotalBadge');
+      const weekLabel = document.getElementById('customerScheduleWeekLabel');
+
       try {
         const res = await fetch(`${API_BASE}/api/customer/published-schedule?memberId=${user.id}`);
         const result = await res.json();
         if (!result.success || !result.data || result.data.length === 0) {
-          listEl.innerHTML = '<div class="text-center py-10 text-gray-400">Không có ca học nào được công bố trong tuần này.</div>';
+          if (gridEl) gridEl.innerHTML = '<div class="col-span-full py-10 text-center text-gray-400 text-xs">Không có ca học nào được công bố trong tuần này.</div>';
+          if (listEl) listEl.innerHTML = '<div class="text-center py-10 text-gray-400 text-xs">Không có ca học nào được công bố trong tuần này.</div>';
           return;
         }
 
         publishedSessionsCache = result.data;
+        if (totalBadge) totalBadge.textContent = `${result.data.length} ca học`;
 
-        listEl.innerHTML = result.data.map(s => {
-          let actionButton = '';
-
-          if (s.is_booked_by_me) {
-            actionButton = `
-              <span class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-300 text-xs font-semibold">
-                <i class="fa-solid fa-check"></i> Bạn đã đăng ký ca này
-              </span>
-            `;
-          } else if (s.available_slots <= 0) {
-            actionButton = `
-              <button disabled class="px-5 py-2.5 rounded-xl bg-gray-100 text-gray-400 text-xs font-semibold cursor-not-allowed">
-                Đã đủ học viên
-              </button>
-            `;
-          } else {
-            actionButton = `
-              <button onclick="registerSessionBooking(${s.session_id}, '${s.class_name}')" class="px-5 py-2.5 rounded-xl bg-black hover:bg-gray-800 text-white text-xs font-semibold transition shrink-0 active:scale-95 shadow-sm">
-                Đăng ký ca học này
-              </button>
-            `;
+        if (weekLabel && result.data.length > 0) {
+          const firstDateStr = result.data[0].session_date || result.data[0].starts_at;
+          const lastDateStr = result.data[result.data.length - 1].session_date || result.data[result.data.length - 1].starts_at;
+          if (firstDateStr && lastDateStr) {
+            const d1 = new Date(firstDateStr);
+            const d2 = new Date(lastDateStr);
+            weekLabel.textContent = `Lịch học: ${d1.getDate()}/${d1.getMonth()+1} – ${d2.getDate()}/${d2.getMonth()+1}/${d2.getFullYear()}`;
           }
+        }
 
-          return `
-            <div class="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs hover:border-gray-300 transition">
-              <div class="flex items-start space-x-4">
-                <div class="w-14 h-14 rounded-2xl bg-gray-100 flex flex-col items-center justify-center font-bold text-black shrink-0">
-                  <span class="text-xs font-black">${formatTime(s.starts_at)}</span>
-                  <span class="text-[9px] text-gray-500">${formatTime(s.ends_at)}</span>
-                </div>
-                <div>
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="bg-gray-100 text-gray-700 text-[10px] font-semibold px-2 py-0.5 rounded">${s.room_name}</span>
-                    <span class="text-xs text-gray-500">Môn: <strong class="text-black">${s.class_name}</strong></span>
-                    <span class="text-[10px] text-gray-400">· ${getDayLabel(s.starts_at)}</span>
-                  </div>
-                  <p class="text-xs text-gray-600">Huấn luyện viên phụ trách: <strong class="text-black">${s.trainer_name || 'HLV FitCenter'}</strong></p>
-                  <p class="text-xs ${s.available_slots > 0 ? 'text-emerald-600' : 'text-red-600'} mt-1 font-medium">
-                    Sĩ số: ${s.reserved_places}/${s.capacity} học viên (${s.available_slots > 0 ? 'Còn ' + s.available_slots + ' chỗ trống' : 'Đã hết chỗ'})
-                  </p>
-                </div>
-              </div>
-              <div>${actionButton}</div>
-            </div>
-          `;
-        }).join('');
+        renderScheduleDayFilterBar();
+        setScheduleViewMode(scheduleViewMode);
+        renderPublishedScheduleList();
 
       } catch (err) {
         console.error('Lỗi load published schedule:', err);
@@ -986,6 +1417,40 @@
     // Đăng ký giữ chỗ
     async function registerSessionBooking(sessionId, className) {
       const user = getStoredUser();
+
+      // 1. Kiểm tra nhanh tại client
+      const targetSession = publishedSessionsCache.find(s => s.session_id === sessionId);
+      if (targetSession) {
+        if (targetSession.is_booked_by_me) {
+          alert(`Bạn đã đăng ký lớp học "${className}" rồi! Vui lòng theo dõi trong mục "Lịch học của tôi".`);
+          return;
+        }
+
+        // Kiểm tra xem ca học này có bị trùng ngày & giờ với các ca học đã đăng ký không
+        const targetDate = targetSession.session_date || (targetSession.starts_at ? targetSession.starts_at.slice(0, 10) : '');
+        const targetStart = targetSession.start_time || '';
+        const targetEnd = targetSession.end_time || '';
+
+        const conflictingSession = publishedSessionsCache.find(s => {
+          if (!s.is_booked_by_me) return false;
+          if (s.class_id === targetSession.class_id) return false;
+          const sDate = s.session_date || (s.starts_at ? s.starts_at.slice(0, 10) : '');
+          if (!sDate || sDate !== targetDate) return false;
+          const sStart = s.start_time || '';
+          const sEnd = s.end_time || '';
+          if (sStart && sEnd && targetStart && targetEnd) {
+            return (sStart < targetEnd && sEnd > targetStart);
+          }
+          return false;
+        });
+
+        if (conflictingSession) {
+          const formattedDate = targetDate ? targetDate.split('-').reverse().join('/') : '';
+          alert(`Trùng lịch học!\nCa học "${className}" (${targetStart} - ${targetEnd}) bị trùng giờ với lớp "${conflictingSession.class_name}" (${conflictingSession.start_time} - ${conflictingSession.end_time}) ngày ${formattedDate} mà bạn đã đăng ký.\n\nVui lòng chọn ca học hoặc lớp khác!`);
+          return;
+        }
+      }
+
       if (!confirm(`Bạn có chắc chắn muốn đăng ký giữ chỗ cho ca học: ${className}?`)) {
         return;
       }
@@ -1000,9 +1465,10 @@
 
         if (res.ok && data.success) {
           alert(data.message || 'Đăng ký giữ chỗ thành công!');
-          loadPublishedSchedule();
+          await loadPublishedSchedule();
+          if (typeof loadMySchedule === 'function') loadMySchedule();
         } else {
-          alert('Không thể đăng ký: ' + (data.message || 'Lỗi không xác định'));
+          alert(data.message || 'Không thể đăng ký: Lỗi không xác định');
         }
       } catch (err) {
         alert('Lỗi kết nối máy chủ API!');
@@ -1015,9 +1481,10 @@
     async function loadCoursesAndPlans() {
       const plansContainer = document.getElementById('membershipPlansGrid');
       const coursesContainer = document.getElementById('coursesGrid');
+      const user = getStoredUser();
 
       try {
-        const res = await fetch(`${API_BASE}/api/customer/courses-and-plans`);
+        const res = await fetch(`${API_BASE}/api/customer/courses-and-plans?memberId=${user?.id || ''}`);
         const result = await res.json();
         if (!result.success) return;
 
@@ -1028,8 +1495,8 @@
           <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:border-black transition">
             <div>
               <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Gói tập hội viên</span>
-              <h3 class="text-lg font-bold text-black mt-1">${p.name}</h3>
-              <p class="text-xs text-gray-500 mt-1 mb-4">${p.description || 'Quyền lợi tập luyện không giới hạn'}</p>
+              <h3 class="text-lg font-bold text-black mt-1">${escapeHtml(p.name)}</h3>
+              <p class="text-xs text-gray-500 mt-1 mb-4">${escapeHtml(p.description || 'Quyền lợi tập luyện không giới hạn')}</p>
               <div class="mb-4">
                 <span class="text-2xl font-black text-black">${formatVND(p.price_vnd)}</span>
                 <span class="text-xs text-gray-500">/ ${p.duration_months} tháng</span>
@@ -1040,33 +1507,71 @@
                 <li class="flex items-center gap-2"><i class="fa-solid fa-check text-black text-[11px]"></i> Miễn phí đo InBody phân tích cơ thể</li>
               </ul>
             </div>
-            <button onclick="openItemRegisterModal('plan', ${p.id}, '${p.name}', '${formatVND(p.price_vnd)}')" class="w-full mt-6 py-2.5 rounded-xl border border-black bg-white hover:bg-black hover:text-white text-xs font-semibold transition active:scale-95 shadow-sm">
+            <button onclick="openItemRegisterModal('plan', ${p.id}, '${escapeHtml(p.name)}', '${formatVND(p.price_vnd)}')" class="w-full mt-6 py-2.5 rounded-xl border border-black bg-white hover:bg-black hover:text-white text-xs font-semibold transition active:scale-95 shadow-sm">
               Đăng ký gói này
             </button>
           </div>
         `).join('');
 
         // Render Khóa học
-        coursesContainer.innerHTML = courses.map(c => `
-          <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:border-black transition">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 font-mono">${c.code}</span>
-              <h3 class="text-lg font-bold text-black mt-1">${c.name}</h3>
-              <p class="text-xs text-gray-500 mt-1 mb-4">${c.description || 'Khóa đào tạo chuyên sâu cùng HLV chuyên nghiệp'}</p>
-              <div class="mb-4">
-                <span class="text-2xl font-black text-black">${formatVND(c.price_vnd)}</span>
-                <span class="text-xs text-gray-500">/ trọn khóa</span>
+        coursesContainer.innerHTML = courses.map(c => {
+          let btnHtml = '';
+          if (c.my_reg_status === 1) {
+            btnHtml = `
+              <button type="button" onclick="alert('Bạn đã đăng ký khóa học này (${escapeHtml(c.my_enrolled_class || '')}) rồi! Đơn đăng ký đang chờ duyệt tại quầy lễ tân.')" class="w-full mt-6 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold transition shadow-2xs flex items-center justify-center gap-2 cursor-pointer">
+                <i class="fa-solid fa-clock"></i> Đang chờ duyệt
+              </button>
+            `;
+          } else if (c.my_reg_status === 2) {
+            btnHtml = `
+              <button type="button" onclick="alert('Bạn đã đăng ký và đang theo học lớp (${escapeHtml(c.my_enrolled_class || '')}) của khóa học này! Vui lòng theo dõi trong mục Lịch học của tôi.')" class="w-full mt-6 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition shadow-2xs flex items-center justify-center gap-2 cursor-pointer">
+                <i class="fa-solid fa-circle-check"></i> Đang theo học
+              </button>
+            `;
+          } else if (c.my_reg_status === 5) {
+            btnHtml = `
+              <button type="button" onclick="alert('Bạn đã đăng ký và đang nằm trong Danh sách chờ của khóa học này!')" class="w-full mt-6 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 text-xs font-bold transition shadow-2xs flex items-center justify-center gap-2 cursor-pointer">
+                <i class="fa-solid fa-list-ol"></i> Danh sách chờ
+              </button>
+            `;
+          } else {
+            btnHtml = `
+              <button onclick="openItemRegisterModal('course', ${c.id}, '${escapeHtml(c.name)}', '${formatVND(c.price_vnd)}')" class="w-full mt-6 py-2.5 rounded-xl bg-black text-white hover:bg-neutral-800 text-xs font-semibold transition active:scale-95 shadow-sm">
+                Đăng ký khóa học
+              </button>
+            `;
+          }
+
+          const badgeStatus = c.my_reg_status === 1 
+            ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">Chờ duyệt</span>'
+            : c.my_reg_status === 2
+            ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Đang học</span>'
+            : c.my_reg_status === 5
+            ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">Chờ xếp lớp</span>'
+            : '';
+
+          return `
+            <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:border-black transition">
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 font-mono">${escapeHtml(c.code)}</span>
+                  ${badgeStatus}
+                </div>
+                <h3 class="text-lg font-bold text-black mt-1">${escapeHtml(c.name)}</h3>
+                <p class="text-xs text-gray-500 mt-1 mb-4">${escapeHtml(c.description || 'Khóa đào tạo chuyên sâu cùng HLV chuyên nghiệp')}</p>
+                <div class="mb-4">
+                  <span class="text-2xl font-black text-black">${formatVND(c.price_vnd)}</span>
+                  <span class="text-xs text-gray-500">/ trọn khóa</span>
+                </div>
+                <ul class="space-y-2 text-xs text-gray-600 border-t border-gray-100 pt-4">
+                  <li class="flex items-center gap-2"><i class="fa-solid fa-check text-black text-[11px]"></i> HLV theo sát kỹ thuật và giáo án</li>
+                  <li class="flex items-center gap-2"><i class="fa-solid fa-check text-black text-[11px]"></i> Lộ trình cá nhân hóa theo mục tiêu</li>
+                </ul>
               </div>
-              <ul class="space-y-2 text-xs text-gray-600 border-t border-gray-100 pt-4">
-                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-black text-[11px]"></i> HLV theo sát kỹ thuật và giáo án</li>
-                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-black text-[11px]"></i> Lộ trình cá nhân hóa theo mục tiêu</li>
-              </ul>
+              ${btnHtml}
             </div>
-            <button onclick="openItemRegisterModal('course', ${c.id}, '${c.name}', '${formatVND(c.price_vnd)}')" class="w-full mt-6 py-2.5 rounded-xl bg-black text-white hover:bg-gray-800 text-xs font-semibold transition active:scale-95 shadow-sm">
-              Đăng ký khóa học
-            </button>
-          </div>
-        `).join('');
+          `;
+        }).join('');
 
       } catch (err) {
         console.error('Lỗi load courses and plans:', err);
@@ -1110,9 +1615,12 @@
         if (res.ok && data.success) {
           alert(data.message);
           closeModal('courseModal');
-          loadDashboard();
+          if (typeof loadCoursesAndPlans === 'function') loadCoursesAndPlans();
+          if (typeof loadPublishedSchedule === 'function') loadPublishedSchedule();
+          if (typeof loadMySchedule === 'function') loadMySchedule();
+          if (typeof loadDashboard === 'function') loadDashboard();
         } else {
-          alert('Đăng ký không thành công: ' + (data.message || 'Lỗi không xác định'));
+          alert(data.message || 'Đăng ký không thành công!');
         }
       } catch (err) {
         alert('Lỗi kết nối máy chủ API!');
@@ -1294,6 +1802,279 @@
       } finally {
         btn.disabled = false;
         btn.innerText = 'Cập nhật mật khẩu mới';
+      }
+    }
+
+    // ==============================================================
+    // 6.2. HÓA ĐƠN, ĐIỂM DANH & YÊU CẦU ĐỔI HỦY (BILLING & RECORDS)
+    // ==============================================================
+    async function loadBillingAndRecords() {
+      const user = getStoredUser();
+
+      // 1. Tải hóa đơn
+      const invoicesTbody = document.getElementById('invoicesTableBody');
+      try {
+        const res = await fetch(`${API_BASE}/api/customer/invoices?memberId=${user.id}`);
+        const result = await res.json();
+        if (result.success && result.data && result.data.length > 0) {
+          const typeNames = { 1: 'Gói tập', 2: 'Khóa học', 3: 'Cửa hàng' };
+          const methodNames = { 1: 'Tiền mặt', 2: 'Chuyển khoản QR', 3: 'Thẻ POS' };
+          const statusBadges = {
+            1: '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Chờ thanh toán</span>',
+            2: '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Đã thanh toán</span>',
+            3: '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">Đã hủy</span>'
+          };
+
+          invoicesTbody.innerHTML = result.data.map(inv => {
+            const itemsText = inv.items && inv.items.length > 0
+              ? inv.items.map(it => `${it.description} (x${it.quantity})`).join(', ')
+              : (inv.note || 'Thanh toán dịch vụ');
+            return `
+              <tr class="hover:bg-gray-50/80 transition">
+                <td class="py-3 px-3 font-mono font-bold text-black">${inv.code || ('HD' + String(inv.id).padStart(8, '0'))}</td>
+                <td class="py-3 px-3 font-medium text-gray-700">${typeNames[inv.type] || 'Dịch vụ'}</td>
+                <td class="py-3 px-3 text-gray-600 max-w-[260px] truncate" title="${itemsText}">${itemsText}</td>
+                <td class="py-3 px-3 font-bold text-black">${formatVND(inv.total_amount)}</td>
+                <td class="py-3 px-3 text-gray-500">${methodNames[inv.payment_method] || 'Khác'}</td>
+                <td class="py-3 px-3 text-gray-500 font-mono">${formatDate(inv.created_at)}</td>
+                <td class="py-3 px-3 text-right">${statusBadges[inv.status] || '<span class="text-gray-400">Không rõ</span>'}</td>
+              </tr>
+            `;
+          }).join('');
+        } else {
+          invoicesTbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="text-center py-8 text-gray-400 text-xs">
+                <i class="fa-regular fa-folder-open text-base block mb-1"></i>
+                Bạn chưa phát sinh hóa đơn thanh toán nào.
+              </td>
+            </tr>
+          `;
+        }
+      } catch (err) {
+        invoicesTbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-red-500">Lỗi tải hóa đơn: ${err.message}</td></tr>`;
+      }
+
+      // 2. Tải nhật ký điểm danh
+      const checkinsBox = document.getElementById('checkinsList');
+      try {
+        const res = await fetch(`${API_BASE}/api/customer/checkins?memberId=${user.id}`);
+        const result = await res.json();
+        if (result.success && result.data && result.data.length > 0) {
+          checkinsBox.innerHTML = result.data.map(ci => `
+            <div class="p-3 bg-gray-50 border border-gray-200 rounded-2xl flex items-center justify-between text-xs hover:border-gray-300 transition">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                  <i class="fa-solid fa-fingerprint"></i>
+                </div>
+                <div>
+                  <p class="font-bold text-black">${ci.class_name || 'Vào cổng tập Gym tự do'}</p>
+                  <p class="text-[11px] text-gray-500 font-mono">${ci.room_name ? 'Phòng: ' + ci.room_name : 'Cổng chính'} · ${formatDate(ci.checkin_time)} ${formatTime(ci.checkin_time)}</p>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-semibold rounded-full text-[10px] border border-emerald-200">
+                Có mặt
+              </span>
+            </div>
+          `).join('');
+        } else {
+          checkinsBox.innerHTML = `
+            <div class="text-center py-8 text-gray-400 text-xs">
+              <i class="fa-regular fa-clipboard text-base block mb-1"></i>
+              Chưa có dữ liệu điểm danh check-in.
+            </div>
+          `;
+        }
+      } catch (err) {
+        checkinsBox.innerHTML = `<div class="text-center py-4 text-red-500 text-xs">Lỗi tải điểm danh</div>`;
+      }
+
+      // 3. Tải lịch sử yêu cầu đổi/hủy
+      const requestsBox = document.getElementById('requestsList');
+      try {
+        const res = await fetch(`${API_BASE}/api/customer/requests?memberId=${user.id}`);
+        const result = await res.json();
+        if (result.success && result.data && result.data.length > 0) {
+          const reqTypeLabels = { 1: 'Hủy lịch học', 2: 'Đổi ca học' };
+          const statusBadges = {
+            1: '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Chờ duyệt</span>',
+            2: '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Đã chấp thuận</span>',
+            3: '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">Từ chối</span>'
+          };
+
+          requestsBox.innerHTML = result.data.map(rq => `
+            <div class="p-3 bg-gray-50 border border-gray-200 rounded-2xl text-xs space-y-1.5 hover:border-gray-300 transition">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-black flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full ${rq.request_type === 1 ? 'bg-red-500' : 'bg-blue-500'}"></span>
+                  ${reqTypeLabels[rq.request_type] || 'Yêu cầu'}
+                </span>
+                ${statusBadges[rq.status] || ''}
+              </div>
+              <p class="text-gray-600 text-[11px]">Lớp: <strong>${rq.current_class}</strong> ${rq.new_class ? ' ➔ Sang: <strong>' + rq.new_class + '</strong>' : ''}</p>
+              ${rq.reason ? `<p class="text-gray-500 text-[11px]">Lý do: <em>${rq.reason}</em></p>` : ''}
+              ${rq.staff_note ? `<p class="text-emerald-700 text-[11px] font-medium bg-emerald-50/60 p-1.5 rounded-lg border border-emerald-100">Ghi chú: ${rq.staff_note}</p>` : ''}
+              <p class="text-[10px] text-gray-400 font-mono text-right">${formatDate(rq.submitted_at)} ${formatTime(rq.submitted_at)}</p>
+            </div>
+          `).join('');
+        } else {
+          requestsBox.innerHTML = `
+            <div class="text-center py-8 text-gray-400 text-xs">
+              <i class="fa-regular fa-circle-check text-base block mb-1"></i>
+              Bạn chưa có yêu cầu đổi hoặc hủy lớp nào.
+            </div>
+          `;
+        }
+      } catch (err) {
+        requestsBox.innerHTML = `<div class="text-center py-4 text-red-500 text-xs">Lỗi tải yêu cầu</div>`;
+      }
+    }
+
+    // ==============================================================
+    // 6.3. THỂ CHẤT INBODY & HỘP THƯ HỖ TRỢ (FITNESS & SUPPORT)
+    // ==============================================================
+    async function loadFitnessAndSupport() {
+      const user = getStoredUser();
+
+      // 1. Tải kết quả InBody / Thể chất
+      const progBox = document.getElementById('progressContainer');
+      try {
+        const res = await fetch(`${API_BASE}/api/customer/progress?memberId=${user.id}`);
+        const result = await res.json();
+        if (result.success && result.data && result.data.length > 0) {
+          progBox.innerHTML = result.data.map(p => `
+            <div class="p-4 bg-gray-50 border border-gray-200 rounded-2xl text-xs space-y-2 hover:border-gray-300 transition">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-gray-200">
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 bg-indigo-50 text-indigo-700 font-bold rounded-full text-[10px] border border-indigo-200">
+                    Lớp ${p.class_name}
+                  </span>
+                  <span class="font-semibold text-gray-700">HLV: ${p.trainer_name || 'Huấn luyện viên'}</span>
+                </div>
+                <span class="text-[11px] text-gray-400 font-mono">Đánh giá ngày: ${formatDate(p.updated_at)}</span>
+              </div>
+              <div class="grid grid-cols-3 gap-3 text-center py-1">
+                <div class="bg-white p-2 rounded-xl border border-gray-200">
+                  <span class="text-[10px] text-gray-400 uppercase font-semibold block">Cân nặng</span>
+                  <span class="text-base font-black text-black">${p.weight ? p.weight + ' kg' : '—'}</span>
+                </div>
+                <div class="bg-white p-2 rounded-xl border border-gray-200">
+                  <span class="text-[10px] text-gray-400 uppercase font-semibold block">Tỷ lệ mỡ</span>
+                  <span class="text-base font-black text-indigo-600">${p.body_fat ? p.body_fat + '%' : '—'}</span>
+                </div>
+                <div class="bg-white p-2 rounded-xl border border-gray-200">
+                  <span class="text-[10px] text-gray-400 uppercase font-semibold block">Hoàn thành bài tập</span>
+                  <span class="text-base font-black text-emerald-600">${p.completion_rate ? p.completion_rate + '%' : '—'}</span>
+                </div>
+              </div>
+              ${p.trainer_note ? `
+                <div class="bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/60 text-amber-900 text-[11px]">
+                  <strong>Nhận xét từ HLV:</strong> ${p.trainer_note}
+                </div>
+              ` : ''}
+            </div>
+          `).join('');
+        } else {
+          progBox.innerHTML = `
+            <div class="text-center py-8 text-gray-400 text-xs">
+              <i class="fa-solid fa-weight-scale text-xl block mb-2 text-gray-300"></i>
+              Chưa có dữ liệu đánh giá thể chất InBody từ huấn luyện viên.
+              <p class="text-[11px] text-gray-400 mt-1">Khi bạn tham gia lớp học có HLV, các chỉ số cân nặng, mỡ và nhận xét sẽ tự động xuất hiện tại đây.</p>
+            </div>
+          `;
+        }
+      } catch (err) {
+        progBox.innerHTML = `<div class="text-center py-4 text-red-500 text-xs">Lỗi tải dữ liệu thể chất</div>`;
+      }
+
+      // 2. Tải lịch sử phản hồi
+      const fbBox = document.getElementById('feedbackList');
+      try {
+        const res = await fetch(`${API_BASE}/api/customer/feedback?memberId=${user.id}`);
+        const result = await res.json();
+        if (result.success && result.data && result.data.length > 0) {
+          const catNames = { 1: 'Dịch vụ & Gói tập', 2: 'Cơ sở vật chất', 3: 'Huấn luyện viên', 4: 'Góp ý khác' };
+          const statusBadges = {
+            1: '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Đang chờ xử lý</span>',
+            2: '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">Đang giải quyết</span>',
+            3: '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Đã hoàn tất</span>'
+          };
+
+          fbBox.innerHTML = result.data.map(fb => `
+            <div class="p-4 bg-gray-50 border border-gray-200 rounded-2xl text-xs space-y-2 hover:border-gray-300 transition">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-black text-sm">${fb.title}</span>
+                ${statusBadges[fb.status] || ''}
+              </div>
+              <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-md font-semibold">${catNames[fb.category] || 'Góp ý'}</span>
+                <span>·</span>
+                <span class="font-mono">${formatDate(fb.created_at)}</span>
+              </div>
+              <p class="text-gray-700 text-xs bg-white p-3 rounded-xl border border-gray-100">${fb.content}</p>
+              ${fb.staff_reply ? `
+                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl space-y-1 text-emerald-950">
+                  <div class="flex items-center justify-between text-[11px] font-bold text-emerald-800">
+                    <span><i class="fa-solid fa-headset mr-1"></i> Phản hồi từ Quản trị viên (${fb.staff_name || 'Trung tâm'})</span>
+                    <span class="text-[10px] font-mono text-emerald-600">${formatDate(fb.resolved_at)}</span>
+                  </div>
+                  <p class="text-xs">${fb.staff_reply}</p>
+                </div>
+              ` : `
+                <p class="text-[10px] text-gray-400 italic">⏳ Ban quản lý trung tâm sẽ xem xét và phản hồi trong vòng 24h làm việc.</p>
+              `}
+            </div>
+          `).join('');
+        } else {
+          fbBox.innerHTML = `
+            <div class="text-center py-8 text-gray-400 text-xs">
+              <i class="fa-regular fa-comment-dots text-xl block mb-2 text-gray-300"></i>
+              Bạn chưa gửi phản hồi hoặc khiếu nại nào.
+            </div>
+          `;
+        }
+      } catch (err) {
+        fbBox.innerHTML = `<div class="text-center py-4 text-red-500 text-xs">Lỗi tải phản hồi</div>`;
+      }
+    }
+
+    // Gửi phản hồi mới
+    async function handleSendFeedback(e) {
+      e.preventDefault();
+      const user = getStoredUser();
+      const category = document.getElementById('fbCategory').value;
+      const title = document.getElementById('fbTitle').value;
+      const content = document.getElementById('fbContent').value;
+      const btn = document.getElementById('btnSubmitFeedback');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> Đang gửi...';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/customer/feedback`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            memberId: user.id,
+            category: Number(category),
+            title: title.trim(),
+            content: content.trim()
+          })
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert('Cảm ơn bạn! Phản hồi đã được gửi thành công tới Ban quản lý trung tâm.');
+          document.getElementById('fbTitle').value = '';
+          document.getElementById('fbContent').value = '';
+          loadFitnessAndSupport();
+        } else {
+          alert('Không thể gửi phản hồi: ' + (result.message || 'Lỗi không xác định'));
+        }
+      } catch (err) {
+        alert('Lỗi kết nối máy chủ khi gửi phản hồi!');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i> Gửi phản hồi ngay';
       }
     }
 
@@ -1781,6 +2562,12 @@
 
       <!-- Gợi ý nhanh (Quick chips) -->
       <div class="px-3 py-2 bg-white border-t border-gray-100 overflow-x-auto flex space-x-1.5">
+        <button onclick="sendQuickPrompt('Có thể đăng ký tập thử không?')" class="whitespace-nowrap px-3 py-1 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-full border border-emerald-200 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-gift text-[11px]"></i> 🎁 Đăng ký tập thử
+        </button>
+        <button onclick="sendQuickPrompt('Tập luyện bao lâu thì có hiệu quả?')" class="whitespace-nowrap px-3 py-1 text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-full border border-indigo-200 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-stopwatch text-[11px]"></i> ⏱️ Bao lâu thì hiệu quả?
+        </button>
         <button onclick="startBmiConsultationFlow()" class="whitespace-nowrap px-3 py-1 text-xs bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold rounded-full shadow-sm transition flex items-center gap-1.5">
           <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> 🎯 Tư vấn thể trạng (BMI)
         </button>
@@ -1790,17 +2577,14 @@
         <button onclick="sendQuickPrompt('Lịch học của tôi')" class="whitespace-nowrap px-2.5 py-1 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-full border border-blue-200 transition">
           📅 Lịch của tôi
         </button>
-        <button onclick="sendQuickPrompt('Hôm nay có những lớp nào?')" class="whitespace-nowrap px-2.5 py-1 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-full border border-emerald-200 transition">
-          🔥 Lớp hôm nay
-        </button>
         <button onclick="sendQuickPrompt('Bảng giá gói tập')" class="whitespace-nowrap px-2.5 py-1 text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold rounded-full border border-amber-200 transition">
-          💰 Bảng giá
+          💰 Bảng giá gói tập
         </button>
         <button onclick="sendQuickPrompt('Danh sách huấn luyện viên')" class="whitespace-nowrap px-2.5 py-1 text-xs bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold rounded-full border border-purple-200 transition">
           🏆 Đội ngũ HLV
         </button>
         <button onclick="sendQuickPrompt('Quầy có bán những sản phẩm gì?')" class="whitespace-nowrap px-2.5 py-1 text-xs bg-teal-50 hover:bg-teal-100 text-teal-700 font-semibold rounded-full border border-teal-200 transition">
-          🥤 Quầy nước
+          🥤 Quầy nước & Whey
         </button>
       </div>
 

@@ -352,7 +352,7 @@
                 <th class="py-3 px-4 text-center">Thao tác</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
+            <tbody id="hlvScheduleTbody" class="divide-y divide-gray-100">
               <!-- Ca 1 -->
               <tr class="hover:bg-gray-50/60 transition">
                 <td class="py-4 px-4 font-bold text-black whitespace-nowrap">06:00 – 07:15</td>
@@ -414,7 +414,7 @@
       </div>
 
       <!-- Danh sách học viên phụ trách -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="hlvStudentsContainer">
         
         <!-- Thẻ học viên 1 -->
         <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:border-black transition">
@@ -873,6 +873,7 @@
       </div>
 
       <form onsubmit="event.preventDefault(); saveStudentResult();" class="space-y-4 text-xs">
+        <input type="hidden" id="modalStudentId">
         <!-- Đánh giá thái độ tập luyện -->
         <div>
           <label class="block font-semibold text-gray-700 mb-1">Đánh giá tinh thần & thể lực hôm nay:</label>
@@ -1006,20 +1007,136 @@
     }
 
     // Mở Modal cập nhật học viên
-    function openUpdateStudentModal(name, code, session, weight, fat, muscle) {
+    function openUpdateStudentModal(name, code, session, weight, fat, muscle, studentId) {
+      document.getElementById('modalStudentId').value = studentId || '';
       document.getElementById('modalStudentName').innerText = name;
       document.getElementById('modalStudentCode').innerText = code;
       document.getElementById('modalSessionInfo').innerText = session;
-      document.getElementById('inputWeight').value = weight;
-      document.getElementById('inputFat').value = fat;
-      document.getElementById('inputMuscle').value = muscle;
+      document.getElementById('inputWeight').value = weight || '';
+      document.getElementById('inputFat').value = fat || '';
+      document.getElementById('inputMuscle').value = muscle || '';
       openModal('updateStudentModal');
     }
 
-    function saveStudentResult() {
+    async function saveStudentResult() {
+      const studentId = document.getElementById('modalStudentId').value;
       const name = document.getElementById('modalStudentName').innerText;
-      alert('Đã cập nhật thành công kết quả và chỉ số hình thể cho học viên ' + name + '!\nDữ liệu đã được đồng bộ vào hồ sơ cá nhân của học viên.');
-      closeModal('updateStudentModal');
+      const weight = document.getElementById('inputWeight').value;
+      const fat = document.getElementById('inputFat').value;
+      const notes = document.getElementById('inputCoachNotes').value;
+
+      const userJson = localStorage.getItem('fitcenter_user');
+      const user = userJson ? JSON.parse(userJson) : null;
+      const trainerId = user ? user.id : 3;
+
+      try {
+        const API_BASE = (window.location.origin.includes(':3000')) ? '' : 'http://localhost:3000';
+        const res = await fetch(`${API_BASE}/api/trainer/update-progress`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            trainerId,
+            studentId,
+            weight,
+            bodyFat: fat,
+            note: notes,
+            completionRate: 85
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert('Đã cập nhật thành công kết quả và chỉ số hình thể cho học viên ' + name + '!\nDữ liệu đã được đồng bộ vào hồ sơ CSDL.');
+          closeModal('updateStudentModal');
+          await loadTrainerStudents(trainerId);
+        } else {
+          alert('Cập nhật thất bại: ' + (data.message || 'Lỗi không xác định'));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Lỗi kết nối máy chủ!');
+      }
+    }
+
+    // Tải danh sách Học viên phụ trách từ Backend API
+    async function loadTrainerStudents(trainerId) {
+      const container = document.getElementById('hlvStudentsContainer');
+      if (!container) return;
+
+      try {
+        const API_BASE = (window.location.origin.includes(':3000')) ? '' : 'http://localhost:3000';
+        const res = await fetch(`${API_BASE}/api/trainer/students?trainerId=${trainerId}`);
+        const result = await res.json();
+
+        if (result.success && result.data && result.data.length > 0) {
+          container.innerHTML = result.data.map(st => {
+            const initials = (st.student_name || 'HV').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+            const w = Number(st.weight || 70).toFixed(1);
+            const f = Number(st.body_fat || 18).toFixed(1);
+            const cName = st.class_name || 'Lớp tập luyện';
+
+            return `
+              <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:border-black transition">
+                <div>
+                  <div class="flex justify-between items-start mb-4">
+                    <div class="flex items-center space-x-3">
+                      <div class="w-11 h-11 rounded-full bg-black text-white font-bold text-sm flex items-center justify-center">
+                        ${initials}
+                      </div>
+                      <div>
+                        <h3 class="font-bold text-sm text-black">${st.student_name}</h3>
+                        <p class="text-[11px] text-gray-500 font-mono">Mã HV: ${st.student_code || ('KH' + st.student_id)}</p>
+                      </div>
+                    </div>
+                    <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200">
+                      ${st.class_code || 'HV'}
+                    </span>
+                  </div>
+
+                  <!-- Mục tiêu & Tiến độ buổi học -->
+                  <div class="bg-gray-50 rounded-2xl p-3.5 mb-4 text-xs space-y-1.5 border border-gray-200">
+                    <div class="flex justify-between">
+                      <span class="text-gray-500">Mục tiêu:</span>
+                      <strong class="text-black">${st.fitness_goal || 'Tập thể lực & sức bền'}</strong>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-500">Lớp theo học:</span>
+                      <strong class="text-black">${cName}</strong>
+                    </div>
+                  </div>
+
+                  <!-- Chỉ số hình thể đo gần nhất -->
+                  <div class="grid grid-cols-3 gap-2 text-center text-xs mb-4">
+                    <div class="p-2 border border-gray-200 rounded-xl bg-white">
+                      <span class="block text-[10px] text-gray-500">Cân nặng</span>
+                      <strong class="text-sm text-black">${w} kg</strong>
+                    </div>
+                    <div class="p-2 border border-gray-200 rounded-xl bg-white">
+                      <span class="block text-[10px] text-gray-500">Tỷ lệ mỡ</span>
+                      <strong class="text-sm text-black">${f}%</strong>
+                    </div>
+                    <div class="p-2 border border-gray-200 rounded-xl bg-white">
+                      <span class="block text-[10px] text-gray-500">Hoàn thành</span>
+                      <strong class="text-sm text-black">${st.completion_rate || 80}%</strong>
+                    </div>
+                  </div>
+
+                  <!-- Nhận xét gần nhất của HLV -->
+                  <p class="text-[11px] text-gray-600 italic bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/60 mb-4">
+                    "${st.note || 'Tập luyện chăm chỉ, thể lực tiến bộ rõ rệt.'}"
+                  </p>
+                </div>
+
+                <button onclick="openUpdateStudentModal('${st.student_name}', '${st.student_code || ('KH' + st.student_id)}', '${cName}', '${w}', '${f}', '32.0', ${st.student_id})" class="w-full py-2.5 bg-black text-white hover:bg-gray-800 rounded-xl text-xs font-semibold transition">
+                  Cập nhật tình hình & Kết quả
+                </button>
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        console.warn('Lỗi tải danh sách học viên HLV:', err);
+      }
     }
 
     // Mở Modal chi tiết lớp & Điểm danh
@@ -1029,8 +1146,8 @@
       openModal('classDetailModal');
     }
 
-    // Đồng bộ thông tin HLV từ LocalStorage
-    document.addEventListener('DOMContentLoaded', () => {
+    // Đồng bộ thông tin HLV, Lịch dạy & Học viên từ Backend API
+    document.addEventListener('DOMContentLoaded', async () => {
       const userJson = localStorage.getItem('fitcenter_user');
       if (userJson) {
         try {
@@ -1043,6 +1160,41 @@
           if (avatarEl && user.fullName) {
             avatarEl.innerText = user.fullName.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'HLV';
           }
+
+          // Tải lịch dạy thật từ API
+          const API_BASE = (window.location.origin.includes(':3000')) ? '' : 'http://localhost:3000';
+          const res = await fetch(`${API_BASE}/api/trainer/schedule?trainerId=${user.id}`);
+          const result = await res.json();
+          if (result.success && result.data && result.data.length > 0) {
+            const tbody = document.getElementById('hlvScheduleTbody');
+            if (tbody) {
+              tbody.innerHTML = result.data.map(item => {
+                const sDate = new Date(item.starts_at);
+                const eDate = new Date(item.ends_at);
+                const timeStr = `${String(sDate.getHours()).padStart(2, '0')}:${String(sDate.getMinutes()).padStart(2, '0')} – ${String(eDate.getHours()).padStart(2, '0')}:${String(eDate.getMinutes()).padStart(2, '0')}`;
+                const dateStr = `${sDate.getDate()}/${sDate.getMonth() + 1}/${sDate.getFullYear()}`;
+                return `
+                  <tr class="hover:bg-gray-50/60 transition">
+                    <td class="py-4 px-4 font-bold text-black whitespace-nowrap">
+                      ${timeStr}<br><span class="text-[10px] text-gray-500 font-normal">${dateStr}</span>
+                    </td>
+                    <td class="py-4 px-4 font-semibold text-black">${item.class_name} [${item.class_code}]</td>
+                    <td class="py-4 px-4"><span class="bg-gray-100 px-2 py-0.5 rounded text-[10px] font-medium">Lớp đào tạo</span></td>
+                    <td class="py-4 px-4">${item.room_name}</td>
+                    <td class="py-4 px-4 font-semibold text-emerald-600">${item.student_count || 0} học viên</td>
+                    <td class="py-4 px-4"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-semibold border border-emerald-200">Đã lên lịch</span></td>
+                    <td class="py-4 px-4 text-center">
+                      <button onclick="openClassDetailModal('${item.class_name}', '${item.room_name}', '${item.student_count || 0} HV')" class="px-3 py-1 bg-black text-white rounded-lg text-xs font-semibold hover:bg-gray-800">Điểm danh</button>
+                    </td>
+                  </tr>
+                `;
+              }).join('');
+            }
+          }
+
+          // Tải danh sách học viên
+          await loadTrainerStudents(user.id);
+
         } catch (e) {
           console.error(e);
         }
