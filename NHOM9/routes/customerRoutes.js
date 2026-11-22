@@ -245,7 +245,9 @@ async function checkScheduleConflict(memberId, targetLopHocID, excludeDangKyID =
     return {
       hasConflict: true,
       type: 'ALREADY_REGISTERED',
-      message: `Bạn đã đăng ký khóa học này rồi (Lớp: "${existing[0].TenLop}" - Trạng thái: ${statusText})! Vui lòng theo dõi trong mục 'Lịch học của tôi'.`
+      conflictingClass: existing[0].TenLop,
+      conflictingCourse: existing[0].TenKhoaHoc,
+      message: `Đăng ký trùng! Bạn đã đăng ký khóa học "${existing[0].TenKhoaHoc}" rồi (Lớp: "${existing[0].TenLop}" - Trạng thái: ${statusText}). Hệ thống không cho phép đăng ký trùng!`
     };
   }
 
@@ -286,7 +288,8 @@ async function checkScheduleConflict(memberId, targetLopHocID, excludeDangKyID =
       return {
         hasConflict: true,
         type: 'TIME_OVERLAP',
-        message: `Trùng lịch học! Bạn đã có lịch học lớp "${c.TenLop}" vào ngày ${c.NgayHocFormatted} (${c.GioBatDauFormatted} - ${c.GioKetThucFormatted}). Vui lòng chọn ca học hoặc lớp khác!`
+        conflictingClass: c.TenLop,
+        message: `Trùng lịch học! Lớp học này có buổi học trùng khung giờ với lớp "${c.TenLop}" vào ngày ${c.NgayHocFormatted} (${c.GioBatDauFormatted} - ${c.GioKetThucFormatted}) mà bạn đã đăng ký. Hệ thống không cho phép đăng ký do trùng lịch học!`
       };
     }
   }
@@ -517,7 +520,9 @@ router.get('/courses-and-plans', async (req, res) => {
              kh.ThoiLuongTuan AS duration_weeks, kh.SoBuoi AS total_sessions,
              kh.Gia AS price_vnd, kh.DieuKienThamGia AS terms,
              cm.TenChuyenMon AS specialty_name,
+             cm.ChuyenMonID AS specialty_id,
              CONCAT('KH-', kh.KhoaHocID) AS code,
+             (SELECT COUNT(*) FROM LopHoc lh WHERE lh.KhoaHocID = kh.KhoaHocID AND lh.CongBo = 1) AS class_count,
              (
                SELECT dk.TrangThai 
                FROM DangKyKhoaHoc dk
@@ -540,12 +545,161 @@ router.get('/courses-and-plans', async (req, res) => {
       ORDER BY kh.KhoaHocID ASC
     `, [memberId, memberId]);
 
+    const [specialties] = await db.query(`
+      SELECT DISTINCT cm.ChuyenMonID AS id, cm.TenChuyenMon AS name
+      FROM ChuyenMon cm
+      JOIN KhoaHoc kh ON cm.ChuyenMonID = kh.ChuyenMonID
+      WHERE kh.TrangThai = 1 AND kh.CongBo = 1
+      ORDER BY cm.TenChuyenMon ASC
+    `);
+
     res.json({
       success: true,
       data: {
         plans,
-        courses
+        courses,
+        specialties
       }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// GET /api/customer/course-detail (Truy vấn thông tin chi tiết khóa học, thời lượng, lịch dự kiến, điều kiện tham gia)
+router.get('/course-detail', async (req, res) => {
+  try {
+    const memberId = getMemberId(req);
+    const courseId = Number(req.query.courseId || req.query.id);
+
+    if (!courseId) {
+      return res.status(400).json({ success: false, message: 'Thiếu mã khóa học (courseId)!' });
+    }
+
+    const [courses] = await db.query(`
+      SELECT kh.KhoaHocID AS id, kh.TenKhoaHoc AS name, kh.MoTa AS description,
+             kh.ThoiLuongTuan AS duration_weeks, kh.SoBuoi AS total_sessions,
+             kh.Gia AS price_vnd, kh.DieuKienThamGia AS terms,
+             cm.TenChuyenMon AS specialty_name,
+             CONCAT('KH-', kh.KhoaHocID) AS code,
+             (
+               SELECT dk.TrangThai 
+               FROM DangKyKhoaHoc dk
+               JOIN LopHoc lh ON dk.LopHocID = lh.LopHocID
+               WHERE lh.KhoaHocID = kh.KhoaHocID AND dk.KhachHangID = ? AND dk.TrangThai IN (1, 2, 5)
+               ORDER BY dk.DangKyID DESC LIMIT 1
+             ) AS my_reg_status,
+             (
+               SELECT lh.TenLop
+               FROM DangKyKhoaHoc dk
+               JOIN LopHoc lh ON dk.LopHocID = lh.LopHocID
+               WHERE lh.KhoaHocID = kh.KhoaHocID AND dk.KhachHangID = ? AND dk.TrangThai IN (1, 2, 5)
+               ORDER BY dk.DangKyID DESC LIMIT 1
+             ) AS my_enrolled_class
+      FROM KhoaHoc kh
+      LEFT JOIN ChuyenMon cm ON kh.ChuyenMonID = cm.ChuyenMonID
+      WHERE kh.KhoaHocID = ? AND kh.TrangThai = 1
+    `, [memberId, memberId, courseId]);
+
+    if (courses.length === 0) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy khóa học hoặc khóa học chưa được công bố!' });
+    }
+
+    const course = courses[0];
+
+    // Lấy danh sách các lớp học thuộc khóa học đang mở
+    const [classes] = await db.query(`
+      SELECT l.LopHocID AS class_id, l.MaLop AS class_code, l.TenLop AS class_name,
+             l.PhongID AS room_id, p.TenPhong AS room_name,
+             DATE_FORMAT(l.NgayBatDau, '%d/%m/%Y') AS start_date,
+             DATE_FORMAT(l.NgayKetThuc, '%d/%m/%Y') AS end_date,
+             l.SucChua AS capacity,
+             COALESCE(s.SoDaDangKy, 0) AS reserved_places,
+             COALESCE(s.SoConTrong, l.SucChua) AS available_slots,
+             COALESCE(s.SoDanhSachCho, 0) AS waiting_count,
+             (SELECT COUNT(*) FROM DangKyKhoaHoc dk WHERE dk.LopHocID = l.LopHocID AND dk.KhachHangID = ? AND dk.TrangThai IN (1, 2, 5)) AS is_enrolled_by_me,
+             (SELECT dk.TrangThai FROM DangKyKhoaHoc dk WHERE dk.LopHocID = l.LopHocID AND dk.KhachHangID = ? AND dk.TrangThai IN (1, 2, 5) LIMIT 1) AS my_class_status
+      FROM LopHoc l
+      JOIN Phong p ON l.PhongID = p.PhongID
+      LEFT JOIN vw_SiSoLop s ON l.LopHocID = s.LopHocID
+      WHERE l.KhoaHocID = ? AND l.CongBo = 1
+      ORDER BY l.LopHocID ASC
+    `, [memberId, memberId, courseId]);
+
+    const dayMap = { 1: 'CN', 2: 'Thứ 2', 3: 'Thứ 3', 4: 'Thứ 4', 5: 'Thứ 5', 6: 'Thứ 6', 7: 'Thứ 7' };
+
+    // Lấy chi tiết buổi học & huấn luyện viên cho từng lớp
+    for (const c of classes) {
+      const [sessions] = await db.query(`
+        SELECT b.BuoiHocID AS session_id,
+               DATE_FORMAT(b.NgayHoc, '%d/%m/%Y') AS session_date,
+               DATE_FORMAT(b.NgayHoc, '%Y-%m-%d') AS raw_date,
+               DAYOFWEEK(b.NgayHoc) AS day_of_week,
+               DATE_FORMAT(b.GioBatDau, '%H:%i') AS start_time,
+               DATE_FORMAT(b.GioKetThuc, '%H:%i') AS end_time,
+               b.GhiChu AS note,
+               p.TenPhong AS room_name,
+               tk.HoTen AS trainer_name
+        FROM BuoiHoc b
+        JOIN Phong p ON b.PhongID = p.PhongID
+        LEFT JOIN PhanCongHLV pc ON pc.BuoiHocID = b.BuoiHocID AND pc.TrangThai = 1 AND pc.VaiTroGiangDay = 1
+        LEFT JOIN TaiKhoan tk ON tk.TaiKhoanID = pc.HuanLuyenVienID
+        WHERE b.LopHocID = ? AND b.TrangThai <> 3
+        ORDER BY b.NgayHoc ASC, b.GioBatDau ASC
+      `, [c.class_id]);
+
+      c.sessions = sessions;
+      c.trainer_name = sessions.find(s => s.trainer_name)?.trainer_name || 'Huấn luyện viên FitCenter';
+
+      // Tạo tóm tắt lịch học tuần
+      const uniqueDays = [...new Set(sessions.map(s => dayMap[s.day_of_week]).filter(Boolean))];
+      const timeSlots = [...new Set(sessions.map(s => `${s.start_time} - ${s.end_time}`).filter(Boolean))];
+      c.schedule_summary = uniqueDays.length > 0 
+        ? `${uniqueDays.join(', ')} (${timeSlots.join(', ')})`
+        : 'Theo kế hoạch trung tâm';
+
+      // Kiểm tra trùng lịch học hoặc trùng khóa học cho từng lớp
+      const conflictCheck = await checkScheduleConflict(memberId, c.class_id);
+      c.conflict = conflictCheck;
+    }
+
+    res.json({
+      success: true,
+      data: {
+        course,
+        classes
+      }
+    });
+  } catch (error) {
+    console.error('Lỗi API course-detail:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// GET /api/customer/plan-detail (Truy vấn thông tin chi tiết gói tập, thời lượng, điều kiện tham gia)
+router.get('/plan-detail', async (req, res) => {
+  try {
+    const planId = Number(req.query.planId || req.query.id);
+    if (!planId) {
+      return res.status(400).json({ success: false, message: 'Thiếu mã gói tập (planId)!' });
+    }
+
+    const [plans] = await db.query(`
+      SELECT GoiTapID AS id, TenGoiTap AS name, MoTa AS description, 
+             ThoiHanNgay AS duration_days, ROUND(ThoiHanNgay / 30) AS duration_months,
+             Gia AS price_vnd, DieuKienThamGia AS terms,
+             CongBo AS published
+      FROM GoiTap 
+      WHERE GoiTapID = ? AND TrangThai = 1
+    `, [planId]);
+
+    if (plans.length === 0) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy gói tập!' });
+    }
+
+    res.json({
+      success: true,
+      data: plans[0]
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -645,7 +799,7 @@ router.post('/membership/register', async (req, res) => {
 router.post('/course/register', async (req, res) => {
   try {
     const memberId = getMemberId(req);
-    const { courseId, classId, paymentMethod } = req.body;
+    const { courseId, classId, paymentMethod, termsAccepted } = req.body;
 
     let targetLopHocID = classId;
 
@@ -655,12 +809,18 @@ router.post('/course/register', async (req, res) => {
     }
 
     if (!targetLopHocID) {
-      return res.status(400).json({ success: false, message: 'Khóa học này hiện chưa có lớp mở đăng ký!' });
+      return res.status(400).json({ success: false, message: 'Vui lòng chọn lớp học hoặc ca học cần đăng ký!' });
+    }
+
+    if (termsAccepted === false) {
+      return res.status(400).json({ success: false, message: 'Bạn cần xác nhận đồng ý với điều kiện tham gia khóa học!' });
     }
 
     const [lops] = await db.query(`
       SELECT l.LopHocID, l.TenLop, kh.KhoaHocID, kh.TenKhoaHoc, kh.Gia,
-             COALESCE(s.SoConTrong, l.SucChua) AS SoConTrong
+             COALESCE(s.SoConTrong, l.SucChua) AS SoConTrong,
+             COALESCE(s.SoDaDangKy, 0) AS SoDaDangKy,
+             l.SucChua
       FROM LopHoc l 
       JOIN KhoaHoc kh ON l.KhoaHocID = kh.KhoaHocID 
       LEFT JOIN vw_SiSoLop s ON l.LopHocID = s.LopHocID
@@ -673,10 +833,14 @@ router.post('/course/register', async (req, res) => {
 
     const lop = lops[0];
 
-    // 1. Kiểm tra trùng đăng ký & trùng lịch học
+    // 1. Kiểm tra trùng đăng ký & trùng lịch học (Nghiệp vụ cốt lõi: nếu trùng thì thông báo và không cho đăng ký)
     const check = await checkScheduleConflict(memberId, targetLopHocID);
     if (check.hasConflict) {
-      return res.status(400).json({ success: false, message: check.message });
+      return res.status(400).json({ 
+        success: false, 
+        conflictType: check.type,
+        message: check.message 
+      });
     }
 
     // 2. Thêm vào DangKyKhoaHoc (Trạng thái: 1 = Chờ duyệt, hoặc 5 = Danh sách chờ nếu hết chỗ)
@@ -689,7 +853,7 @@ router.post('/course/register', async (req, res) => {
     const dangKyID = resultDK.insertId;
 
     // 3. Sinh hóa đơn (Trạng thái 1 = Chờ xác nhận thanh toán tại quầy)
-    const pMethod = Number(paymentMethod) || 2;
+    const pMethod = (paymentMethod === 'cash' || Number(paymentMethod) === 1) ? 1 : 2; // 1: Tiền mặt, 2: Chuyển khoản QR
     const [resultHD] = await db.query(`
       INSERT INTO HoaDon (KhachHangID, NguoiLapID, LoaiHoaDon, NgayLap, TongTien, PhuongThucThanhToan, TrangThai, GhiChu)
       VALUES (?, 1, 2, NOW(), ?, ?, 1, ?)
@@ -710,18 +874,19 @@ router.post('/course/register', async (req, res) => {
       : 'Lớp học hiện đã đủ chỗ, bạn đã được xếp vào Danh sách chờ.';
     const [notif] = await db.query(`
       INSERT INTO ThongBao (TieuDe, NoiDung, NhomNguoiNhan, NguoiTaoID, ThoiGianGui, TrangThai)
-      VALUES ('Đăng ký khóa học đang chờ xác nhận', ?, 5, 1, NOW(), 3)
+      VALUES ('Đăng ký khóa học thành công', ?, 5, 1, NOW(), 3)
     `, [`Yêu cầu đăng ký lớp ${lop.TenLop} của bạn đã được ghi nhận. Mã đơn: ${maHD}. ${statusNote}`]);
     await db.query('INSERT INTO ThongBaoNguoiNhan (ThongBaoID, TaiKhoanID, DaDoc) VALUES (?, ?, 0)', [notif.insertId, memberId]);
 
     const successMsg = newStatus === 1 
-      ? `Đăng ký lớp ${lop.TenLop} thành công! Đang chờ duyệt. Mã đơn: ${maHD}`
+      ? `Đăng ký khóa học "${lop.TenKhoaHoc}" (Lớp: ${lop.TenLop}) thành công! Đang chờ duyệt. Mã đơn: ${maHD}`
       : `Lớp ${lop.TenLop} đã đủ chỗ! Bạn đã được thêm vào Danh sách chờ. Mã đơn: ${maHD}`;
 
     res.json({
       success: true,
       message: successMsg,
-      invoiceCode: maHD
+      invoiceCode: maHD,
+      status: newStatus
     });
 
   } catch (error) {
@@ -1006,6 +1171,16 @@ router.put('/profile', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Họ tên và email không được để trống!' });
     }
 
+    if (phone && phone.trim()) {
+      const phoneRegex = /^0\d{9}$/;
+      if (!phoneRegex.test(phone.trim())) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Số điện thoại không hợp lệ! Số điện thoại phải đủ 10 số, bắt đầu từ số 0 và không được chứa các ký tự khác.' 
+        });
+      }
+    }
+
     await db.query(`
       UPDATE TaiKhoan
       SET HoTen = ?, SoDienThoai = ?, Email = ?, DiaChi = ?
@@ -1218,13 +1393,16 @@ router.post('/bmi-consult', async (req, res) => {
 // POST /api/customer/chatbot
 router.post('/chatbot', async (req, res) => {
   try {
-    const { message, memberId } = req.body;
-    const currentMemberId = Number(memberId) || 5;
+    const { message, memberId, apiKey, model } = req.body;
+    const currentMemberId = Number(memberId) || getMemberId(req);
 
-    const result = await processFitCenterChat({
+    const { chatWithGemini } = require('../ai_backend');
+    const result = await chatWithGemini({
       message,
       memberId: currentMemberId,
-      db
+      apiKey: apiKey || req.headers['x-gemini-key'],
+      model,
+      dbConn: db
     });
 
     res.json(result);

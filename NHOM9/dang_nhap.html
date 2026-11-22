@@ -229,8 +229,10 @@
           alert(`Đăng nhập thành công!\nXin chào ${data.user.fullName} (${data.user.role.toUpperCase()})`);
 
           // Điều hướng theo vai trò từ Database MySQL
-          if (data.user.role === 'admin' || data.user.role === 'staff') {
+          if (data.user.role === 'admin') {
             window.location.href = 'admin.html';
+          } else if (data.user.role === 'staff') {
+            window.location.href = 'staff.html';
           } else if (data.user.role === 'trainer') {
             window.location.href = 'huan_luyen_vien.html';
           } else {
@@ -254,6 +256,20 @@
         }
       }
     }
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const raw = localStorage.getItem('fitcenter_user');
+        if (raw) {
+          const user = JSON.parse(raw);
+          if (user && user.role) {
+            if (user.role === 'admin') window.location.replace('admin.html');
+            else if (user.role === 'staff') window.location.replace('staff.html');
+            else if (user.role === 'trainer') window.location.replace('huan_luyen_vien.html');
+            else if (user.role === 'customer' || user.role === 'member') window.location.replace('khach_hang.html');
+          }
+        }
+      } catch (e) {}
+    });
   </script>
 </body>
 </html>

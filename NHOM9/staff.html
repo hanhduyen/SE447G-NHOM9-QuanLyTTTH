@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FitCenter - Cổng Nhân viên (Staff Portal) | CDIO SE447G</title>
+<title>FitCenter - Cổng Nhân viên (Staff Portal) | Quản lý Quầy & Khách hàng</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,10 +16,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialias
 @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:9999px}
 .card{background:#fff;border:1px solid #e5e7eb;border-radius:1rem}
-.btn{background:#000;color:#fff;font-size:.75rem;font-weight:600;padding:.55rem 1rem;border-radius:.75rem;transition:.15s}
+.btn{background:#000;color:#fff;font-size:.75rem;font-weight:600;padding:.55rem 1rem;border-radius:.75rem;transition:.15s;cursor:pointer}
 .btn:hover{background:#262626}
-.btn-o{border:1px solid #e5e7eb;background:#fff;font-size:.75rem;font-weight:600;padding:.45rem .8rem;border-radius:.75rem;color:#374151}
+.btn:disabled{background:#9ca3af;cursor:not-allowed}
+.btn-o{border:1px solid #e5e7eb;background:#fff;font-size:.75rem;font-weight:600;padding:.45rem .8rem;border-radius:.75rem;color:#374151;transition:.15s;cursor:pointer}
 .btn-o:hover{background:#f9fafb;color:#000}
+.btn-danger{background:#ef4444;color:#fff;font-size:.75rem;font-weight:600;padding:.55rem 1rem;border-radius:.75rem;transition:.15s;cursor:pointer}
+.btn-danger:hover{background:#dc2626}
 .inp{border:1px solid #e5e7eb;border-radius:.75rem;padding:.6rem .85rem;font-size:.8rem;width:100%;outline:none;background:#fff}
 .inp:focus{border-color:#000}
 .badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:9999px;display:inline-block}
@@ -35,381 +38,1479 @@ td{padding:.7rem 1rem;font-size:.75rem;border-top:1px solid #f3f4f6}
   <div>
     <div class="p-5 border-b border-gray-100 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center"><i class="fa-solid fa-dumbbell text-xs"></i></div>
-        <div><span class="font-extrabold text-base text-black block leading-none">FitCenter</span><span class="text-[11px] text-gray-500 font-medium block mt-1">Staff Portal</span></div>
+        <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center shadow-sm"><i class="fa-solid fa-dumbbell text-xs"></i></div>
+        <div>
+          <span class="font-extrabold text-base text-black block leading-none">FitCenter</span>
+          <span class="text-[11px] text-gray-500 font-medium block mt-1">Cổng Nhân viên</span>
+        </div>
       </div>
       <button onclick="toggleSidebar()" class="md:hidden text-gray-500"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
     <nav class="p-3 space-y-1 text-xs font-semibold text-gray-600" id="nav"></nav>
   </div>
-  <div class="p-4 border-t border-gray-100">
+  <div class="p-4 border-t border-gray-100 bg-gray-50/50">
     <div class="flex items-center gap-3 mb-3">
-      <div id="sbAvatar" class="w-9 h-9 rounded-full bg-neutral-200 text-neutral-800 font-bold text-xs flex items-center justify-center border border-neutral-300">NV</div>
-      <div class="truncate"><p id="sbName" class="text-xs font-bold text-black leading-tight">Nhân viên</p><p id="sbEmail" class="text-[11px] text-gray-500 truncate">staff@fitcenter.vn</p></div>
+      <div id="sbAvatar" class="w-9 h-9 rounded-full bg-black text-white font-bold text-xs flex items-center justify-center border border-neutral-300">NV</div>
+      <div class="truncate">
+        <p id="sbName" class="text-xs font-bold text-black leading-tight">Nhân viên</p>
+        <p id="sbEmail" class="text-[11px] text-gray-500 truncate">staff@gym.local</p>
+        <span class="inline-block text-[9px] bg-neutral-200 text-neutral-800 font-bold px-1.5 py-0.2 rounded mt-0.5" id="sbRole">Lễ tân</span>
+      </div>
     </div>
-    <button onclick="logoutStaff()" class="flex items-center gap-2 text-xs text-gray-500 hover:text-red-600 font-medium py-1"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Đăng xuất</span></button>
+    <button onclick="logoutStaff()" class="flex items-center gap-2 text-xs text-gray-500 hover:text-red-600 font-medium py-1 transition">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Đăng xuất</span>
+    </button>
   </div>
 </aside>
 
-<!-- ============ MAIN ============ -->
+<!-- ============ MAIN CONTENT ============ -->
 <div class="flex-1 flex flex-col min-h-screen overflow-x-hidden">
   <header class="bg-white border-b border-gray-200 h-16 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20">
     <div class="flex items-center gap-3">
       <button onclick="toggleSidebar()" class="md:hidden text-gray-600 p-1.5"><i class="fa-solid fa-bars text-lg"></i></button>
-      <div><h1 id="title" class="text-base sm:text-lg font-bold text-black leading-tight">Tổng quan</h1><p id="today" class="text-xs text-gray-500"></p></div>
+      <div>
+        <h1 id="title" class="text-base sm:text-lg font-bold text-black leading-tight">Tổng quan</h1>
+        <p id="today" class="text-xs text-gray-500"></p>
+      </div>
     </div>
-    <button onclick="go('notif')" class="relative w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50" aria-label="Thông báo">
-      <i class="fa-regular fa-bell text-sm"></i><span id="bell" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
-    </button>
+    <div class="flex items-center gap-2">
+      <button onclick="refreshCurrentTab()" class="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50 text-gray-600 transition" title="Làm mới dữ liệu">
+        <i class="fa-solid fa-rotate text-xs"></i>
+      </button>
+      <button onclick="go('notif')" class="relative w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center hover:bg-gray-50 text-gray-600 transition" aria-label="Thông báo">
+        <i class="fa-regular fa-bell text-sm"></i>
+        <span id="bell" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+      </button>
+    </div>
   </header>
 
   <main class="p-4 sm:p-8 max-w-6xl w-full mx-auto">
 
-    <!-- TỔNG QUAN -->
+    <!-- 1. TỔNG QUAN -->
     <section id="tab-overview" class="tab active">
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stats"></div>
       <div class="grid lg:grid-cols-3 gap-4 mt-4">
         <div class="card p-5 lg:col-span-2">
-          <h3 class="text-sm font-bold mb-3">Hoạt động gần đây</h3>
+          <h3 class="text-sm font-bold mb-3 flex items-center justify-between">
+            <span>Hoạt động gần đây</span>
+            <span class="text-xs font-normal text-gray-400">Ca làm việc hôm nay</span>
+          </h3>
           <ul id="activity" class="divide-y divide-gray-100 text-xs"></ul>
         </div>
         <div class="card p-5">
           <h3 class="text-sm font-bold mb-3">Thao tác nhanh</h3>
           <div class="space-y-2">
-            <button onclick="go('checkin')" class="btn-o w-full text-left flex items-center gap-2"><i class="fa-solid fa-qrcode w-4"></i>Check-in hội viên</button>
-            <button onclick="go('enroll')" class="btn-o w-full text-left flex items-center gap-2"><i class="fa-solid fa-hourglass-half w-4"></i>Danh sách chờ lớp đầy</button>
-            <button onclick="go('pos')" class="btn-o w-full text-left flex items-center gap-2"><i class="fa-solid fa-cash-register w-4"></i>Bán hàng tại quầy</button>
-            <button onclick="go('invoice')" class="btn-o w-full text-left flex items-center gap-2"><i class="fa-solid fa-file-invoice w-4"></i>Hóa đơn &amp; thanh toán</button>
+            <button onclick="go('checkin')" class="btn-o w-full text-left flex items-center gap-2"><i class="fa-solid fa-qrcode w-4 text-gray-400"></i>Ghi nhận check-in / điểm danh</button>
+            <button onclick="go('customers')" class="btn-o w-full text-left flex items-center gap-2"><i class="fa-solid fa-users w-4 text-gray-400"></i>Quản lý thông tin khách hàng</button>
+            <button onclick="go('enroll')" class="btn-o w-full text-left flex items-center gap-2"><i class="fa-solid fa-clipboard-check w-4 text-gray-400"></i>Duyệt đăng ký khóa học</button>
+            <button onclick="go('pos')" class="btn-o w-full text-left flex items-center gap-2"><i class="fa-solid fa-cash-register w-4 text-gray-400"></i>Bán hàng tại quầy</button>
+            <button onclick="go('invoice')" class="btn-o w-full text-left flex items-center gap-2"><i class="fa-solid fa-file-invoice w-4 text-gray-400"></i>Hóa đơn &amp; thanh toán</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- CHECK-IN -->
+    <!-- 2. GHI NHẬN CHECK-IN & ĐIỂM DANH -->
     <section id="tab-checkin" class="tab">
       <div class="grid lg:grid-cols-5 gap-4">
         <div class="card p-5 lg:col-span-2 self-start">
-          <h3 class="text-sm font-bold">Ghi nhận check-in</h3>
-          <p class="text-xs text-gray-500 mt-1 mb-4">Quét mã QR hoặc nhập mã thẻ hội viên.</p>
+          <h3 class="text-sm font-bold">Ghi nhận check-in &amp; Điểm danh</h3>
+          <p class="text-xs text-gray-500 mt-1 mb-4">Tìm khách hàng bằng mã thẻ (VD: KH000005) hoặc số điện thoại.</p>
+          
           <div class="flex gap-2">
-            <input id="ciCode" class="inp uppercase" placeholder="VD: KH0001" onkeydown="if(event.key==='Enter')doCheckin()">
-            <button class="btn shrink-0" onclick="doCheckin()">Check-in</button>
+            <input id="ciSearchInput" class="inp uppercase" placeholder="Mã thẻ hoặc Số điện thoại" onkeydown="if(event.key==='Enter')searchMemberForCheckin()">
+            <button class="btn shrink-0" onclick="searchMemberForCheckin()"><i class="fa-solid fa-magnifying-glass mr-1"></i>Tìm</button>
           </div>
-          <div id="ciResult" class="mt-4"></div>
+
+          <!-- Kết quả tìm kiếm và form xác nhận check-in -->
+          <div id="ciMemberBox" class="mt-4 hidden"></div>
         </div>
+
         <div class="card lg:col-span-3 overflow-hidden">
-          <div class="p-5 pb-3 flex items-center justify-between"><h3 class="text-sm font-bold">Lượt vào hôm nay</h3><span id="ciCount" class="badge bg-gray-100 text-gray-700"></span></div>
-          <div class="overflow-x-auto"><table class="w-full"><thead><tr><th>Giờ</th><th>Hội viên</th><th>Gói tập</th><th>Điểm danh lớp</th></tr></thead><tbody id="ciRows"></tbody></table></div>
+          <div class="p-5 pb-3 flex items-center justify-between border-b border-gray-100">
+            <div>
+              <h3 class="text-sm font-bold">Lượt check-in hôm nay</h3>
+              <p class="text-[11px] text-gray-500">Được đồng bộ thời gian thực từ CSDL MySQL</p>
+            </div>
+            <span id="ciCount" class="badge bg-black text-white">0 lượt</span>
+          </div>
+          <div class="overflow-x-auto max-h-[500px]">
+            <table class="w-full">
+              <thead>
+                <tr>
+                  <th>Thời gian</th>
+                  <th>Hội viên</th>
+                  <th>Loại</th>
+                  <th>Chi tiết</th>
+                  <th>Người ghi nhận</th>
+                </tr>
+              </thead>
+              <tbody id="ciRows">
+                <tr><td colspan="5" class="text-center text-gray-400 py-6">Đang tải dữ liệu...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- LỚP ĐẦY & DANH SÁCH CHỜ -->
+    <!-- 3. QUẢN LÝ THÔNG TIN KHÁCH HÀNG -->
+    <section id="tab-customers" class="tab">
+      <div class="flex flex-wrap gap-3 mb-4 items-center justify-between">
+        <div class="flex gap-2 flex-1 max-w-md">
+          <input id="custSearchInput" oninput="debounceCustomerSearch()" class="inp" placeholder="Tìm theo mã KH, họ tên, SĐT hoặc email...">
+        </div>
+        <div class="text-xs text-gray-500">
+          <i class="fa-solid fa-shield-halved text-emerald-600 mr-1"></i>Nhân viên chỉ có quyền sửa thông tin hồ sơ; không được can thiệp vai trò hệ thống hoặc mật khẩu.
+        </div>
+      </div>
+
+      <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr>
+                <th>Mã KH</th>
+                <th>Họ và tên</th>
+                <th>Số điện thoại</th>
+                <th>Email</th>
+                <th>Giới tính</th>
+                <th>Gói tập hiện tại</th>
+                <th>Lớp học</th>
+                <th class="text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="custRows">
+              <tr><td colspan="8" class="text-center text-gray-400 py-8">Đang tải danh sách khách hàng...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. DUYỆT ĐĂNG KÝ KHÓA HỌC & DANH SÁCH CHỜ -->
     <section id="tab-enroll" class="tab">
-      <div id="clsCards" class="grid sm:grid-cols-2 xl:grid-cols-4 gap-3"></div>
+      <!-- Sĩ số các lớp học -->
+      <div class="mb-4">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Tình trạng chỗ các lớp học hiện có</h3>
+        <div id="clsCards" class="grid sm:grid-cols-2 xl:grid-cols-4 gap-3"></div>
+      </div>
+
       <div class="grid lg:grid-cols-3 gap-4 mt-4">
         <div class="card lg:col-span-2 overflow-hidden self-start">
-          <div class="p-5 pb-3">
-            <div class="flex flex-wrap items-center justify-between gap-2"><h3 class="text-sm font-bold" id="wlTitle">Danh sách chờ</h3><span id="wlInfo" class="badge bg-gray-100 text-gray-700"></span></div>
-            <div class="flex gap-2 mt-3">
-              <input id="wlCode" class="inp uppercase" placeholder="Mã thẻ hội viên muốn vào lớp (VD: KH0002)" onkeydown="if(event.key==='Enter')addWaitFromInput()">
-              <button class="btn shrink-0" onclick="addWaitFromInput()">Thêm vào danh sách chờ</button>
+          <div class="p-5 pb-3 flex items-center justify-between border-b border-gray-100">
+            <div>
+              <h3 class="text-sm font-bold">Danh sách yêu cầu đăng ký khóa học</h3>
+              <p class="text-[11px] text-gray-400">Kiểm tra thông tin khách, lớp và sĩ số trước khi duyệt</p>
             </div>
-            <p class="text-[11px] text-gray-400 mt-2">Chỉ áp dụng khi lớp đã hết chỗ. Khi có chỗ trống, hệ thống thông báo cho khách đứng đầu danh sách.</p>
+            <select id="enrollStatusFilter" onchange="loadEnrollments()" class="inp text-xs py-1.5 max-w-[140px]">
+              <option value="pending">Chờ duyệt (1)</option>
+              <option value="waiting">Danh sách chờ (5)</option>
+              <option value="2">Đã duyệt (2)</option>
+              <option value="3">Bị từ chối (3)</option>
+              <option value="all">Tất cả</option>
+            </select>
           </div>
-          <div class="overflow-x-auto"><table class="w-full"><thead><tr><th>Thứ tự</th><th>Hội viên</th><th>Vào danh sách</th><th>Trạng thái</th><th class="text-right">Xử lý</th></tr></thead><tbody id="wlRows"></tbody></table></div>
+          <div class="overflow-x-auto max-h-[480px]">
+            <table class="w-full">
+              <thead>
+                <tr>
+                  <th>Mã ĐK</th>
+                  <th>Hội viên</th>
+                  <th>Lớp học đăng ký</th>
+                  <th>Sĩ số lớp</th>
+                  <th>Trạng thái</th>
+                  <th class="text-right">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="enrollRows">
+                <tr><td colspan="6" class="text-center text-gray-400 py-8">Đang tải danh sách đăng ký...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+
         <div class="space-y-4">
           <div class="card p-5">
             <h3 class="text-sm font-bold mb-1">Yêu cầu hủy / đổi lớp</h3>
-            <p class="text-[11px] text-gray-400 mb-3">Xác nhận sẽ giải phóng chỗ và báo cho khách đang chờ.</p>
-            <div id="reqList" class="space-y-3"></div>
-          </div>
-          <div class="card p-5">
-            <h3 class="text-sm font-bold mb-3">Đã thông báo cho khách</h3>
-            <ul id="sentList" class="space-y-2 text-xs"></ul>
+            <p class="text-[11px] text-gray-400 mb-3">Xác nhận sẽ giải phóng chỗ và tự động báo khách chờ.</p>
+            <div id="reqList" class="space-y-3">
+              <p class="text-xs text-gray-400">Đang tải...</p>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- BÁN HÀNG -->
+    <!-- 5. BÁN HÀNG TẠI QUẦY -->
     <section id="tab-pos" class="tab">
       <div class="grid lg:grid-cols-3 gap-4">
         <div class="lg:col-span-2">
-          <input id="posSearch" oninput="renderProducts()" class="inp mb-4" placeholder="Tìm sản phẩm...">
+          <input id="posSearch" oninput="renderProducts()" class="inp mb-4" placeholder="Tìm sản phẩm (nước uống, whey, phụ kiện)...">
           <div id="products" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
         </div>
         <div class="card p-5 self-start lg:sticky lg:top-20">
-          <h3 class="text-sm font-bold mb-3">Giỏ hàng</h3>
+          <h3 class="text-sm font-bold mb-3">Giỏ hàng thanh toán</h3>
           <div id="cart" class="space-y-2 text-xs max-h-72 overflow-y-auto"></div>
           <div class="border-t border-gray-100 mt-3 pt-3 space-y-3">
-            <input id="posMember" class="inp uppercase" placeholder="Mã hội viên (không bắt buộc)">
-            <select id="posPay" class="inp"><option>Tiền mặt</option><option>Chuyển khoản</option><option>Thẻ</option></select>
+            <input id="posMember" class="inp uppercase" placeholder="Mã thẻ hội viên (tùy chọn)">
+            <div>
+              <label class="text-[11px] font-semibold text-gray-600 block mb-1">Phương thức thanh toán</label>
+              <select id="posPay" class="inp">
+                <option value="1">1. Tiền mặt tại quầy</option>
+                <option value="2">2. Chuyển khoản ngân hàng</option>
+                <option value="3">3. Thẻ POS / Quẹt thẻ</option>
+              </select>
+            </div>
             <div class="flex justify-between text-sm font-bold"><span>Tổng cộng</span><span id="cartTotal">0đ</span></div>
-            <button class="btn w-full py-2.5" onclick="checkout()"><i class="fa-solid fa-receipt mr-1.5"></i>Thanh toán</button>
+            <button class="btn w-full py-2.5" onclick="checkout()"><i class="fa-solid fa-receipt mr-1.5"></i>Tạo hóa đơn &amp; Thu tiền</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- HÓA ĐƠN -->
+    <!-- 6. HÓA ĐƠN & THANH TOÁN -->
     <section id="tab-invoice" class="tab">
       <div class="flex flex-wrap gap-2 mb-4 items-center">
         <input id="invSearch" oninput="renderInvoices()" class="inp max-w-xs" placeholder="Tìm theo mã hóa đơn hoặc khách...">
-        <select id="invStatus" onchange="renderInvoices()" class="inp max-w-[10rem]"><option value="">Tất cả</option><option>Đã thanh toán</option><option>Chưa thanh toán</option></select>
+        <select id="invStatus" onchange="renderInvoices()" class="inp max-w-[10rem]">
+          <option value="">Tất cả trạng thái</option>
+          <option value="2">Đã thanh toán</option>
+          <option value="1">Chưa thanh toán</option>
+        </select>
       </div>
-      <div class="card overflow-hidden"><div class="overflow-x-auto">
-        <table class="w-full"><thead><tr><th>Mã HĐ</th><th>Thời gian</th><th>Khách</th><th>Nội dung</th><th>Tổng tiền</th><th>Trạng thái</th><th class="text-right">Thao tác</th></tr></thead><tbody id="invRows"></tbody></table>
-      </div></div>
+      <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr>
+                <th>Mã HĐ</th>
+                <th>Thời gian</th>
+                <th>Khách hàng</th>
+                <th>Sản phẩm / Dịch vụ</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th class="text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="invRows">
+              <tr><td colspan="7" class="text-center text-gray-400 py-8">Đang tải hóa đơn...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
-    <!-- THÔNG BÁO -->
+    <!-- 7. THÔNG BÁO HỆ THỐNG -->
     <section id="tab-notif" class="tab">
-      <div class="flex justify-between items-center mb-4"><p class="text-xs text-gray-500">Thông báo gửi đến tài khoản của bạn</p><button class="btn-o" onclick="readAll()">Đánh dấu đã đọc tất cả</button></div>
-      <div id="notifList" class="space-y-2"></div>
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h3 class="text-sm font-bold">Hộp thư thông báo</h3>
+          <p class="text-xs text-gray-500">Thông báo gửi riêng cho nhân viên và thông báo toàn hệ thống</p>
+        </div>
+        <button class="btn-o" onclick="readAllNotifications()"><i class="fa-solid fa-check-double mr-1"></i>Đánh dấu đã đọc tất cả</button>
+      </div>
+      <div id="notifList" class="space-y-2">
+        <div class="p-8 text-center text-gray-400">Đang tải thông báo...</div>
+      </div>
     </section>
+
   </main>
 </div>
 
-<!-- MODAL HÓA ĐƠN -->
-<div id="modal" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onclick="if(event.target===this)closeModal()">
-  <div class="bg-white rounded-2xl w-full max-w-sm p-6" id="modalBody"></div>
+<!-- ============ MODALS ============ -->
+
+<!-- MODAL XEM & CHỈNH SỬA HỒ SƠ KHÁCH HÀNG -->
+<div id="modalCustomer" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onclick="if(event.target===this)closeCustomerModal()">
+  <div class="bg-white rounded-2xl w-full max-w-xl p-6 max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-start pb-3 border-b border-gray-100">
+      <div>
+        <h3 class="font-extrabold text-base" id="custModalTitle">Hồ sơ khách hàng</h3>
+        <p class="text-xs text-gray-500" id="custModalSubtitle">Mã KH: KH000000</p>
+      </div>
+      <button onclick="closeCustomerModal()" class="text-gray-400 hover:text-black"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+
+    <!-- Alert cảnh báo phân quyền -->
+    <div class="mt-3 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-2.5 text-[11px] flex items-center gap-2">
+      <i class="fa-solid fa-circle-info text-amber-600"></i>
+      <span>Theo phân quyền, bạn chỉ được chỉnh sửa thông tin cá nhân/thể chất. Mật khẩu và vai trò hệ thống không được phép sửa đổi.</span>
+    </div>
+
+    <form id="custForm" onsubmit="event.preventDefault(); saveCustomerProfile();" class="mt-4 space-y-3">
+      <input type="hidden" id="custFormId">
+      
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Họ và tên *</label>
+          <input id="custFormName" class="inp" required placeholder="Nguyễn Văn A">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Số điện thoại * <span class="text-gray-400 text-[10px]">(10 số, bắt đầu từ 0)</span></label>
+          <input id="custFormPhone" class="inp" required placeholder="0901234567" maxlength="10">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Email <span class="text-gray-400 text-[10px]">(Cố định)</span></label>
+          <input id="custFormEmail" class="inp bg-gray-100 text-gray-500 cursor-not-allowed" readonly>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Giới tính</label>
+          <select id="custFormGender" class="inp">
+            <option value="Nam">Nam</option>
+            <option value="Nữ">Nữ</option>
+            <option value="Khác">Khác</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Ngày sinh</label>
+          <input id="custFormBirthDate" type="date" class="inp">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Địa chỉ</label>
+          <input id="custFormAddress" class="inp" placeholder="Số nhà, đường, quận/huyện">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Chiều cao (cm)</label>
+          <input id="custFormHeight" type="number" step="0.1" class="inp" placeholder="170">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Cân nặng (kg)</label>
+          <input id="custFormWeight" type="number" step="0.1" class="inp" placeholder="65">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Mục tiêu tập luyện</label>
+        <input id="custFormGoal" class="inp" placeholder="Tăng cơ, giảm mỡ, rèn luyện thể lực...">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Liên hệ khẩn cấp</label>
+        <input id="custFormEmergency" class="inp" placeholder="SĐT người thân">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Ghi chú nhân viên</label>
+        <textarea id="custFormNotes" class="inp" rows="2" placeholder="Ghi chú nội bộ dành cho nhân viên..."></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
+        <button type="button" onclick="closeCustomerModal()" class="btn-o">Đóng (Không lưu)</button>
+        <button type="submit" id="custFormSubmitBtn" class="btn"><i class="fa-solid fa-floppy-disk mr-1"></i>Lưu thay đổi</button>
+      </div>
+    </form>
+  </div>
 </div>
-<div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg hidden z-50"></div>
+
+<!-- MODAL XEM CHI TIẾT THÔNG BÁO -->
+<div id="modalNotif" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onclick="if(event.target===this)closeNotifModal()">
+  <div class="bg-white rounded-2xl w-full max-w-md p-6">
+    <div class="flex justify-between items-start pb-2 border-b border-gray-100">
+      <h3 class="font-extrabold text-base pr-4" id="modalNotifTitle">Tiêu đề thông báo</h3>
+      <button onclick="closeNotifModal()" class="text-gray-400 hover:text-black"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <p class="text-[11px] text-gray-400 mt-1 mb-3" id="modalNotifTime"></p>
+    <div class="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap bg-gray-50 p-4 rounded-xl border border-gray-100" id="modalNotifContent"></div>
+    <div class="mt-4 flex justify-end">
+      <button onclick="closeNotifModal()" class="btn">Đã hiểu &amp; Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TỪ CHỐI ĐĂNG KÝ KHÓA HỌC -->
+<div id="modalReject" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onclick="if(event.target===this)closeRejectModal()">
+  <div class="bg-white rounded-2xl w-full max-w-sm p-6">
+    <h3 class="font-extrabold text-base mb-1">Từ chối duyệt đăng ký</h3>
+    <p class="text-xs text-gray-500 mb-3" id="modalRejectSubtitle">Vui lòng nhập lý do từ chối để hệ thống gửi thông báo cho khách hàng.</p>
+    <input type="hidden" id="modalRejectEnrollId">
+    <textarea id="modalRejectReason" class="inp" rows="3" placeholder="VD: Lớp học đã đủ sĩ số hoặc lịch học không còn phù hợp. Bạn vui lòng chọn ca học khác..."></textarea>
+    <div class="flex justify-end gap-2 mt-4">
+      <button type="button" onclick="closeRejectModal()" class="btn-o">Hủy</button>
+      <button type="button" onclick="confirmRejectEnrollment()" class="btn-danger"><i class="fa-solid fa-xmark mr-1"></i>Xác nhận từ chối</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL HÓA ĐƠN -->
+<div id="modalInvoice" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onclick="if(event.target===this)closeInvoiceModal()">
+  <div class="bg-white rounded-2xl w-full max-w-sm p-6" id="modalInvoiceBody"></div>
+</div>
+
+<!-- TOAST THÔNG BÁO -->
+<div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg hidden z-50 transition-all"></div>
 
 <script>
-/* ========== DỮ LIỆU MẪU (thay bằng fetch API khi backend sẵn sàng) ========== */
-// const API_BASE = window.location.origin.includes(':3000') ? '' : 'http://localhost:3000';
-const vnd = n => n.toLocaleString('vi-VN') + 'đ';
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+/* =====================================================================
+   0. KHỞI TẠO VÀ XÁC THỰC PHÂN QUYỀN NHÂN VIÊN
+   ===================================================================== */
+const API_BASE = window.location.origin.includes(':3000') ? '' : 'http://localhost:3000';
+let currentStaff = null;
+
+// Kiểm tra phiên đăng nhập và phân quyền nhân viên
+(function checkStaffAuth() {
+  const userJson = localStorage.getItem('fitcenter_user');
+  if (!userJson) {
+    alert('Vui lòng đăng nhập với tài khoản Nhân viên để tiếp tục!');
+    window.location.href = 'dang_nhap.html';
+    return;
+  }
+  try {
+    currentStaff = JSON.parse(userJson);
+  } catch (e) {
+    localStorage.removeItem('fitcenter_user');
+    window.location.href = 'dang_nhap.html';
+    return;
+  }
+
+  // Chặn nếu vai trò không phải nhân viên hoặc admin
+  if (currentStaff.role !== 'staff' && currentStaff.role !== 'admin') {
+    alert('LỖI PHÂN QUYỀN:\nTài khoản của bạn mang vai trò [' + (currentStaff.role || '').toUpperCase() + '], không được phép truy cập Cổng Nhân viên!\nVui lòng đăng nhập bằng tài khoản nhân sự.');
+    window.location.href = 'dang_nhap.html';
+    return;
+  }
+})();
+
+// Helper fetch API kèm header phân quyền nhân viên
+async function apiFetch(endpoint, options = {}) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'x-staff-id': currentStaff ? currentStaff.id : 0,
+    ...(options.headers || {})
+  };
+  return fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+}
+
+const vnd = n => Number(n || 0).toLocaleString('vi-VN') + 'đ';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const hm = () => new Date().toTimeString().slice(0,5);
+const $ = id => document.getElementById(id);
 
-const S = {
-  members: {
-    KH0001:{name:'Nguyễn Văn An',plan:'Gold',exp:'2027-02-10',active:true},
-    KH0002:{name:'Trần Thị Bích',plan:'Silver',exp:'2026-12-05',active:true},
-    KH0003:{name:'Lê Hoàng Nam',plan:'Basic',exp:'2026-10-30',active:false},
-    KH0004:{name:'Phạm Minh Châu',plan:'Gold',exp:'2027-01-18',active:true}
-  },
-  classes:['Yoga buổi sáng 06:00','Pilates cơ bản 08:00','Kickboxing 17:30','CrossFit nâng cao 19:00'],
-  checkins:[{t:'06:02',code:'KH0002',cls:'Yoga buổi sáng 06:00'},{t:'06:15',code:'KH0004',cls:''}],
-  cls:[
-    {id:1,name:'Yoga buổi sáng',time:'06:00',coach:'Lê Thị Hoa',cap:20,enrolled:20,held:0},
-    {id:2,name:'Pilates cơ bản',time:'08:00',coach:'Nguyễn Quốc Bảo',cap:15,enrolled:12,held:0},
-    {id:3,name:'Kickboxing',time:'17:30',coach:'Trần Văn Mạnh',cap:15,enrolled:15,held:0},
-    {id:4,name:'CrossFit nâng cao',time:'19:00',coach:'Trần Văn Mạnh',cap:16,enrolled:16,held:0}
-  ],
-  wait:[
-    {id:1,cls:1,code:'KH0001',t:'05/11 09:20',st:'Đang chờ'},
-    {id:2,cls:1,code:'KH0004',t:'06/11 14:05',st:'Đang chờ'},
-    {id:3,cls:3,code:'KH0002',t:'06/11 18:40',st:'Đang chờ'}
-  ],
-  reqs:[
-    {id:1,code:'KH0003',type:'Hủy',from:3,to:null,st:'Chờ xử lý'},
-    {id:2,code:'KH0002',type:'Đổi lớp',from:1,to:2,st:'Chờ xử lý'}
-  ],
-  sent:[], selCls:1,
-  products:[
-    {id:1,name:'Nước suối 500ml',price:10000,icon:'droplet'},
-    {id:2,name:'Nước điện giải',price:20000,icon:'bottle-water'},
-    {id:3,name:'Whey Protein 1 ly',price:45000,icon:'blender'},
-    {id:4,name:'Khăn tập',price:60000,icon:'shirt'},
-    {id:5,name:'Găng tay tập',price:180000,icon:'hand-fist'},
-    {id:6,name:'Bình lắc 700ml',price:95000,icon:'flask'}
-  ],
-  cart:{},
-  invoices:[
-    {id:'HD2001',time:'07/11 06:40',who:'Trần Thị Bích',desc:'Gia hạn gói Silver',total:1200000,st:'Đã thanh toán',pay:'Chuyển khoản'},
-    {id:'HD2002',time:'07/11 08:10',who:'Khách lẻ',desc:'Nước suối x2',total:20000,st:'Đã thanh toán',pay:'Tiền mặt'}
-  ],
-  notifs:[
-    {t:'Ca trực 17:00 – 22:00 hôm nay tại quầy lễ tân',time:'08:00',read:false},
-    {t:'Quản lý nhắc đối soát doanh thu cuối ca',time:'Hôm qua',read:false},
-    {t:'Có 2 yêu cầu hủy/đổi lớp đang chờ xử lý',time:'Hôm qua',read:true}
-  ],
-  activity:[], tab:'overview'
-};
-const TABS=[['overview','Tổng quan','table-cells-large'],['checkin','Check-in & điểm danh','qrcode'],['enroll','Lớp đầy & danh sách chờ','hourglass-half'],['pos','Bán hàng tại quầy','cash-register'],['invoice','Hóa đơn & thanh toán','file-invoice'],['notif','Thông báo','bell']];
-const TITLES=Object.fromEntries(TABS.map(t=>[t[0],t[1]]));
-
-function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.remove('hidden');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.add('hidden'),2200)}
-function log(icon,text){S.activity.unshift({icon,text,t:hm()});S.activity=S.activity.slice(0,8);renderOverview()}
-const $=id=>document.getElementById(id);
-
-/* ========== ĐIỀU HƯỚNG ========== */
-function renderNav(){
-  $('nav').innerHTML=TABS.map(([id,l,ic])=>`<button onclick="go('${id}')" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition ${S.tab===id?'text-black bg-gray-100':'hover:bg-gray-100/80 hover:text-black'}"><i class="fa-solid fa-${ic} text-sm w-4 text-center"></i><span>${l}</span>${id==='enroll'&&pending()?`<span class="ml-auto bg-black text-white text-[9px] px-1.5 py-0.5 rounded-full">${pending()}</span>`:''}</button>`).join('');
-}
-function go(id){
-  S.tab=id;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  $('tab-'+id).classList.add('active');$('title').textContent=TITLES[id];
-  if(window.innerWidth<768)$('sidebar').classList.add('hidden');
-  renderAll();window.scrollTo(0,0);
-}
-function toggleSidebar(){$('sidebar').classList.toggle('hidden')}
-
-/* ========== TỔNG QUAN ========== */
-const pending=()=>S.reqs.filter(r=>r.st==='Chờ xử lý').length;
-const revenue=()=>S.invoices.filter(i=>i.st==='Đã thanh toán').reduce((s,i)=>s+i.total,0);
-function renderOverview(){
-  const unread=S.notifs.filter(n=>!n.read).length;
-  const cards=[['Check-in hôm nay',S.checkins.length,'qrcode'],['Yêu cầu hủy/đổi lớp',pending(),'right-left'],['Doanh thu quầy',vnd(revenue()),'wallet'],['Thông báo chưa đọc',unread,'bell']];
-  $('stats').innerHTML=cards.map(([l,v,ic])=>`<div class="card p-5"><div class="flex items-center gap-2 text-xs text-gray-500"><i class="fa-solid fa-${ic}"></i>${l}</div><p class="text-2xl font-extrabold mt-3 text-black">${v}</p></div>`).join('');
-  $('activity').innerHTML=S.activity.length?S.activity.map(a=>`<li class="py-2.5 flex items-center gap-3"><i class="fa-solid fa-${a.icon} w-4 text-gray-400"></i><span class="flex-1">${esc(a.text)}</span><span class="text-gray-400">${a.t}</span></li>`).join(''):'<li class="py-6 text-center text-gray-400">Chưa có hoạt động nào trong ca này. Bắt đầu bằng việc check-in hội viên.</li>';
-  $('bell').textContent=unread;$('bell').classList.toggle('hidden',!unread);
+function toast(m, isError = false) {
+  const e = $('toast');
+  e.textContent = m;
+  e.className = `fixed bottom-5 left-1/2 -translate-x-1/2 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg z-50 transition-all ${isError ? 'bg-red-600' : 'bg-black'}`;
+  e.classList.remove('hidden');
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => e.classList.add('hidden'), 2600);
 }
 
-/* ========== CHECK-IN & ĐIỂM DANH ========== */
-function doCheckin(){
-  const code=$('ciCode').value.trim().toUpperCase(),m=S.members[code],box=$('ciResult');
-  if(!code)return toast('Nhập mã thẻ hội viên');
-  if(!m){box.innerHTML=`<div class="rounded-xl bg-red-50 border border-red-100 p-4 text-xs text-red-700"><b>Không tìm thấy thẻ ${esc(code)}.</b><br>Kiểm tra lại mã hoặc hướng dẫn khách đăng ký tài khoản.</div>`;return}
-  const expired=new Date(m.exp)<new Date();
-  if(!m.active||expired){box.innerHTML=`<div class="rounded-xl bg-red-50 border border-red-100 p-4 text-xs text-red-700"><b>${esc(m.name)} – gói ${m.plan} đã hết hạn.</b><br>Từ chối check-in và đề nghị khách gia hạn gói tập.</div>`;return}
-  if(S.checkins.some(c=>c.code===code))box.innerHTML=`<div class="rounded-xl bg-amber-50 border border-amber-100 p-4 text-xs text-amber-800"><b>${esc(m.name)} đã check-in hôm nay.</b></div>`;
-  else{S.checkins.unshift({t:hm(),code,cls:''});log('qrcode',`Check-in ${m.name} (${code})`);
-    box.innerHTML=`<div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4 text-xs text-emerald-800"><b>Check-in thành công: ${esc(m.name)}</b><br>Gói ${m.plan} · hết hạn ${m.exp.split('-').reverse().join('/')}</div>`}
-  $('ciCode').value='';renderCheckins();
-}
-function setClass(i,v){const c=S.checkins[i];c.cls=v;if(v)log('clipboard-check',`Điểm danh ${S.members[c.code].name}: ${v}`);renderCheckins()}
-function renderCheckins(){
-  $('ciCount').textContent=S.checkins.length+' lượt';
-  $('ciRows').innerHTML=S.checkins.map((c,i)=>`<tr><td>${c.t}</td><td class="font-semibold">${esc(S.members[c.code].name)}<div class="text-gray-400 font-normal">${c.code}</div></td><td>${S.members[c.code].plan}</td><td><select class="inp py-1.5 text-xs" onchange="setClass(${i},this.value)"><option value="">Chưa điểm danh</option>${S.classes.map(k=>`<option ${k===c.cls?'selected':''}>${k}</option>`).join('')}</select></td></tr>`).join('');
+/* =====================================================================
+   ĐIỀU HƯỚNG TABS
+   ===================================================================== */
+const TABS = [
+  ['overview', 'Tổng quan', 'table-cells-large'],
+  ['checkin', 'Check-in & Điểm danh', 'qrcode'],
+  ['customers', 'Quản lý khách hàng', 'users'],
+  ['enroll', 'Duyệt đăng ký lớp', 'clipboard-check'],
+  ['pos', 'Bán hàng tại quầy', 'cash-register'],
+  ['invoice', 'Hóa đơn & Thanh toán', 'file-invoice'],
+  ['notif', 'Thông báo', 'bell']
+];
+const TITLES = Object.fromEntries(TABS.map(t => [t[0], t[1]]));
+let currentTab = 'overview';
+let cachedActivities = [];
+
+function renderNav(pendingCount = 0) {
+  $('nav').innerHTML = TABS.map(([id, label, icon]) => {
+    const isActive = currentTab === id;
+    const badgeHtml = (id === 'enroll' && pendingCount > 0)
+      ? `<span class="ml-auto bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full">${pendingCount}</span>`
+      : '';
+    return `<button onclick="go('${id}')" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition ${isActive ? 'text-black bg-gray-100 font-bold' : 'hover:bg-gray-100/80 hover:text-black font-semibold'}">
+      <i class="fa-solid fa-${icon} text-sm w-4 text-center"></i>
+      <span>${label}</span>
+      ${badgeHtml}
+    </button>`;
+  }).join('');
 }
 
-/* ========== LỚP ĐẦY & DANH SÁCH CHỜ ========== */
-// Mỗi thao tác ghi dữ liệu dưới đây cần gọi API tương ứng (POST/PATCH) khi có backend.
-const avail=c=>c.cap-c.enrolled-c.held;
-const cname=id=>{const c=S.cls.find(x=>x.id===id);return c.name+' '+c.time};
-const mname=code=>S.members[code]?S.members[code].name:code;
-const wStyle={'Đang chờ':'bg-gray-100 text-gray-700','Đã thông báo':'bg-amber-100 text-amber-800','Đã đăng ký':'bg-emerald-100 text-emerald-800','Hết hạn':'bg-red-100 text-red-700'};
+function go(tabId) {
+  currentTab = tabId;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const target = $('tab-' + tabId);
+  if (target) target.classList.add('active');
+  $('title').textContent = TITLES[tabId] || 'Cổng Nhân viên';
+  if (window.innerWidth < 768) $('sidebar').classList.add('hidden');
+  renderNav();
+  refreshCurrentTab();
+  window.scrollTo(0, 0);
+}
 
-// Thông báo cho khách đứng đầu danh sách mỗi khi lớp có chỗ trống
-function autoNotify(clsId){
-  const c=S.cls.find(x=>x.id===clsId);
-  while(avail(c)>0){
-    const w=S.wait.find(x=>x.cls===clsId&&x.st==='Đang chờ');
-    if(!w)break;
-    w.st='Đã thông báo';c.held++;
-    S.sent.unshift({t:hm(),text:`${mname(w.code)} – lớp ${cname(clsId)} đã có chỗ, mời đăng ký trong 24 giờ`});
-    S.sent=S.sent.slice(0,6);
-    log('bell',`Báo ${mname(w.code)}: lớp ${cname(clsId)} có chỗ trống`);
-    toast(`Đã thông báo cho ${mname(w.code)}`);
+function toggleSidebar() { $('sidebar').classList.toggle('hidden'); }
+
+function refreshCurrentTab() {
+  if (currentTab === 'overview') loadOverview();
+  else if (currentTab === 'checkin') loadCheckins();
+  else if (currentTab === 'customers') loadCustomers();
+  else if (currentTab === 'enroll') { loadClasses(); loadEnrollments(); loadClassRequests(); }
+  else if (currentTab === 'pos') loadProducts();
+  else if (currentTab === 'invoice') loadInvoices();
+  else if (currentTab === 'notif') loadNotifications();
+}
+
+function logActivity(icon, text) {
+  cachedActivities.unshift({ icon, text, t: hm() });
+  cachedActivities = cachedActivities.slice(0, 10);
+  renderActivityList();
+}
+
+function renderActivityList() {
+  const el = $('activity');
+  if (!el) return;
+  if (!cachedActivities.length) {
+    el.innerHTML = '<li class="py-6 text-center text-gray-400">Chưa có hoạt động nào trong ca trực hôm nay.</li>';
+    return;
+  }
+  el.innerHTML = cachedActivities.map(a => `<li class="py-2.5 flex items-center gap-3">
+    <i class="fa-solid fa-${a.icon} w-4 text-gray-400"></i>
+    <span class="flex-1">${esc(a.text)}</span>
+    <span class="text-gray-400 font-mono">${a.t}</span>
+  </li>`).join('');
+}
+
+/* =====================================================================
+   1. TỔNG QUAN (OVERVIEW)
+   ===================================================================== */
+async function loadOverview() {
+  try {
+    const res = await apiFetch('/api/staff/summary');
+    const json = await res.json();
+    if (!json.success) return;
+
+    const d = json.data;
+    const cards = [
+      ['Check-in hôm nay', d.checkinsToday, 'qrcode'],
+      ['Đơn chờ duyệt', d.pendingEnrollments, 'clipboard-check'],
+      ['Doanh thu quầy', vnd(d.revenueToday), 'wallet'],
+      ['Tổng khách hàng', d.totalCustomers, 'users']
+    ];
+    $('stats').innerHTML = cards.map(([l, v, ic]) => `<div class="card p-5">
+      <div class="flex items-center gap-2 text-xs text-gray-500"><i class="fa-solid fa-${ic}"></i>${l}</div>
+      <p class="text-2xl font-extrabold mt-3 text-black">${v}</p>
+    </div>`).join('');
+
+    renderNav(d.pendingEnrollments);
+    renderActivityList();
+  } catch (e) {
+    console.error('Lỗi loadOverview:', e);
   }
 }
-function freeSlot(clsId){S.cls.find(x=>x.id===clsId).enrolled--;autoNotify(clsId)}
 
-function addWait(clsId,code){
-  const c=S.cls.find(x=>x.id===clsId);
-  if(!code)return toast('Nhập mã thẻ hội viên');
-  if(!S.members[code])return toast('Không tìm thấy hội viên '+code);
-  if(avail(c)>0)return toast('Lớp còn chỗ, khách có thể đăng ký trực tiếp');
-  if(S.wait.some(w=>w.cls===clsId&&w.code===code&&(w.st==='Đang chờ'||w.st==='Đã thông báo')))return toast('Khách đã có trong danh sách chờ lớp này');
-  S.wait.push({id:Date.now(),cls:clsId,code,t:'Hôm nay '+hm(),st:'Đang chờ'});
-  log('hourglass-half',`Thêm ${mname(code)} vào danh sách chờ ${cname(clsId)}`);
-  toast('Đã thêm vào danh sách chờ');renderAll();
+/* =====================================================================
+   2. GHI NHẬN CHECK-IN & ĐIỂM DANH (CHECK-IN)
+   ===================================================================== */
+async function loadCheckins() {
+  try {
+    const res = await apiFetch('/api/staff/checkins');
+    const json = await res.json();
+    const rows = json.success ? json.data : [];
+    
+    $('ciCount').textContent = rows.length + ' lượt';
+    if (!rows.length) {
+      $('ciRows').innerHTML = '<tr><td colspan="5" class="text-center text-gray-400 py-8">Chưa có lượt check-in nào trong ngày hôm nay.</td></tr>';
+      return;
+    }
+
+    $('ciRows').innerHTML = rows.map(r => {
+      const timeStr = new Date(r.checkedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+      const isClass = r.type === 2;
+      return `<tr>
+        <td class="font-mono text-gray-500">${timeStr}</td>
+        <td class="font-semibold text-black">${esc(r.memberName)}<div class="text-gray-400 text-[11px] font-normal">${esc(r.memberCode)} · ${esc(r.phone || '')}</div></td>
+        <td><span class="badge ${isClass ? 'bg-purple-100 text-purple-800' : 'bg-emerald-100 text-emerald-800'}">${isClass ? 'Điểm danh lớp' : 'Check-in quầy'}</span></td>
+        <td>${isClass ? esc(r.className || 'Lớp học') : esc(r.planName || 'Gói tập')}</td>
+        <td class="text-gray-500">${esc(r.staffName || 'Nhân viên')}</td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    console.error('Lỗi loadCheckins:', e);
+  }
 }
-function addWaitFromInput(){addWait(S.selCls,$('wlCode').value.trim().toUpperCase());$('wlCode').value=''}
 
-function waitAction(id,act){
-  const w=S.wait.find(x=>x.id===id),c=S.cls.find(x=>x.id===w.cls);
-  if(act==='remove'){S.wait=S.wait.filter(x=>x.id!==id)}
-  else if(act==='done'){w.st='Đã đăng ký';c.held--;c.enrolled++;log('circle-check',`${mname(w.code)} đã đăng ký vào ${cname(w.cls)}`)}
-  else if(act==='expire'){w.st='Hết hạn';c.held--;log('clock',`${mname(w.code)} bỏ lỡ chỗ lớp ${cname(w.cls)}`);autoNotify(w.cls)}
-  renderAll();
+let searchedMemberData = null;
+
+async function searchMemberForCheckin() {
+  const q = $('ciSearchInput').value.trim();
+  const box = $('ciMemberBox');
+  if (!q) {
+    toast('Vui lòng nhập mã thẻ hoặc số điện thoại hội viên!', true);
+    return;
+  }
+
+  box.classList.remove('hidden');
+  box.innerHTML = '<div class="text-xs text-gray-500 py-3 text-center"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Đang kiểm tra tài khoản...</div>';
+
+  try {
+    const res = await apiFetch(`/api/staff/members/search?q=${encodeURIComponent(q)}`);
+    const json = await res.json();
+
+    if (!json.success) {
+      box.innerHTML = `<div class="rounded-xl bg-red-50 border border-red-100 p-4 text-xs text-red-700">
+        <b>${esc(json.message || 'Không tìm thấy khách hàng!')}</b><br>
+        Kiểm tra lại mã thẻ hoặc hướng dẫn khách đăng ký tài khoản.
+      </div>`;
+      searchedMemberData = null;
+      return;
+    }
+
+    const { member, activePlan, todaySessions } = json.data;
+    searchedMemberData = json.data;
+
+    let planHtml = '';
+    if (activePlan) {
+      planHtml = `<div class="rounded-lg bg-emerald-50 border border-emerald-100 p-2.5 text-xs text-emerald-800 mt-2">
+        <div class="font-bold flex items-center justify-between">
+          <span><i class="fa-solid fa-id-card mr-1"></i>${esc(activePlan.planName)}</span>
+          <span class="badge bg-emerald-600 text-white">Còn ${activePlan.daysRemaining} ngày</span>
+        </div>
+        <p class="text-[11px] text-emerald-600 mt-0.5">Hiệu lực: ${new Date(activePlan.startDate).toLocaleDateString('vi-VN')} – ${new Date(activePlan.endDate).toLocaleDateString('vi-VN')}</p>
+      </div>`;
+    } else {
+      planHtml = `<div class="rounded-lg bg-red-50 border border-red-100 p-2.5 text-xs text-red-700 mt-2">
+        <b><i class="fa-solid fa-triangle-exclamation mr-1"></i>Không có gói tập còn hiệu lực!</b>
+        <p class="text-[11px] mt-0.5">Hội viên chưa đăng ký hoặc gói tập đã hết hạn. Đề nghị khách gia hạn tại quầy.</p>
+      </div>`;
+    }
+
+    let sessionsOptions = '<option value="">-- Chọn buổi học cần điểm danh --</option>';
+    if (todaySessions && todaySessions.length > 0) {
+      todaySessions.forEach(s => {
+        const attendedText = s.isAttended > 0 ? ' (ĐÃ ĐIỂM DANH)' : '';
+        sessionsOptions += `<option value="${s.sessionId}" ${s.isAttended > 0 ? 'disabled' : ''}>${s.startTime.slice(0,5)} - ${s.endTime.slice(0,5)}: ${esc(s.className)} (${esc(s.roomName)})${attendedText}</option>`;
+      });
+    } else {
+      sessionsOptions = '<option value="">(Hôm nay hội viên không có lịch học)</option>';
+    }
+
+    box.innerHTML = `
+      <div class="rounded-xl border border-gray-200 p-3.5 bg-gray-50/60 text-xs space-y-3">
+        <div class="flex items-start justify-between">
+          <div>
+            <h4 class="font-bold text-sm text-black">${esc(member.name)}</h4>
+            <p class="text-gray-500 font-mono text-[11px]">${esc(member.code)} · ${esc(member.phone || '')}</p>
+          </div>
+          <span class="badge ${member.accountStatus === 1 ? 'bg-black text-white' : 'bg-red-500 text-white'}">
+            ${member.accountStatus === 1 ? 'Hoạt động' : 'Bị khóa'}
+          </span>
+        </div>
+
+        ${planHtml}
+
+        <div class="pt-2 border-t border-gray-200/80 space-y-2">
+          <label class="block font-semibold text-gray-700 text-xs">Chọn loại check-in:</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-white cursor-pointer hover:border-black">
+              <input type="radio" name="ciTypeChoice" value="1" checked onchange="toggleCheckinTypeUI(1)">
+              <span class="font-semibold text-[11px]">1. Gói tập</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-white cursor-pointer hover:border-black">
+              <input type="radio" name="ciTypeChoice" value="2" onchange="toggleCheckinTypeUI(2)">
+              <span class="font-semibold text-[11px]">2. Điểm danh lớp</span>
+            </label>
+          </div>
+
+          <div id="ciSessionSelectBox" class="hidden mt-2">
+            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Buổi học hôm nay:</label>
+            <select id="ciSessionId" class="inp text-xs">${sessionsOptions}</select>
+          </div>
+
+          <div>
+            <input id="ciNote" class="inp text-xs mt-1" placeholder="Ghi chú (tùy chọn, VD: Đến sớm, quên thẻ...)">
+          </div>
+
+          <button onclick="submitCheckin()" class="btn w-full py-2.5 mt-2">
+            <i class="fa-solid fa-check mr-1.5"></i>Xác nhận Ghi nhận
+          </button>
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    console.error('Lỗi searchMemberForCheckin:', e);
+    box.innerHTML = `<div class="rounded-xl bg-red-50 border border-red-100 p-3 text-xs text-red-700">Lỗi kết nối máy chủ!</div>`;
+  }
 }
 
-function processReq(id){
-  const r=S.reqs.find(x=>x.id===id);
-  if(r.type==='Đổi lớp'){S.cls.find(x=>x.id===r.to).enrolled++}
-  r.st='Đã xử lý';log('right-left',`${r.type} lớp: ${mname(r.code)} rời ${cname(r.from)}`);
-  freeSlot(r.from);toast('Đã xử lý yêu cầu');renderAll();
+function toggleCheckinTypeUI(type) {
+  const el = $('ciSessionSelectBox');
+  if (type === 2) el.classList.remove('hidden');
+  else el.classList.add('hidden');
 }
-function reqToWait(id){const r=S.reqs.find(x=>x.id===id);S.selCls=r.to;addWait(r.to,r.code)}
 
-function renderEnroll(){
-  $('clsCards').innerHTML=S.cls.map(c=>{
-    const full=avail(c)<=0,n=S.wait.filter(w=>w.cls===c.id&&w.st==='Đang chờ').length,pct=Math.round((c.enrolled+c.held)/c.cap*100);
-    return `<button onclick="S.selCls=${c.id};renderEnroll()" class="card p-4 text-left transition ${S.selCls===c.id?'border-black ring-1 ring-black':'hover:border-gray-400'}">
-      <div class="flex justify-between items-start gap-2"><div><p class="text-xs font-bold">${c.name}</p><p class="text-[11px] text-gray-500">${c.time} · ${c.coach}</p></div>
-      <span class="badge ${full?'bg-red-100 text-red-700':'bg-emerald-100 text-emerald-800'}">${full?'Đã đầy':'Còn '+avail(c)+' chỗ'}</span></div>
-      <div class="h-1.5 bg-gray-100 rounded-full mt-3 overflow-hidden"><div class="h-full ${full?'bg-black':'bg-gray-400'}" style="width:${pct}%"></div></div>
-      <p class="text-[11px] text-gray-500 mt-2">${c.enrolled}/${c.cap} học viên${c.held?` · giữ chỗ ${c.held}`:''} · ${n} đang chờ</p></button>`}).join('');
-  const c=S.cls.find(x=>x.id===S.selCls),list=S.wait.filter(w=>w.cls===c.id);
-  $('wlTitle').textContent='Danh sách chờ – '+cname(c.id);
-  $('wlInfo').textContent=avail(c)>0?`Còn ${avail(c)} chỗ`:'Lớp đã đầy';
-  let pos=0;
-  $('wlRows').innerHTML=list.length?list.map(w=>{
-    const waiting=w.st==='Đang chờ';if(waiting)pos++;
-    const act=w.st==='Đã thông báo'?`<button class="btn" onclick="waitAction(${w.id},'done')">Khách đã đăng ký</button> <button class="btn-o" onclick="waitAction(${w.id},'expire')">Hết hạn</button>`:waiting?`<button class="btn-o" onclick="waitAction(${w.id},'remove')">Xóa</button>`:'';
-    return `<tr><td class="font-semibold">${waiting?'#'+pos:'–'}</td><td>${esc(mname(w.code))}<div class="text-gray-400">${w.code}</div></td><td>${w.t}</td><td><span class="badge ${wStyle[w.st]}">${w.st}</span></td><td class="text-right whitespace-nowrap">${act}</td></tr>`}).join('')
-    :'<tr><td colspan="5" class="text-center text-gray-400 py-8">Chưa có khách nào chờ lớp này. Khi lớp đầy, nhập mã thẻ ở trên để thêm khách vào danh sách.</td></tr>';
-  const open=S.reqs.filter(r=>r.st==='Chờ xử lý');
-  $('reqList').innerHTML=open.length?open.map(r=>{
-    const to=r.to?S.cls.find(x=>x.id===r.to):null,blocked=to&&avail(to)<=0;
-    return `<div class="rounded-xl border border-gray-200 p-3 text-xs"><p class="font-semibold">${esc(mname(r.code))} <span class="badge bg-gray-100 text-gray-700 ml-1">${r.type}</span></p>
-      <p class="text-gray-500 mt-1">${r.type==='Hủy'?'Hủy lớp ':'Từ '}${cname(r.from)}${to?' → '+cname(r.to):''}</p>
-      <div class="mt-2">${blocked?`<p class="text-[11px] text-amber-700 mb-2">Lớp đích đã đầy.</p><button class="btn-o" onclick="reqToWait(${r.id})">Đưa vào danh sách chờ lớp đích</button>`:`<button class="btn" onclick="processReq(${r.id})">Xác nhận ${r.type==='Hủy'?'hủy lớp':'đổi lớp'}</button>`}</div></div>`}).join('')
-    :'<p class="text-xs text-gray-400">Không có yêu cầu nào đang chờ.</p>';
-  $('sentList').innerHTML=S.sent.length?S.sent.map(m=>`<li class="flex gap-2"><i class="fa-solid fa-paper-plane text-gray-400 mt-0.5"></i><span class="flex-1">${esc(m.text)}</span><span class="text-gray-400">${m.t}</span></li>`).join(''):'<li class="text-gray-400">Chưa có thông báo nào được gửi.</li>';
+async function submitCheckin() {
+  if (!searchedMemberData || !searchedMemberData.member) {
+    toast('Chưa chọn hội viên để check-in!', true);
+    return;
+  }
+
+  const type = Number(document.querySelector('input[name="ciTypeChoice"]:checked')?.value || 1);
+  const sessionId = $('ciSessionId') ? Number($('ciSessionId').value) : null;
+  const note = $('ciNote') ? $('ciNote').value.trim() : '';
+
+  if (type === 2 && !sessionId) {
+    toast('Vui lòng chọn buổi học để điểm danh!', true);
+    return;
+  }
+
+  try {
+    const res = await apiFetch('/api/staff/checkins', {
+      method: 'POST',
+      body: JSON.stringify({
+        staffId: currentStaff.id,
+        memberCode: searchedMemberData.member.code,
+        type,
+        sessionId,
+        note
+      })
+    });
+    const json = await res.json();
+
+    if (json.success) {
+      toast(json.message);
+      logActivity(type === 1 ? 'qrcode' : 'clipboard-check', `${type === 1 ? 'Check-in' : 'Điểm danh'} ${searchedMemberData.member.name} (${searchedMemberData.member.code})`);
+      $('ciMemberBox').classList.add('hidden');
+      $('ciSearchInput').value = '';
+      searchedMemberData = null;
+      loadCheckins();
+      loadOverview();
+    } else {
+      toast(json.message || 'Thao tác không thành công!', true);
+    }
+  } catch (e) {
+    console.error('Lỗi submitCheckin:', e);
+    toast('Lỗi khi gửi yêu cầu check-in!', true);
+  }
+}
+
+/* =====================================================================
+   3. QUẢN LÝ THÔNG TIN KHÁCH HÀNG (CUSTOMERS)
+   ===================================================================== */
+let cachedCustomers = [];
+let searchCustomerTimeout = null;
+
+function debounceCustomerSearch() {
+  clearTimeout(searchCustomerTimeout);
+  searchCustomerTimeout = setTimeout(() => {
+    loadCustomers();
+  }, 350);
+}
+
+async function loadCustomers() {
+  const q = $('custSearchInput') ? $('custSearchInput').value.trim() : '';
+  try {
+    const res = await apiFetch(`/api/staff/customers?q=${encodeURIComponent(q)}`);
+    const json = await res.json();
+    cachedCustomers = json.success ? json.data : [];
+
+    if (!cachedCustomers.length) {
+      $('custRows').innerHTML = `<tr><td colspan="8" class="text-center text-gray-400 py-8">
+        ${q ? 'Không tìm thấy khách hàng nào khớp với từ khóa tìm kiếm.' : 'Chưa có dữ liệu khách hàng.'}
+      </td></tr>`;
+      return;
+    }
+
+    $('custRows').innerHTML = cachedCustomers.map(c => `
+      <tr>
+        <td class="font-mono font-bold text-black">${esc(c.code)}</td>
+        <td class="font-semibold text-black">${esc(c.fullName)}</td>
+        <td class="font-mono">${esc(c.phone || '–')}</td>
+        <td class="text-gray-500">${esc(c.email || '–')}</td>
+        <td>${esc(c.gender || '–')}</td>
+        <td><span class="badge ${c.currentPlan ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'}">${esc(c.currentPlan || 'Chưa đăng ký')}</span></td>
+        <td>${c.enrolledClassesCount} lớp</td>
+        <td class="text-right">
+          <button class="btn-o text-xs py-1 px-2.5" onclick="openCustomerModal(${c.id})">
+            <i class="fa-regular fa-pen-to-square mr-1"></i>Xem / Sửa
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    console.error('Lỗi loadCustomers:', e);
+  }
+}
+
+async function openCustomerModal(customerId) {
+  try {
+    const res = await apiFetch(`/api/staff/customers/${customerId}`);
+    const json = await res.json();
+    if (!json.success) {
+      toast(json.message || 'Không tìm thấy hồ sơ khách hàng!', true);
+      return;
+    }
+
+    const c = json.data;
+    $('custFormId').value = c.id;
+    $('custModalTitle').textContent = `Hồ sơ: ${c.fullName}`;
+    $('custModalSubtitle').textContent = `Mã khách hàng: ${c.code} · Ngày đăng ký: ${new Date(c.registeredDate).toLocaleDateString('vi-VN')}`;
+
+    $('custFormName').value = c.fullName || '';
+    $('custFormPhone').value = c.phone || '';
+    $('custFormEmail').value = c.email || '';
+    $('custFormGender').value = c.gender || 'Nam';
+    $('custFormBirthDate').value = c.birthDate ? c.birthDate.slice(0, 10) : '';
+    $('custFormAddress').value = c.address || '';
+    $('custFormHeight').value = c.height || '';
+    $('custFormWeight').value = c.weight || '';
+    $('custFormGoal').value = c.fitnessGoal || '';
+    $('custFormEmergency').value = c.emergencyContact || '';
+    $('custFormNotes').value = c.notes || '';
+
+    $('modalCustomer').classList.remove('hidden');
+  } catch (e) {
+    console.error('Lỗi openCustomerModal:', e);
+    toast('Lỗi khi tải thông tin khách hàng!', true);
+  }
+}
+
+function closeCustomerModal() {
+  $('modalCustomer').classList.add('hidden');
+}
+
+async function saveCustomerProfile() {
+  const id = $('custFormId').value;
+  const fullName = $('custFormName').value.trim();
+  const phone = $('custFormPhone').value.trim();
+  const gender = $('custFormGender').value;
+  const birthDate = $('custFormBirthDate').value || null;
+  const address = $('custFormAddress').value.trim();
+  const height = $('custFormHeight').value;
+  const weight = $('custFormWeight').value;
+  const fitnessGoal = $('custFormGoal').value.trim();
+  const emergencyContact = $('custFormEmergency').value.trim();
+  const notes = $('custFormNotes').value.trim();
+
+  // Kiểm tra định dạng số điện thoại (Luồng thay thế)
+  const phoneRegex = /^0\d{9}$/;
+  if (!phoneRegex.test(phone)) {
+    toast('Lỗi định dạng: Số điện thoại phải đúng 10 số, bắt đầu từ số 0 và không chứa ký tự lạ!', true);
+    $('custFormPhone').focus();
+    return;
+  }
+
+  const btn = $('custFormSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Đang lưu...';
+
+  try {
+    const res = await apiFetch(`/api/staff/customers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        fullName,
+        phone,
+        gender,
+        birthDate,
+        address,
+        height,
+        weight,
+        fitnessGoal,
+        emergencyContact,
+        notes
+      })
+    });
+    const json = await res.json();
+
+    if (json.success) {
+      toast(json.message || 'Cập nhật thông tin khách hàng thành công!');
+      logActivity('user-pen', `Cập nhật hồ sơ khách hàng: ${fullName} (${phone})`);
+      closeCustomerModal();
+      loadCustomers();
+    } else {
+      toast(json.message || 'Lỗi cập nhật hồ sơ!', true);
+    }
+  } catch (e) {
+    console.error('Lỗi saveCustomerProfile:', e);
+    toast('Lỗi hệ thống khi lưu dữ liệu khách hàng!', true);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i>Lưu thay đổi';
+  }
+}
+
+/* =====================================================================
+   4. DUYỆT ĐĂNG KÝ KHÓA HỌC & DANH SÁCH CHỜ (ENROLL)
+   ===================================================================== */
+async function loadClasses() {
+  try {
+    const res = await apiFetch('/api/staff/classes');
+    const json = await res.json();
+    const classes = json.success ? json.data : [];
+
+    $('clsCards').innerHTML = classes.map(c => {
+      const full = c.available <= 0;
+      const pct = Math.min(100, Math.round((c.enrolled / c.capacity) * 100));
+      return `<div class="card p-4 text-left">
+        <div class="flex justify-between items-start gap-2">
+          <div>
+            <p class="text-xs font-bold text-black">${esc(c.name)}</p>
+            <p class="text-[11px] text-gray-500">${esc(c.courseName)} · ${esc(c.code)}</p>
+          </div>
+          <span class="badge ${full ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'}">
+            ${full ? 'Đã đầy' : `Còn ${c.available} chỗ`}
+          </span>
+        </div>
+        <div class="h-1.5 bg-gray-100 rounded-full mt-3 overflow-hidden">
+          <div class="h-full ${full ? 'bg-black' : 'bg-gray-400'}" style="width:${pct}%"></div>
+        </div>
+        <p class="text-[11px] text-gray-500 mt-2">
+          Sĩ số: <b>${c.enrolled}/${c.capacity}</b> học viên
+          ${c.waiting ? ` · <span class="text-amber-600 font-bold">${c.waiting} chờ</span>` : ''}
+        </p>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    console.error('Lỗi loadClasses:', e);
+  }
+}
+
+async function loadEnrollments() {
+  const status = $('enrollStatusFilter') ? $('enrollStatusFilter').value : 'pending';
+  try {
+    const res = await apiFetch(`/api/staff/enrollments?status=${status}`);
+    const json = await res.json();
+    const rows = json.success ? json.data : [];
+
+    const badgeStyle = {
+      1: 'bg-amber-100 text-amber-800',
+      2: 'bg-emerald-100 text-emerald-800',
+      3: 'bg-red-100 text-red-700',
+      4: 'bg-gray-100 text-gray-600',
+      5: 'bg-blue-100 text-blue-800'
+    };
+    const statusText = {
+      1: 'Chờ duyệt',
+      2: 'Đã duyệt',
+      3: 'Bị từ chối',
+      4: 'Đã hủy',
+      5: 'Danh sách chờ'
+    };
+
+    if (!rows.length) {
+      $('enrollRows').innerHTML = '<tr><td colspan="6" class="text-center text-gray-400 py-8">Không có yêu cầu đăng ký nào theo bộ lọc này.</td></tr>';
+      return;
+    }
+
+    $('enrollRows').innerHTML = rows.map(r => {
+      const isPending = r.status === 1 || r.status === 5;
+      const actions = isPending ? `
+        <div class="flex justify-end gap-1.5">
+          <button class="btn text-xs py-1 px-2.5" onclick="decideEnrollment(${r.id}, 'approve')">
+            <i class="fa-solid fa-check mr-1"></i>Duyệt
+          </button>
+          <button class="btn-o text-xs py-1 px-2 text-red-600 hover:border-red-600" onclick="openRejectModal(${r.id}, '${esc(r.memberName)}', '${esc(r.className)}')">
+            Từ chối
+          </button>
+        </div>
+      ` : `<span class="text-gray-400 text-[11px]">${esc(r.processedByName || 'Đã xử lý')}</span>`;
+
+      return `<tr>
+        <td class="font-mono text-gray-500">#${r.id}</td>
+        <td class="font-semibold text-black">${esc(r.memberName)}<div class="text-gray-400 text-[11px] font-normal">${esc(r.memberCode)} · ${esc(r.phone || '')}</div></td>
+        <td>
+          <div class="font-bold text-black">${esc(r.className)}</div>
+          <div class="text-[11px] text-gray-500">${esc(r.courseName)}</div>
+        </td>
+        <td>${r.enrolledCount}/${r.capacity} HV</td>
+        <td><span class="badge ${badgeStyle[r.status] || 'bg-gray-100'}">${statusText[r.status] || 'Khác'}</span></td>
+        <td class="text-right whitespace-nowrap">${actions}</td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    console.error('Lỗi loadEnrollments:', e);
+  }
+}
+
+async function decideEnrollment(enrollmentId, action, reason = '') {
+  try {
+    const res = await apiFetch(`/api/staff/enrollments/${enrollmentId}/decision`, {
+      method: 'POST',
+      body: JSON.stringify({
+        staffId: currentStaff.id,
+        action,
+        reason
+      })
+    });
+    const json = await res.json();
+
+    if (json.success) {
+      toast(json.message);
+      logActivity(action === 'approve' ? 'check' : 'xmark', `${action === 'approve' ? 'Duyệt' : 'Từ chối'} đăng ký #${enrollmentId}`);
+      loadClasses();
+      loadEnrollments();
+      loadOverview();
+    } else {
+      toast(json.message || 'Thao tác không thành công!', true);
+    }
+  } catch (e) {
+    console.error('Lỗi decideEnrollment:', e);
+    toast('Lỗi khi xử lý yêu cầu đăng ký!', true);
+  }
+}
+
+function openRejectModal(id, memberName, className) {
+  $('modalRejectEnrollId').value = id;
+  $('modalRejectSubtitle').textContent = `Khách hàng: ${memberName} · Lớp: ${className}`;
+  $('modalRejectReason').value = '';
+  $('modalReject').classList.remove('hidden');
+}
+
+function closeRejectModal() { $('modalReject').classList.add('hidden'); }
+
+async function confirmRejectEnrollment() {
+  const id = $('modalRejectEnrollId').value;
+  const reason = $('modalRejectReason').value.trim();
+  closeRejectModal();
+  await decideEnrollment(id, 'reject', reason);
+}
+
+async function loadClassRequests() {
+  try {
+    const res = await apiFetch('/api/staff/class-requests');
+    const json = await res.json();
+    const rows = json.success ? json.data : [];
+
+    if (!rows.length) {
+      $('reqList').innerHTML = '<p class="text-xs text-gray-400 py-3 text-center">Không có yêu cầu đổi/hủy lớp nào đang chờ.</p>';
+      return;
+    }
+
+    $('reqList').innerHTML = rows.map(r => `
+      <div class="rounded-xl border border-gray-200 p-3 text-xs bg-white space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-black">${esc(r.memberName)}</span>
+          <span class="badge ${r.type === 1 ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-800'}">${r.type === 1 ? 'Yêu cầu Hủy' : 'Đổi lớp'}</span>
+        </div>
+        <p class="text-gray-500">${r.type === 1 ? 'Hủy lớp ' : 'Đổi từ '}${esc(r.fromClassName)}${r.toClassName ? ` → ${esc(r.toClassName)}` : ''}</p>
+        ${r.reason ? `<p class="text-[11px] text-gray-400 italic">"Lý do: ${esc(r.reason)}"</p>` : ''}
+        <div class="flex gap-2 pt-1">
+          <button class="btn flex-1 py-1.5" onclick="handleClassRequest(${r.id}, true)">Xác nhận</button>
+          <button class="btn-o flex-1 py-1.5 text-red-600" onclick="handleClassRequest(${r.id}, false)">Từ chối</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    console.error('Lỗi loadClassRequests:', e);
+  }
+}
+
+async function handleClassRequest(requestId, approve) {
+  try {
+    const res = await apiFetch(`/api/staff/class-requests/${requestId}/handle`, {
+      method: 'POST',
+      body: JSON.stringify({
+        staffId: currentStaff.id,
+        approve
+      })
+    });
+    const json = await res.json();
+    if (json.success) {
+      toast(json.message);
+      loadClassRequests();
+      loadClasses();
+      loadOverview();
+    } else {
+      toast(json.message || 'Xử lý thất bại!', true);
+    }
+  } catch (e) {
+    console.error('Lỗi handleClassRequest:', e);
+  }
+}
+
+/* =====================================================================
+   5. BÁN HÀNG TẠI QUẦY (POS)
+   ===================================================================== */
+let productCatalog = [];
+let cart = {};
+
+async function loadProducts() {
+  try {
+    const res = await apiFetch('/api/staff/products');
+    const json = await res.json();
+    productCatalog = json.success ? json.data : [];
+    renderProducts();
+  } catch (e) {
+    console.error('Lỗi loadProducts:', e);
+  }
+}
+
+function renderProducts() {
+  const q = $('posSearch') ? $('posSearch').value.toLowerCase().trim() : '';
+  const filtered = productCatalog.filter(p => p.name.toLowerCase().includes(q) || (p.code && p.code.toLowerCase().includes(q)));
+
+  if (!filtered.length) {
+    $('products').innerHTML = '<p class="text-xs text-gray-400 col-span-full py-8 text-center">Không tìm thấy sản phẩm phù hợp.</p>';
+    return;
+  }
+
+  $('products').innerHTML = filtered.map(p => `
+    <button onclick="addToCart(${p.id})" class="card p-4 text-left hover:border-black transition active:scale-[0.99]">
+      <div class="flex items-center justify-between text-gray-400 text-xs">
+        <span class="badge bg-gray-100 text-gray-600">${esc(p.category || 'Sản phẩm')}</span>
+        <span>Kho: ${p.stock}</span>
+      </div>
+      <p class="text-xs font-semibold mt-2.5 text-black line-clamp-2">${esc(p.name)}</p>
+      <p class="text-xs font-bold text-black mt-1">${vnd(p.price)}</p>
+    </button>
+  `).join('');
+}
+
+function addToCart(id) {
+  const p = productCatalog.find(x => x.id === id);
+  if (!p) return;
+  const currentQty = cart[id] || 0;
+  if (currentQty >= p.stock) {
+    toast(`Sản phẩm "${p.name}" chỉ còn ${p.stock} trong kho!`, true);
+    return;
+  }
+  cart[id] = currentQty + 1;
+  renderCart();
+}
+
+function updateCartQty(id, delta) {
+  cart[id] = (cart[id] || 0) + delta;
+  if (cart[id] <= 0) delete cart[id];
+  renderCart();
+}
+
+const getCartTotal = () => Object.entries(cart).reduce((sum, [id, qty]) => {
+  const p = productCatalog.find(x => x.id == id);
+  return sum + (p ? p.price * qty : 0);
+}, 0);
+
+function renderCart() {
+  const ids = Object.keys(cart);
+  if (!ids.length) {
+    $('cart').innerHTML = '<p class="text-gray-400 py-6 text-center text-xs">Chọn sản phẩm bên trái để thêm vào giỏ hàng.</p>';
+    $('cartTotal').textContent = '0đ';
+    return;
+  }
+
+  $('cart').innerHTML = ids.map(id => {
+    const p = productCatalog.find(x => x.id == id);
+    if (!p) return '';
+    return `<div class="flex items-center gap-2 py-1.5 border-b border-gray-100">
+      <div class="flex-1 truncate">
+        <p class="font-semibold text-black truncate">${esc(p.name)}</p>
+        <p class="text-gray-500 font-mono text-[11px]">${vnd(p.price)}</p>
+      </div>
+      <div class="flex items-center gap-1">
+        <button class="btn-o px-2 py-0.5" onclick="updateCartQty(${id}, -1)">−</button>
+        <span class="w-6 text-center font-bold font-mono">${cart[id]}</span>
+        <button class="btn-o px-2 py-0.5" onclick="updateCartQty(${id}, 1)">+</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  $('cartTotal').textContent = vnd(getCartTotal());
+}
+
+async function checkout() {
+  const items = Object.entries(cart).map(([id, quantity]) => ({ productId: Number(id), quantity }));
+  if (!items.length) {
+    toast('Giỏ hàng đang trống!', true);
+    return;
+  }
+
+  const memberCode = $('posMember').value.trim();
+  const paymentMethod = Number($('posPay').value);
+
+  try {
+    const res = await apiFetch('/api/staff/checkout', {
+      method: 'POST',
+      body: JSON.stringify({
+        staffId: currentStaff.id,
+        memberCode,
+        paymentMethod,
+        items
+      })
+    });
+    const json = await res.json();
+
+    if (json.success) {
+      toast('Thanh toán tại quầy thành công!');
+      logActivity('cash-register', `Bán hàng: ${json.data.invoiceCode} – ${vnd(json.data.total)}`);
+      cart = {};
+      $('posMember').value = '';
+      renderCart();
+      loadProducts();
+      loadOverview();
+      showInvoiceDetail(json.data.invoiceId);
+    } else {
+      toast(json.message || 'Thanh toán thất bại!', true);
+    }
+  } catch (e) {
+    console.error('Lỗi checkout:', e);
+    toast('Lỗi kết nối khi thanh toán!', true);
+  }
+}
+
+/* =====================================================================
+   6. HÓA ĐƠN & THANH TOÁN (INVOICE)
+   ===================================================================== */
+let invoiceList = [];
+
+async function loadInvoices() {
+  try {
+    const res = await apiFetch('/api/staff/invoices');
+    const json = await res.json();
+    invoiceList = json.success ? json.data : [];
+    renderInvoices();
+  } catch (e) {
+    console.error('Lỗi loadInvoices:', e);
+  }
+}
+
+function renderInvoices() {
+  const q = $('invSearch') ? $('invSearch').value.toLowerCase().trim() : '';
+  const st = $('invStatus') ? $('invStatus').value : '';
+
+  const rows = invoiceList.filter(i => {
+    const matchQ = (i.code + i.customerName).toLowerCase().includes(q);
+    const matchSt = st ? String(i.status) === st : true;
+    return matchQ && matchSt;
+  });
+
+  if (!rows.length) {
+    $('invRows').innerHTML = '<tr><td colspan="7" class="text-center text-gray-400 py-8">Không tìm thấy hóa đơn phù hợp.</td></tr>';
+    return;
+  }
+
+  $('invRows').innerHTML = rows.map(i => {
+    const isPaid = i.status === 2;
+    const timeStr = new Date(i.createdAt).toLocaleString('vi-VN');
+    return `<tr>
+      <td class="font-mono font-bold text-black">${esc(i.code)}</td>
+      <td class="text-gray-500 font-mono text-[11px]">${timeStr}</td>
+      <td class="font-semibold text-black">${esc(i.customerName)}</td>
+      <td class="max-w-[15rem] truncate text-gray-600">${esc(i.description || 'Hóa đơn')}</td>
+      <td class="font-bold text-black">${vnd(i.total)}</td>
+      <td><span class="badge ${isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}</span></td>
+      <td class="text-right">
+        <button class="${isPaid ? 'btn-o' : 'btn'} text-xs py-1 px-3" onclick="showInvoiceDetail(${i.id})">
+          ${isPaid ? 'Xem' : 'Thu tiền'}
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function showInvoiceDetail(invoiceId) {
+  try {
+    const res = await apiFetch(`/api/staff/invoices/${invoiceId}`);
+    const json = await res.json();
+    if (!json.success) {
+      toast(json.message || 'Không tìm thấy hóa đơn!', true);
+      return;
+    }
+
+    const i = json.data;
+    const isPaid = i.status === 2;
+    const payMap = { 1: 'Tiền mặt', 2: 'Chuyển khoản', 3: 'Thẻ POS' };
+
+    $('modalInvoiceBody').innerHTML = `
+      <div class="flex justify-between items-start pb-3 border-b border-gray-100">
+        <div>
+          <h3 class="font-extrabold text-base">Hóa đơn ${esc(i.code)}</h3>
+          <p class="text-xs text-gray-500">${new Date(i.createdAt).toLocaleString('vi-VN')}</p>
+        </div>
+        <button onclick="closeInvoiceModal()" class="text-gray-400 hover:text-black"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <dl class="text-xs mt-4 space-y-2.5">
+        <div class="flex justify-between"><dt class="text-gray-500">Khách hàng</dt><dd class="font-bold">${esc(i.customerName)}</dd></div>
+        <div class="flex justify-between"><dt class="text-gray-500">Trạng thái</dt><dd><span class="badge ${isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${isPaid ? 'Đã thanh toán' : 'Chưa thu tiền'}</span></dd></div>
+        <div class="flex justify-between"><dt class="text-gray-500">Hình thức thanh toán</dt><dd class="font-semibold">${payMap[i.paymentMethod] || 'Chưa chọn'}</dd></div>
+      </dl>
+
+      <div class="border-t border-gray-100 mt-4 pt-3">
+        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Chi tiết sản phẩm</p>
+        <div class="space-y-1.5 text-xs max-h-40 overflow-y-auto">
+          ${(i.items || []).map(item => `
+            <div class="flex justify-between">
+              <span class="text-gray-700">${esc(item.description)} x${item.quantity}</span>
+              <span class="font-mono">${vnd(item.lineTotal)}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="flex justify-between text-sm border-t border-gray-100 pt-3 mt-3">
+          <span class="font-bold">Tổng thanh toán:</span>
+          <span class="font-extrabold text-black">${vnd(i.total)}</span>
+        </div>
+      </div>
+
+      <div class="mt-5 flex gap-2">
+        ${!isPaid ? `
+          <button class="btn flex-1" onclick="payInvoiceConfirm(${i.id}, 1)">Tiền mặt</button>
+          <button class="btn flex-1" onclick="payInvoiceConfirm(${i.id}, 2)">Chuyển khoản</button>
+          <button class="btn flex-1" onclick="payInvoiceConfirm(${i.id}, 3)">Thẻ</button>
+        ` : `
+          <button class="btn-o flex-1" onclick="window.print()"><i class="fa-solid fa-print mr-1"></i>In hóa đơn</button>
+          <button class="btn flex-1" onclick="closeInvoiceModal()">Đóng</button>
+        `}
+      </div>
+    `;
+
+    $('modalInvoice').classList.remove('hidden');
+  } catch (e) {
+    console.error('Lỗi showInvoiceDetail:', e);
+  }
+}
+
+function closeInvoiceModal() { $('modalInvoice').classList.add('hidden'); }
+
+async function payInvoiceConfirm(id, method) {
+  try {
+    const res = await apiFetch(`/api/staff/invoices/${id}/pay`, {
+      method: 'POST',
+      body: JSON.stringify({
+        staffId: currentStaff.id,
+        paymentMethod: method
+      })
+    });
+    const json = await res.json();
+    if (json.success) {
+      toast('Đã ghi nhận thanh toán hóa đơn!');
+      closeInvoiceModal();
+      loadInvoices();
+      loadOverview();
+    } else {
+      toast(json.message || 'Lỗi thanh toán!', true);
+    }
+  } catch (e) {
+    console.error('Lỗi payInvoiceConfirm:', e);
+  }
+}
+
+/* =====================================================================
+   7. THÔNG BÁO HỆ THỐNG (NOTIFICATIONS)
+   Luồng sự kiện chính:
+   1. Mở mục thông báo.
+   2. Hệ thống tải thông báo theo người nhận/vai trò.
+   3. Người dùng chọn thông báo.
+   4. Hệ thống hiển thị nội dung và cập nhật đã đọc.
+   ===================================================================== */
+let notificationList = [];
+
+async function loadNotifications() {
+  try {
+    const res = await apiFetch('/api/staff/notifications');
+    const json = await res.json();
+    notificationList = json.success ? json.data : [];
+
+    const unreadCount = notificationList.filter(n => Number(n.isRead) === 0).length;
+    const bell = $('bell');
+    if (unreadCount > 0) {
+      bell.textContent = unreadCount;
+      bell.classList.remove('hidden');
+    } else {
+      bell.classList.add('hidden');
+    }
+
+    if (!notificationList.length) {
+      $('notifList').innerHTML = '<div class="p-8 text-center text-gray-400 text-xs">Hiện tại không có thông báo nào dành cho bạn.</div>';
+      return;
+    }
+
+    $('notifList').innerHTML = notificationList.map(n => {
+      const isUnread = Number(n.isRead) === 0;
+      const sentTimeStr = n.sentAt ? new Date(n.sentAt).toLocaleString('vi-VN') : 'Gần đây';
+      return `
+        <div onclick="openNotificationDetail(${n.id})" class="card w-full text-left p-4 flex items-start gap-3 transition cursor-pointer hover:border-black ${isUnread ? 'border-l-4 border-l-black bg-neutral-50/50' : 'opacity-85'}">
+          <span class="w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${isUnread ? 'bg-black' : 'bg-gray-200'}"></span>
+          <div class="flex-1">
+            <h4 class="text-xs ${isUnread ? 'font-bold text-black' : 'font-semibold text-gray-700'}">${esc(n.title)}</h4>
+            <p class="text-xs text-gray-500 mt-1 line-clamp-2">${esc(n.content)}</p>
+          </div>
+          <span class="text-[11px] text-gray-400 whitespace-nowrap font-mono">${sentTimeStr}</span>
+        </div>
+      `;
+    }).join('');
+  } catch (e) {
+    console.error('Lỗi loadNotifications:', e);
+  }
+}
+
+async function openNotificationDetail(notifId) {
+  try {
+    const res = await apiFetch(`/api/staff/notifications/${notifId}`);
+    const json = await res.json();
+    if (!json.success) {
+      toast('Không tìm thấy thông báo!', true);
+      return;
+    }
+
+    const n = json.data;
+    $('modalNotifTitle').textContent = n.title;
+    $('modalNotifTime').textContent = 'Thời gian gửi: ' + (n.sentAt ? new Date(n.sentAt).toLocaleString('vi-VN') : '');
+    $('modalNotifContent').textContent = n.content;
+    $('modalNotif').classList.remove('hidden');
+
+    // Cập nhật lại danh sách thông báo để đổi trạng thái đã đọc
+    loadNotifications();
+    loadOverview();
+  } catch (e) {
+    console.error('Lỗi openNotificationDetail:', e);
+  }
+}
+
+function closeNotifModal() { $('modalNotif').classList.add('hidden'); }
+
+async function readAllNotifications() {
+  try {
+    const res = await apiFetch('/api/staff/notifications/read-all', { method: 'PATCH' });
+    const json = await res.json();
+    if (json.success) {
+      toast('Đã đánh dấu tất cả thông báo là đã đọc.');
+      loadNotifications();
+      loadOverview();
+    }
+  } catch (e) {
+    console.error('Lỗi readAllNotifications:', e);
+  }
+}
+
+/* =====================================================================
+   ĐĂNG XUẤT & KHỞI CHẠY TRANG
+   ===================================================================== */
+function logoutStaff() {
+  if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi Cổng Nhân viên?')) {
+    localStorage.removeItem('fitcenter_user');
+    window.location.href = 'trang_chu.html';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  $('today').textContent = new Date().toLocaleDateString('vi-VN', {
+    weekday: 'long',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+
+  if (currentStaff) {
+    $('sbName').textContent = currentStaff.fullName || 'Nhân viên';
+    $('sbEmail').textContent = currentStaff.email || '';
+    $('sbRole').textContent = currentStaff.role === 'admin' ? 'Quản trị viên' : (currentStaff.position || 'Nhân viên quầy');
+    $('sbAvatar').textContent = (currentStaff.fullName || 'NV')
+      .split(' ')
+      .filter(Boolean)
+      .map(w => w[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+  }
+
   renderNav();
-}
-
-/* ========== BÁN HÀNG TẠI QUẦY ========== */
-function renderProducts(){
-  const q=$('posSearch').value.toLowerCase();
-  $('products').innerHTML=S.products.filter(p=>p.name.toLowerCase().includes(q)).map(p=>`<button onclick="addCart(${p.id})" class="card p-4 text-left hover:border-black transition"><i class="fa-solid fa-${p.icon} text-gray-400"></i><p class="text-xs font-semibold mt-3">${p.name}</p><p class="text-xs text-gray-500 mt-1">${vnd(p.price)}</p></button>`).join('')||'<p class="text-xs text-gray-400 col-span-full py-6">Không tìm thấy sản phẩm phù hợp.</p>';
-}
-function addCart(id){S.cart[id]=(S.cart[id]||0)+1;renderCart()}
-function qty(id,d){S.cart[id]+=d;if(S.cart[id]<=0)delete S.cart[id];renderCart()}
-const cartTotal=()=>Object.entries(S.cart).reduce((s,[id,q])=>s+S.products.find(p=>p.id==id).price*q,0);
-function renderCart(){
-  const ids=Object.keys(S.cart);
-  $('cart').innerHTML=ids.length?ids.map(id=>{const p=S.products.find(p=>p.id==id);return `<div class="flex items-center gap-2"><div class="flex-1"><p class="font-semibold">${p.name}</p><p class="text-gray-500">${vnd(p.price)}</p></div><button class="btn-o px-2 py-1" onclick="qty(${id},-1)" aria-label="Giảm">−</button><span class="w-5 text-center font-semibold">${S.cart[id]}</span><button class="btn-o px-2 py-1" onclick="qty(${id},1)" aria-label="Tăng">+</button></div>`}).join(''):'<p class="text-gray-400 py-4 text-center">Chọn sản phẩm bên trái để thêm vào giỏ.</p>';
-  $('cartTotal').textContent=vnd(cartTotal());
-}
-function checkout(){
-  if(!Object.keys(S.cart).length)return toast('Giỏ hàng đang trống');
-  const code=$('posMember').value.trim().toUpperCase();
-  if(code&&!S.members[code])return toast('Mã hội viên không tồn tại');
-  const desc=Object.entries(S.cart).map(([id,q])=>S.products.find(p=>p.id==id).name+' x'+q).join(', ');
-  const inv={id:'HD'+(2001+S.invoices.length),time:'Hôm nay '+hm(),who:code?S.members[code].name:'Khách lẻ',desc,total:cartTotal(),st:'Đã thanh toán',pay:$('posPay').value};
-  S.invoices.unshift(inv);S.cart={};$('posMember').value='';log('cash-register',`Bán hàng ${inv.id} – ${vnd(inv.total)}`);
-  renderAll();showInvoice(inv.id);
-}
-
-/* ========== HÓA ĐƠN & THANH TOÁN ========== */
-function payInvoice(id,m){const i=S.invoices.find(x=>x.id===id);i.st='Đã thanh toán';i.pay=m;log('money-bill',`Thu tiền ${id} – ${vnd(i.total)}`);closeModal();toast('Đã ghi nhận thanh toán');renderAll()}
-function showInvoice(id){
-  const i=S.invoices.find(x=>x.id===id);
-  $('modalBody').innerHTML=`<div class="flex justify-between items-start"><div><h3 class="font-extrabold text-base">Hóa đơn ${i.id}</h3><p class="text-xs text-gray-500">${i.time}</p></div><button onclick="closeModal()" aria-label="Đóng"><i class="fa-solid fa-xmark text-gray-400"></i></button></div>
-  <dl class="text-xs mt-4 space-y-2"><div class="flex justify-between"><dt class="text-gray-500">Khách</dt><dd class="font-semibold">${esc(i.who)}</dd></div><div class="flex justify-between gap-4"><dt class="text-gray-500">Nội dung</dt><dd class="font-semibold text-right">${esc(i.desc)}</dd></div><div class="flex justify-between"><dt class="text-gray-500">Thanh toán</dt><dd class="font-semibold">${i.pay||'Chưa thu'}</dd></div><div class="flex justify-between text-sm border-t border-gray-100 pt-3"><dt class="font-bold">Tổng cộng</dt><dd class="font-extrabold">${vnd(i.total)}</dd></div></dl>
-  <div class="mt-5 flex gap-2">${i.st==='Chưa thanh toán'?['Tiền mặt','Chuyển khoản','Thẻ'].map(m=>`<button class="btn flex-1" onclick="payInvoice('${i.id}','${m}')">${m}</button>`).join(''):`<button class="btn-o flex-1" onclick="window.print()"><i class="fa-solid fa-print mr-1"></i>In hóa đơn</button><button class="btn flex-1" onclick="closeModal()">Xong</button>`}</div>`;
-  $('modal').classList.remove('hidden');
-}
-function closeModal(){$('modal').classList.add('hidden')}
-function renderInvoices(){
-  const q=$('invSearch').value.toLowerCase(),st=$('invStatus').value;
-  const rows=S.invoices.filter(i=>(!st||i.st===st)&&(i.id+i.who).toLowerCase().includes(q));
-  $('invRows').innerHTML=rows.length?rows.map(i=>`<tr><td class="font-semibold">${i.id}</td><td>${i.time}</td><td>${esc(i.who)}</td><td class="max-w-[14rem] truncate">${esc(i.desc)}</td><td class="font-semibold">${vnd(i.total)}</td><td><span class="badge ${i.st==='Đã thanh toán'?'bg-emerald-100 text-emerald-800':'bg-amber-100 text-amber-800'}">${i.st}</span></td><td class="text-right"><button class="${i.st==='Chưa thanh toán'?'btn':'btn-o'}" onclick="showInvoice('${i.id}')">${i.st==='Chưa thanh toán'?'Thu tiền':'Xem'}</button></td></tr>`).join(''):'<tr><td colspan="7" class="text-center text-gray-400 py-8">Không tìm thấy hóa đơn phù hợp.</td></tr>';
-}
-
-/* ========== THÔNG BÁO ========== */
-function readAll(){S.notifs.forEach(n=>n.read=true);renderAll()}
-function renderNotifs(){
-  $('notifList').innerHTML=S.notifs.map((n,i)=>`<button onclick="S.notifs[${i}].read=true;renderAll()" class="card w-full text-left p-4 flex items-start gap-3 ${n.read?'':'border-black'}"><span class="w-2 h-2 rounded-full mt-1.5 ${n.read?'bg-gray-200':'bg-black'}"></span><span class="flex-1 text-xs ${n.read?'text-gray-500':'font-semibold text-black'}">${esc(n.t)}</span><span class="text-[11px] text-gray-400">${n.time}</span></button>`).join('');
-}
-
-/* ========== PHIÊN ĐĂNG NHẬP ========== */
-function renderAll(){renderNav();renderOverview();renderCheckins();renderEnroll();renderProducts();renderCart();renderInvoices();renderNotifs()}
-function logoutStaff(){if(confirm('Bạn có chắc chắn muốn đăng xuất khỏi Cổng Nhân viên?')){localStorage.removeItem('fitcenter_user');window.location.href='dang_nhap.html'}}
-window.addEventListener('DOMContentLoaded',()=>{
-  $('today').textContent=new Date().toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
-  try{const u=JSON.parse(localStorage.getItem('fitcenter_user')||'null');
-    if(u){$('sbName').textContent=u.fullName||'Nhân viên';$('sbEmail').textContent=u.email||'';
-      $('sbAvatar').textContent=(u.fullName||'NV').split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase()}}catch(e){console.error(e)}
-  renderAll();
+  loadOverview();
+  loadNotifications();
 });
 </script>
 </body>

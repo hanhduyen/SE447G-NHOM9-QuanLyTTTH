@@ -13,6 +13,31 @@
   <!-- Font Awesome 6 Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+  <!-- ĐIỀU HƯỚNG PHÂN QUYỀN: Khi đã đăng nhập thì phải đăng xuất ra mới được về trang chủ giới thiệu -->
+  <script>
+    (function() {
+      try {
+        const raw = localStorage.getItem('fitcenter_user');
+        if (raw) {
+          const u = JSON.parse(raw);
+          if (u && u.role) {
+            if (u.role === 'admin') {
+              window.location.replace('admin.html');
+            } else if (u.role === 'staff') {
+              window.location.replace('staff.html');
+            } else if (u.role === 'trainer') {
+              window.location.replace('huan_luyen_vien.html');
+            } else if (u.role === 'customer' || u.role === 'member') {
+              window.location.replace('khach_hang.html');
+            }
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  </script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -237,7 +262,7 @@
         <h2 class="text-2xl font-bold text-black tracking-tight">Dịch vụ của trung tâm</h2>
 
         <!-- Khóa xem chi tiết dành cho khách vãng lai -->
-        <button onclick="alert('Vui lòng đăng nhập để xem thông tin chi tiết các gói tập & khóa học!')" class="px-4 py-2 rounded-xl border border-gray-200 bg-gray-50/60 hover:bg-gray-100 text-xs text-gray-700 font-medium flex items-center gap-2 transition shadow-sm w-fit">
+        <button onclick="window.location.href='dang_nhap.html'" class="px-4 py-2 rounded-xl border border-gray-200 bg-gray-50/60 hover:bg-gray-100 text-xs text-gray-700 font-medium flex items-center gap-2 transition shadow-sm w-fit cursor-pointer" title="Bấm để đăng nhập và xem chi tiết gói tập & khóa học">
           <i class="fa-solid fa-lock text-[11px] text-gray-500"></i>
           <span>Đăng nhập để xem chi tiết gói tập & khóa học</span>
         </button>
@@ -344,9 +369,9 @@
       <span>© 2026 FitCenter — Đồ án CDIO SE447 G · Nhóm 09</span>
 
       <div class="flex items-center space-x-6">
-        <a href="#" class="hover:text-black transition">Chính sách</a>
-        <a href="#" class="hover:text-black transition">Điều khoản</a>
-        <a href="#" class="hover:text-black transition">Liên hệ</a>
+        <a href="#gioi-thieu" class="hover:text-black transition">Giới thiệu</a>
+        <a href="#dich-vu" class="hover:text-black transition">Dịch vụ & Gói tập</a>
+        <a href="#lien-he" class="hover:text-black transition">Liên hệ</a>
       </div>
     </footer>
 

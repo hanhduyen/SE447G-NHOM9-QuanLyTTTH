@@ -50,7 +50,7 @@
     <div class="max-w-[1360px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
       
       <!-- Logo thương hiệu -->
-      <a href="trang_chu.html" class="flex items-center space-x-2.5">
+      <a href="javascript:void(0)" onclick="switchTab('dashboard')" class="flex items-center space-x-2.5 cursor-pointer" title="Về trang tổng quan hội viên">
         <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs shadow-sm">
           <i class="fa-solid fa-dumbbell text-[11px]"></i>
         </div>
@@ -320,13 +320,13 @@
           <p class="text-xs text-gray-500 mt-1">Danh sách các lớp học được công bố từ CSDL. Chọn ca học phù hợp để đăng ký chỗ trống trực tuyến</p>
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="alert('Đang xem tuần hiện tại')" class="p-2 border border-gray-200 bg-white rounded-lg text-xs hover:bg-gray-50 text-gray-700 transition" title="Tuần trước">
+          <button onclick="changeScheduleWeek(-1)" class="p-2 border border-gray-200 bg-white rounded-lg text-xs hover:bg-gray-50 text-gray-700 transition cursor-pointer" title="Tuần trước">
             <i class="fa-solid fa-chevron-left"></i>
           </button>
           <span id="customerScheduleWeekLabel" class="text-xs font-bold text-black bg-white px-3.5 py-2 border border-gray-200 rounded-lg shadow-2xs">
             Tuần 23/11 – 29/11/2026
           </span>
-          <button onclick="alert('Đang xem tuần hiện tại')" class="p-2 border border-gray-200 bg-white rounded-lg text-xs hover:bg-gray-50 text-gray-700 transition" title="Tuần tiếp theo">
+          <button onclick="changeScheduleWeek(1)" class="p-2 border border-gray-200 bg-white rounded-lg text-xs hover:bg-gray-50 text-gray-700 transition cursor-pointer" title="Tuần tiếp theo">
             <i class="fa-solid fa-chevron-right"></i>
           </button>
 
@@ -344,7 +344,7 @@
 
       <!-- Bộ chọn thứ trong tuần (Dạng thẻ to đẹp như ban đầu + nút Tất cả) -->
       <div id="scheduleDayFilterBar" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 text-center text-xs">
-        <button class="p-3.5 rounded-2xl bg-black text-white font-bold shadow-xs">
+        <button onclick="selectScheduleDayFilter(0)" class="p-3.5 rounded-2xl bg-black text-white font-bold shadow-xs cursor-pointer">
           <span class="block text-[10px] uppercase font-normal opacity-70">Lịch học</span>
           <span class="text-base font-black">Tất cả</span>
         </button>
@@ -374,13 +374,58 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-200">
         <div>
           <h2 class="text-xl font-bold text-black">Danh sách Gói tập & Khóa học</h2>
-          <p class="text-xs text-gray-500 mt-0.5">Khám phá các khóa học và đăng ký gói tập trực tuyến linh hoạt theo mục tiêu</p>
+          <p class="text-xs text-gray-500 mt-0.5">Khám phá các khóa học và đăng ký gói tập trực tuyến linh hoạt theo mục tiêu rèn luyện</p>
         </div>
       </div>
 
-      <!-- Grid các gói tập thẻ thành viên -->
-      <div>
-        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+      <!-- Thanh công cụ Tìm kiếm và Bộ lọc dịch vụ -->
+      <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
+        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          <!-- Ô tìm kiếm từ khóa -->
+          <div class="relative flex-1">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-400 text-xs"></i>
+            <input 
+              id="catalogSearchInput" 
+              type="text" 
+              placeholder="Tìm kiếm theo tên gói tập, khóa học hoặc từ khóa..." 
+              oninput="handleCatalogFilter()"
+              class="w-full bg-white border border-gray-200 rounded-xl pl-9 pr-8 py-2.5 text-xs text-black placeholder-gray-400 focus:outline-none focus:border-black transition"
+            >
+            <button id="catalogSearchClearBtn" onclick="clearCatalogSearch()" class="hidden absolute right-3 top-2.5 text-gray-400 hover:text-black text-xs">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <!-- Bộ lọc loại dịch vụ: Tất cả / Gói tập / Khóa học -->
+          <div class="flex items-center bg-gray-200/80 p-1 rounded-xl text-xs font-semibold shrink-0">
+            <button id="catFilterAll" onclick="setCatalogTypeFilter('all')" class="catalog-type-btn px-3.5 py-1.5 rounded-lg bg-white text-black font-bold shadow-2xs transition">
+              Tất cả
+            </button>
+            <button id="catFilterPlan" onclick="setCatalogTypeFilter('plan')" class="catalog-type-btn px-3.5 py-1.5 rounded-lg text-gray-600 hover:text-black transition">
+              <i class="fa-solid fa-id-card mr-1 text-[11px]"></i> Gói tập
+            </button>
+            <button id="catFilterCourse" onclick="setCatalogTypeFilter('course')" class="catalog-type-btn px-3.5 py-1.5 rounded-lg text-gray-600 hover:text-black transition">
+              <i class="fa-solid fa-graduation-cap mr-1 text-[11px]"></i> Khóa học
+            </button>
+          </div>
+
+          <!-- Bộ lọc Chuyên môn Khóa học -->
+          <div class="shrink-0">
+            <select id="catalogSpecialtyFilter" onchange="handleCatalogFilter()" class="w-full md:w-auto bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-gray-700 font-medium focus:outline-none focus:border-black">
+              <option value="all">Tất cả chuyên môn</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-gray-500 gap-1 pt-1 border-t border-gray-200/60">
+          <span id="catalogCountLabel" class="font-medium">Đang tải danh sách dịch vụ...</span>
+          <span class="text-gray-400"><i class="fa-regular fa-circle-question mr-1"></i> Bấm "Xem chi tiết" để xem nội dung, thời lượng, lịch dự kiến và điều kiện tham gia</span>
+        </div>
+      </div>
+
+      <!-- Khối các gói tập thẻ thành viên -->
+      <div id="plansSection" class="space-y-4">
+        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
           <i class="fa-solid fa-id-card text-black"></i> Gói tập thẻ thành viên (Membership Plans)
         </h3>
         <div id="membershipPlansGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -388,9 +433,9 @@
         </div>
       </div>
 
-      <!-- Grid các khóa học đào tạo -->
-      <div class="pt-6 border-t border-gray-100">
-        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+      <!-- Khối các khóa học đào tạo -->
+      <div id="coursesSection" class="pt-6 border-t border-gray-100 space-y-4">
+        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
           <i class="fa-solid fa-graduation-cap text-black"></i> Khóa học & Lớp nhóm chuyên sâu (Courses)
         </h3>
         <div id="coursesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -464,8 +509,8 @@
                   <input id="profileInputFullName" type="text" required class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black focus:outline-none focus:border-black">
                 </div>
                 <div>
-                  <label class="block font-semibold text-gray-700 mb-1">Số điện thoại</label>
-                  <input id="profileInputPhone" type="tel" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black font-mono focus:outline-none focus:border-black">
+                  <label class="block font-semibold text-gray-700 mb-1">Số điện thoại <span class="text-gray-400 font-normal text-[11px]">(10 số, bắt đầu từ số 0)</span></label>
+                  <input id="profileInputPhone" type="tel" maxlength="10" pattern="^0[0-9]{9}$" inputmode="numeric" placeholder="Ví dụ: 0912345678" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black font-mono focus:outline-none focus:border-black">
                 </div>
               </div>
 
@@ -775,7 +820,311 @@
     </div>
   </div>
 
-  <!-- ================= MODAL 3: ĐĂNG KÝ KHÓA HỌC / GÓI TẬP ================= -->
+  <!-- ================= MODAL: CHI TIẾT GÓI TẬP (USE CASE: XEM DANH SÁCH & CHI TIẾT GÓI TẬP) ================= -->
+  <div id="planDetailModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-7 shadow-2xl border border-gray-200 max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-start mb-4 pb-3 border-b border-gray-100">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200">Gói tập hội viên</span>
+          <h3 id="planDetailName" class="text-lg font-bold text-black mt-1.5">Gói tập 1 tháng</h3>
+          <p id="planDetailPrice" class="text-sm font-black text-black mt-0.5">400.000 đ</p>
+        </div>
+        <button onclick="closeModal('planDetailModal')" class="text-gray-400 hover:text-black text-base p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs overflow-y-auto pr-1 flex-1">
+        <!-- 1. Nội dung gói tập -->
+        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+          <h4 class="font-bold text-black mb-1.5 flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-black"></i> 1. Nội dung & Quyền lợi gói tập
+          </h4>
+          <p id="planDetailDesc" class="text-gray-600 leading-relaxed mb-3">Tập luyện không giới hạn khung giờ và trang thiết bị tại trung tâm.</p>
+          <ul class="space-y-2 text-gray-700">
+            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-600"></i> Sử dụng toàn bộ máy tập gym, tạ, thảm tập tại phòng tập</li>
+            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-600"></i> Sử dụng tủ đồ locker cá nhân an toàn và phòng tắm nước nóng</li>
+            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-600"></i> Miễn phí đo chỉ số thể trạng InBody định kỳ</li>
+          </ul>
+        </div>
+
+        <!-- 2. Thời lượng hiệu lực -->
+        <div class="bg-blue-50/60 border border-blue-200 rounded-2xl p-4">
+          <h4 class="font-bold text-blue-950 mb-1 flex items-center gap-2">
+            <i class="fa-regular fa-calendar-days text-blue-600"></i> 2. Thời lượng áp dụng
+          </h4>
+          <p id="planDetailDuration" class="text-blue-900 leading-relaxed font-medium">30 ngày kể từ ngày kích hoạt (hoặc gia hạn nối tiếp nếu đang có gói).</p>
+        </div>
+
+        <!-- 3. Điều kiện tham gia -->
+        <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-4">
+          <h4 class="font-bold text-amber-950 mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-amber-600"></i> 3. Điều kiện tham gia
+          </h4>
+          <p id="planDetailTerms" class="text-amber-900 leading-relaxed font-medium">Từ 16 tuổi trở lên, có đủ sức khỏe tham gia vận động thể lực.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-4 mt-2 border-t border-gray-100 text-xs">
+        <button type="button" onclick="closeModal('planDetailModal')" class="px-4 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-semibold">
+          Đóng
+        </button>
+        <button type="button" id="btnGoRegisterPlan" onclick="proceedToPlanRegister()" class="px-5 py-2.5 bg-black hover:bg-neutral-800 text-white rounded-xl font-bold transition shadow-xs">
+          Đăng ký gói này ngay
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL: CHI TIẾT KHÓA HỌC (USE CASE: XEM DANH SÁCH & THÔNG TIN CHI TIẾT KHÓA HỌC) ================= -->
+  <div id="courseDetailModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-2xl p-6 sm:p-7 shadow-2xl border border-gray-200 max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-start mb-4 pb-3 border-b border-gray-100">
+        <div>
+          <div class="flex items-center gap-2">
+            <span id="courseDetailCode" class="text-[10px] font-mono font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">KH-1</span>
+            <span id="courseDetailSpecialty" class="text-[10px] font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">Yoga</span>
+          </div>
+          <h3 id="courseDetailName" class="text-lg font-bold text-black mt-1">Yoga cơ bản</h3>
+          <p id="courseDetailPrice" class="text-sm font-black text-black mt-0.5">1.200.000 đ <span class="text-xs text-gray-500 font-normal">/ trọn khóa</span></p>
+        </div>
+        <button onclick="closeModal('courseDetailModal')" class="text-gray-400 hover:text-black text-base p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs overflow-y-auto pr-1 flex-1">
+        <!-- 1. Nội dung khóa học -->
+        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+          <h4 class="font-bold text-black mb-1.5 flex items-center gap-2">
+            <i class="fa-solid fa-book-open-reader text-black"></i> 1. Nội dung khóa học (Giáo trình & Mục tiêu)
+          </h4>
+          <p id="courseDetailDesc" class="text-gray-700 leading-relaxed whitespace-pre-line">Nội dung khóa học đang được cập nhật...</p>
+        </div>
+
+        <!-- 2. Thời lượng khóa học -->
+        <div class="bg-blue-50/60 border border-blue-200 rounded-2xl p-4">
+          <h4 class="font-bold text-blue-950 mb-1.5 flex items-center gap-2">
+            <i class="fa-regular fa-clock text-blue-600"></i> 2. Thời lượng đào tạo
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+            <div class="bg-white rounded-xl p-2.5 border border-blue-100 text-center">
+              <span class="block text-[10px] text-gray-500 uppercase">Thời lượng tuần</span>
+              <strong id="courseDetailWeeks" class="text-sm text-blue-950">8 tuần</strong>
+            </div>
+            <div class="bg-white rounded-xl p-2.5 border border-blue-100 text-center">
+              <span class="block text-[10px] text-gray-500 uppercase">Tổng số buổi</span>
+              <strong id="courseDetailSessions" class="text-sm text-blue-950">16 buổi</strong>
+            </div>
+            <div class="bg-white rounded-xl p-2.5 border border-blue-100 text-center">
+              <span class="block text-[10px] text-gray-500 uppercase">Thời gian / Buổi</span>
+              <strong class="text-sm text-blue-950">60 - 90 phút</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Lịch dự kiến và danh sách lớp học đang mở -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-4 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-black flex items-center gap-2">
+              <i class="fa-regular fa-calendar-check text-black"></i> 3. Lịch dự kiến & Các lớp học đang mở
+            </h4>
+            <span id="courseDetailClassCount" class="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">1 lớp</span>
+          </div>
+          <p class="text-gray-500 text-[11px]">Danh sách các lớp học hiện có của khóa học kèm lịch học dự kiến trong tuần:</p>
+
+          <div id="courseDetailClassesList" class="space-y-2 mt-2">
+            <div class="text-center py-4 text-gray-400 text-xs">Đang tải lịch các lớp học...</div>
+          </div>
+        </div>
+
+        <!-- 4. Điều kiện tham gia -->
+        <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-4">
+          <h4 class="font-bold text-amber-950 mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> 4. Điều kiện tham gia
+          </h4>
+          <p id="courseDetailTerms" class="text-amber-900 leading-relaxed font-medium">Không yêu cầu kinh nghiệm tập luyện trước đó. Cần có trang phục thể thao co giãn thoải mái.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-4 mt-2 border-t border-gray-100 text-xs">
+        <button type="button" onclick="closeModal('courseDetailModal')" class="px-4 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-semibold">
+          Đóng
+        </button>
+        <button type="button" id="btnGoRegisterCourse" onclick="proceedToCourseRegister()" class="px-5 py-2.5 bg-black hover:bg-neutral-800 text-white rounded-xl font-bold transition shadow-xs">
+          Đăng ký khóa học này
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL: ĐĂNG KÝ KHÓA HỌC TRỰC TUYẾN (USE CASE: ĐĂNG KÝ KHÓA HỌC TRỰC TUYẾN) ================= -->
+  <div id="courseRegisterModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-xl p-6 sm:p-7 shadow-2xl border border-gray-200 max-h-[92vh] flex flex-col">
+      <input type="hidden" id="regCourseId">
+
+      <div class="flex justify-between items-start mb-3 pb-3 border-b border-gray-100">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200">Đăng ký trực tuyến</span>
+          <h3 id="regCourseTitle" class="text-lg font-bold text-black mt-1.5">Đăng ký Khóa học</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Chọn lớp, kiểm tra trùng lịch và xác nhận đăng ký khóa học</p>
+        </div>
+        <button onclick="closeModal('courseRegisterModal')" class="text-gray-400 hover:text-black text-base p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs overflow-y-auto pr-1 flex-1">
+        <!-- Thông tin tóm tắt khóa học & học phí -->
+        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 flex items-center justify-between">
+          <div>
+            <p class="text-[11px] text-gray-500">Khóa học đăng ký:</p>
+            <h4 id="regSummaryCourseName" class="text-sm font-bold text-black mt-0.5">Yoga cơ bản</h4>
+            <p id="regSummaryMemberName" class="text-[11px] text-gray-600 mt-0.5">Hội viên: Võ Văn An (KH000005)</p>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-gray-500 uppercase block">Học phí</span>
+            <span id="regSummaryPrice" class="text-base font-black text-black">1.200.000 đ</span>
+          </div>
+        </div>
+
+        <!-- Cảnh báo nếu đã đăng ký khóa học này -->
+        <div id="regDuplicateCourseAlert" class="hidden bg-rose-50 border-2 border-rose-300 rounded-2xl p-4 text-rose-950">
+          <div class="flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation text-rose-600 text-base mt-0.5 shrink-0"></i>
+            <div>
+              <strong class="font-bold text-rose-900 block text-xs">ĐĂNG KÝ TRÙNG: Bạn đã đăng ký khóa học này rồi!</strong>
+              <p id="regDuplicateCourseMsg" class="mt-1 text-[11px] text-rose-800 leading-relaxed"></p>
+              <p class="mt-1 text-[10px] text-rose-600 font-medium">Hệ thống không cho phép đăng ký thêm lớp học nào khác trong cùng khóa học này.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Điều kiện tham gia và cam kết -->
+        <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-2">
+          <h4 class="font-bold text-amber-950 flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-amber-600"></i> Điều kiện tham gia khóa học:
+          </h4>
+          <p id="regCourseTermsText" class="text-amber-900 font-medium leading-relaxed bg-white/70 p-2.5 rounded-xl border border-amber-200/60">
+            Không yêu cầu kinh nghiệm trước đó.
+          </p>
+          <label class="flex items-center gap-2 cursor-pointer pt-1 text-gray-800">
+            <input type="checkbox" id="regTermsCheckbox" checked class="w-4 h-4 rounded text-black focus:ring-0">
+            <span class="font-medium text-[11px]">Tôi cam kết đáp ứng đầy đủ điều kiện sức khỏe và nội quy tham gia khóa học</span>
+          </label>
+        </div>
+
+        <!-- Chọn Lớp / Khung giờ học (Kiểm tra sức chứa & trùng lịch) -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="font-bold text-black flex items-center gap-1.5">
+              <i class="fa-regular fa-clock text-black"></i> Chọn lớp học & Khung giờ phù hợp:
+            </label>
+            <span class="text-[10px] text-gray-500 font-medium">Kiểm tra trùng lịch tự động</span>
+          </div>
+
+          <div id="regClassesRadioList" class="space-y-2.5">
+            <div class="text-center py-4 text-gray-400 text-xs">Đang tải danh sách lớp học...</div>
+          </div>
+        </div>
+
+        <!-- Cảnh báo lỗi trùng lịch học của lớp đang chọn (nếu có) -->
+        <div id="regConflictScheduleAlert" class="hidden bg-rose-50 border-2 border-rose-300 rounded-2xl p-4 text-rose-950">
+          <div class="flex items-start gap-3">
+            <i class="fa-solid fa-calendar-xmark text-rose-600 text-base mt-0.5 shrink-0"></i>
+            <div>
+              <strong class="font-bold text-rose-900 block text-xs">TRÙNG LỊCH HỌC! Không thể đăng ký lớp này</strong>
+              <p id="regConflictScheduleMsg" class="mt-1 text-[11px] text-rose-800 leading-relaxed"></p>
+              <p class="mt-1 text-[10px] text-rose-600 font-medium">Vui lòng chọn lớp học khác hoặc đổi khung giờ để tránh xung đột lịch học.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hình thức thanh toán -->
+        <div class="space-y-2 pt-1 border-t border-gray-100">
+          <label class="block font-semibold text-gray-700">Hình thức thanh toán học phí:</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <label class="flex items-center gap-2.5 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 has-checked:border-black has-checked:bg-gray-50 transition">
+              <input type="radio" name="regPaymentMethod" value="qr" checked class="text-black focus:ring-0">
+              <div>
+                <span class="font-bold block text-black">Chuyển khoản QR</span>
+                <span class="text-[10px] text-gray-500">Quét mã VietQR nhanh chóng</span>
+              </div>
+            </label>
+            <label class="flex items-center gap-2.5 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 has-checked:border-black has-checked:bg-gray-50 transition">
+              <input type="radio" name="regPaymentMethod" value="cash" class="text-black focus:ring-0">
+              <div>
+                <span class="font-bold block text-black">Tại quầy lễ tân</span>
+                <span class="text-[10px] text-gray-500">Thanh toán trực tiếp khi nhận lớp</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-4 mt-2 border-t border-gray-100 text-xs">
+        <button type="button" onclick="closeModal('courseRegisterModal')" class="px-4 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-semibold">
+          Hủy bỏ
+        </button>
+        <button type="button" id="btnConfirmRegisterCourse" onclick="confirmRegisterCourseSubmit()" class="px-5 py-2.5 bg-black hover:bg-neutral-800 text-white rounded-xl font-bold transition shadow-xs disabled:opacity-40 disabled:cursor-not-allowed">
+          Xác nhận Đăng ký
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL: ĐĂNG KÝ GÓI TẬP HỘI VIÊN ================= -->
+  <div id="planRegisterModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 shadow-2xl border border-gray-200">
+      <input type="hidden" id="regPlanId">
+
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200">Đăng ký Gói tập</span>
+          <h3 id="regPlanTitle" class="text-base font-bold text-black mt-1">Gói tập 1 tháng</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Xác nhận kích hoạt gói tập hội viên</p>
+        </div>
+        <button onclick="closeModal('planRegisterModal')" class="text-gray-400 hover:text-black text-base">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="bg-gray-50 rounded-2xl p-4 mb-4 text-xs space-y-2 border border-gray-200">
+        <p class="text-gray-500">Gói tập: <strong id="regPlanName" class="text-black text-sm">Gói 1 tháng</strong></p>
+        <p class="text-gray-500">Mức phí: <strong id="regPlanPrice" class="text-black text-sm">400.000 đ</strong></p>
+        <p class="text-gray-500">Hội viên đăng ký: <strong id="regPlanMemberName" class="text-black">Hội viên</strong></p>
+      </div>
+
+      <div class="space-y-3 text-xs mb-5">
+        <label class="block font-semibold text-gray-700">Hình thức thanh toán:</label>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 p-2.5 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
+            <input type="radio" name="regPlanPaymentMethod" value="qr" checked class="text-black focus:ring-0">
+            <span>Chuyển khoản ngân hàng trực tuyến (Mã QR)</span>
+          </label>
+          <label class="flex items-center gap-2 p-2.5 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
+            <input type="radio" name="regPlanPaymentMethod" value="cash" class="text-black focus:ring-0">
+            <span>Thanh toán trực tiếp tại quầy lễ tân</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 text-xs">
+        <button type="button" onclick="closeModal('planRegisterModal')" class="px-4 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50">
+          Đóng
+        </button>
+        <button type="button" id="btnConfirmRegisterPlan" onclick="confirmRegisterPlanSubmit()" class="px-4 py-2.5 bg-black hover:bg-gray-800 text-white rounded-xl font-semibold">
+          Xác nhận Đăng ký
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL DỰ PHÒNG CŨ ================= -->
   <div id="courseModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 shadow-2xl border border-gray-200">
       <input type="hidden" id="modalItemType">
@@ -1230,7 +1579,7 @@
               let bookBtn = '';
               if (s.is_booked_by_me) {
                 const statusText = s.my_booking_status === 1 ? 'Chờ duyệt' : s.my_booking_status === 5 ? 'Danh sách chờ' : 'Đã đăng ký';
-                bookBtn = `<button type="button" onclick="alert('Bạn đã đăng ký lớp học này (${escapeHtml(s.class_name)}) rồi! Vui lòng theo dõi trong mục Lịch học của tôi.')" class="w-full py-1.5 text-center bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-lg font-bold text-[10px] transition cursor-pointer" title="Bạn đã đăng ký lớp này"><i class="fa-solid fa-check"></i> ${statusText}</button>`;
+                bookBtn = `<button type="button" onclick="if(confirm('Bạn đã đăng ký lớp học này (${escapeHtml(s.class_name)}) rồi!\\n\\nBạn có muốn mở tab \\'Lịch học của tôi\\' để xem chi tiết không?')) switchTab('my-schedule');" class="w-full py-1.5 text-center bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-lg font-bold text-[10px] transition cursor-pointer" title="Bấm để xem lịch học của bạn"><i class="fa-solid fa-check"></i> ${statusText}</button>`;
               } else if (s.available_slots <= 0) {
                 bookBtn = `<span class="inline-block w-full py-1.5 text-center bg-gray-100 text-gray-400 rounded-lg font-bold text-[10px]">Hết chỗ</span>`;
               } else {
@@ -1311,7 +1660,7 @@
         if (s.is_booked_by_me) {
           const statusText = s.my_booking_status === 1 ? 'Đang chờ duyệt' : s.my_booking_status === 5 ? 'Danh sách chờ' : 'Bạn đã đăng ký ca này';
           actionButton = `
-            <button type="button" onclick="alert('Bạn đã đăng ký lớp học này (${escapeHtml(s.class_name)}) rồi! Vui lòng theo dõi trong mục Lịch học của tôi.')" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold shrink-0 transition cursor-pointer" title="Bạn đã đăng ký lớp này">
+            <button type="button" onclick="if(confirm('Bạn đã đăng ký lớp học này (${escapeHtml(s.class_name)}) rồi!\\n\\nBạn có muốn mở tab \\'Lịch học của tôi\\' để xem chi tiết không?')) switchTab('my-schedule');" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold shrink-0 transition cursor-pointer" title="Bấm để xem lịch học của bạn">
               <i class="fa-solid fa-circle-check"></i> ${statusText}
             </button>
           `;
@@ -1414,6 +1763,104 @@
       }
     }
 
+    let currentScheduleWeekOffset = 0;
+    function changeScheduleWeek(delta) {
+      currentScheduleWeekOffset += delta;
+      const weekLabel = document.getElementById('customerScheduleWeekLabel');
+      const totalBadge = document.getElementById('customerScheduleTotalBadge');
+
+      const now = new Date();
+      now.setDate(now.getDate() + (currentScheduleWeekOffset * 7));
+      const day = now.getDay() || 7;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - day + 1);
+      monday.setHours(0, 0, 0, 0);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+
+      const d1Str = `${monday.getDate()}/${monday.getMonth() + 1}`;
+      const d2Str = `${sunday.getDate()}/${sunday.getMonth() + 1}/${sunday.getFullYear()}`;
+      if (weekLabel) {
+        weekLabel.textContent = (currentScheduleWeekOffset === 0)
+          ? `Tuần này (${d1Str} – ${d2Str})`
+          : `Tuần ${d1Str} – ${d2Str}`;
+      }
+
+      if (currentScheduleWeekOffset === 0) {
+        renderPublishedScheduleList();
+        if (totalBadge) totalBadge.textContent = `${publishedSessionsCache.length} ca học`;
+      } else {
+        const weekFiltered = publishedSessionsCache.filter(s => {
+          const sDate = new Date(s.starts_at || s.session_date);
+          return sDate >= monday && sDate <= sunday;
+        });
+        if (totalBadge) totalBadge.textContent = `${weekFiltered.length} ca học`;
+        const listEl = document.getElementById('publishedScheduleList');
+        if (listEl) {
+          if (weekFiltered.length === 0) {
+            listEl.innerHTML = `
+              <div class="bg-white border border-gray-200 rounded-2xl p-10 text-center text-gray-400 text-xs space-y-2">
+                <i class="fa-regular fa-calendar-xmark text-3xl text-gray-300 block mb-1"></i>
+                <p class="font-bold text-gray-700">Không có ca học nào trong tuần ${d1Str} – ${d2Str}</p>
+                <p class="text-[11px] text-gray-400">Vui lòng bấm tuần tiếp theo hoặc quay về tuần hiện tại để đăng ký ca học.</p>
+                <button onclick="changeScheduleWeek(${-currentScheduleWeekOffset})" class="mt-2 px-3 py-1.5 bg-black text-white text-[11px] font-bold rounded-xl hover:bg-neutral-800 transition shadow-2xs cursor-pointer">
+                  Quay về tuần này
+                </button>
+              </div>
+            `;
+          } else {
+            listEl.innerHTML = weekFiltered.map(s => {
+              let actionButton = '';
+              if (s.is_booked_by_me) {
+                const statusText = s.my_booking_status === 1 ? 'Đang chờ duyệt' : s.my_booking_status === 5 ? 'Danh sách chờ' : 'Bạn đã đăng ký ca này';
+                actionButton = `
+                  <button type="button" onclick="if(confirm('Bạn đã đăng ký lớp học này (${escapeHtml(s.class_name)}) rồi!\\n\\nBạn có muốn mở tab \\'Lịch học của tôi\\' để xem chi tiết không?')) switchTab('my-schedule');" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold shrink-0 transition cursor-pointer" title="Bấm để xem lịch học của bạn">
+                    <i class="fa-solid fa-circle-check"></i> ${statusText}
+                  </button>
+                `;
+              } else if (s.available_slots <= 0) {
+                actionButton = `
+                  <span class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gray-100 text-gray-400 border border-gray-200 text-xs font-semibold cursor-not-allowed shrink-0">
+                    Đã đủ học viên
+                  </span>
+                `;
+              } else {
+                actionButton = `
+                  <button onclick="registerSessionBooking(${s.session_id}, '${escapeHtml(s.class_name)}')" class="px-5 py-2.5 rounded-xl bg-black hover:bg-neutral-800 text-white text-xs font-bold transition shrink-0 active:scale-95 shadow-sm hover:shadow flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-calendar-check text-[11px]"></i> Đăng ký ca
+                  </button>
+                `;
+              }
+
+              return `
+                <div class="bg-white border border-gray-200 hover:border-black rounded-2xl p-4 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition">
+                  <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-black text-white font-black text-xs flex flex-col items-center justify-center shrink-0 shadow-2xs">
+                      <span>${s.start_time || formatTime(s.starts_at)}</span>
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-sm text-black">${escapeHtml(s.class_name)}</h4>
+                      <p class="text-[11px] text-gray-500 mt-0.5">
+                        <i class="fa-solid fa-door-open text-gray-400 mr-0.5"></i> ${escapeHtml(s.room_name)} · 
+                        <i class="fa-regular fa-user text-gray-400 ml-1.5 mr-0.5"></i> ${escapeHtml(s.trainer_name || 'FitCenter')} · 
+                        <span class="${s.available_slots > 0 ? 'text-emerald-600 font-semibold' : 'text-red-500'} font-medium ml-1.5">
+                          ${s.available_slots > 0 ? 'Còn ' + s.available_slots + ' chỗ' : 'Đã đủ người'}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="shrink-0 flex items-center justify-end sm:justify-start pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
+                    ${actionButton}
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+      }
+    }
+
     // Đăng ký giữ chỗ
     async function registerSessionBooking(sessionId, className) {
       const user = getStoredUser();
@@ -1476,11 +1923,16 @@
     }
 
     // ==============================================================
-    // 4. TẢI GÓI TẬP & KHÓA HỌC (TAB 4)
+    // 4. TẢI GÓI TẬP & KHÓA HỌC (TAB 4: XEM CHI TIẾT & ĐĂNG KÝ TRỰC TUYẾN)
     // ==============================================================
+    let catalogPlansCache = [];
+    let catalogCoursesCache = [];
+    let catalogSpecialtiesCache = [];
+    let currentCatalogTypeFilter = 'all'; // 'all' | 'plan' | 'course'
+    let currentSelectedPlanDetail = null;
+    let currentSelectedCourseDetail = null;
+
     async function loadCoursesAndPlans() {
-      const plansContainer = document.getElementById('membershipPlansGrid');
-      const coursesContainer = document.getElementById('coursesGrid');
       const user = getStoredUser();
 
       try {
@@ -1488,146 +1940,689 @@
         const result = await res.json();
         if (!result.success) return;
 
-        const { plans, courses } = result.data;
+        const { plans, courses, specialties } = result.data;
+        catalogPlansCache = plans || [];
+        catalogCoursesCache = courses || [];
+        catalogSpecialtiesCache = specialties || [];
 
-        // Render Gói tập
-        plansContainer.innerHTML = plans.map(p => `
-          <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:border-black transition">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Gói tập hội viên</span>
-              <h3 class="text-lg font-bold text-black mt-1">${escapeHtml(p.name)}</h3>
-              <p class="text-xs text-gray-500 mt-1 mb-4">${escapeHtml(p.description || 'Quyền lợi tập luyện không giới hạn')}</p>
-              <div class="mb-4">
-                <span class="text-2xl font-black text-black">${formatVND(p.price_vnd)}</span>
-                <span class="text-xs text-gray-500">/ ${p.duration_months} tháng</span>
-              </div>
-              <ul class="space-y-2 text-xs text-gray-600 border-t border-gray-100 pt-4">
-                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-black text-[11px]"></i> Tập mọi cơ sở trong ${p.duration_months} tháng</li>
-                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-black text-[11px]"></i> Tủ đồ locker và phòng tắm nước nóng</li>
-                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-black text-[11px]"></i> Miễn phí đo InBody phân tích cơ thể</li>
-              </ul>
-            </div>
-            <button onclick="openItemRegisterModal('plan', ${p.id}, '${escapeHtml(p.name)}', '${formatVND(p.price_vnd)}')" class="w-full mt-6 py-2.5 rounded-xl border border-black bg-white hover:bg-black hover:text-white text-xs font-semibold transition active:scale-95 shadow-sm">
-              Đăng ký gói này
-            </button>
-          </div>
-        `).join('');
+        // Cập nhật dropdown chuyên môn
+        const specSelect = document.getElementById('catalogSpecialtyFilter');
+        if (specSelect) {
+          const currentVal = specSelect.value || 'all';
+          specSelect.innerHTML = '<option value="all">Tất cả chuyên môn</option>' +
+            catalogSpecialtiesCache.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+          specSelect.value = currentVal;
+        }
 
-        // Render Khóa học
-        coursesContainer.innerHTML = courses.map(c => {
-          let btnHtml = '';
-          if (c.my_reg_status === 1) {
-            btnHtml = `
-              <button type="button" onclick="alert('Bạn đã đăng ký khóa học này (${escapeHtml(c.my_enrolled_class || '')}) rồi! Đơn đăng ký đang chờ duyệt tại quầy lễ tân.')" class="w-full mt-6 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold transition shadow-2xs flex items-center justify-center gap-2 cursor-pointer">
-                <i class="fa-solid fa-clock"></i> Đang chờ duyệt
-              </button>
-            `;
-          } else if (c.my_reg_status === 2) {
-            btnHtml = `
-              <button type="button" onclick="alert('Bạn đã đăng ký và đang theo học lớp (${escapeHtml(c.my_enrolled_class || '')}) của khóa học này! Vui lòng theo dõi trong mục Lịch học của tôi.')" class="w-full mt-6 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition shadow-2xs flex items-center justify-center gap-2 cursor-pointer">
-                <i class="fa-solid fa-circle-check"></i> Đang theo học
-              </button>
-            `;
-          } else if (c.my_reg_status === 5) {
-            btnHtml = `
-              <button type="button" onclick="alert('Bạn đã đăng ký và đang nằm trong Danh sách chờ của khóa học này!')" class="w-full mt-6 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 text-xs font-bold transition shadow-2xs flex items-center justify-center gap-2 cursor-pointer">
-                <i class="fa-solid fa-list-ol"></i> Danh sách chờ
-              </button>
-            `;
-          } else {
-            btnHtml = `
-              <button onclick="openItemRegisterModal('course', ${c.id}, '${escapeHtml(c.name)}', '${formatVND(c.price_vnd)}')" class="w-full mt-6 py-2.5 rounded-xl bg-black text-white hover:bg-neutral-800 text-xs font-semibold transition active:scale-95 shadow-sm">
-                Đăng ký khóa học
-              </button>
-            `;
-          }
-
-          const badgeStatus = c.my_reg_status === 1 
-            ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">Chờ duyệt</span>'
-            : c.my_reg_status === 2
-            ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Đang học</span>'
-            : c.my_reg_status === 5
-            ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">Chờ xếp lớp</span>'
-            : '';
-
-          return `
-            <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:border-black transition">
-              <div>
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 font-mono">${escapeHtml(c.code)}</span>
-                  ${badgeStatus}
-                </div>
-                <h3 class="text-lg font-bold text-black mt-1">${escapeHtml(c.name)}</h3>
-                <p class="text-xs text-gray-500 mt-1 mb-4">${escapeHtml(c.description || 'Khóa đào tạo chuyên sâu cùng HLV chuyên nghiệp')}</p>
-                <div class="mb-4">
-                  <span class="text-2xl font-black text-black">${formatVND(c.price_vnd)}</span>
-                  <span class="text-xs text-gray-500">/ trọn khóa</span>
-                </div>
-                <ul class="space-y-2 text-xs text-gray-600 border-t border-gray-100 pt-4">
-                  <li class="flex items-center gap-2"><i class="fa-solid fa-check text-black text-[11px]"></i> HLV theo sát kỹ thuật và giáo án</li>
-                  <li class="flex items-center gap-2"><i class="fa-solid fa-check text-black text-[11px]"></i> Lộ trình cá nhân hóa theo mục tiêu</li>
-                </ul>
-              </div>
-              ${btnHtml}
-            </div>
-          `;
-        }).join('');
+        renderCatalog();
 
       } catch (err) {
         console.error('Lỗi load courses and plans:', err);
       }
     }
 
-    // Modal Đăng ký Gói hoặc Khóa học
-    function openItemRegisterModal(type, id, name, price) {
-      const user = getStoredUser();
-      document.getElementById('modalItemType').value = type;
-      document.getElementById('modalItemId').value = id;
-      document.getElementById('modalCourseName').innerText = name;
-      document.getElementById('modalCoursePrice').innerText = price;
-      document.getElementById('modalMemberName').innerText = `${user.fullName} (${user.memberCode || 'KH'})`;
-      document.getElementById('modalRegisterTitle').innerText = type === 'plan' ? 'Đăng ký Gói tập Hội viên' : 'Đăng ký Khóa học';
-      openModal('courseModal');
+    function setCatalogTypeFilter(type) {
+      currentCatalogTypeFilter = type;
+      // Cập nhật style nút bộ lọc
+      const buttons = {
+        all: document.getElementById('catFilterAll'),
+        plan: document.getElementById('catFilterPlan'),
+        course: document.getElementById('catFilterCourse')
+      };
+      Object.keys(buttons).forEach(k => {
+        if (!buttons[k]) return;
+        if (k === type) {
+          buttons[k].className = 'catalog-type-btn px-3.5 py-1.5 rounded-lg bg-white text-black font-bold shadow-2xs transition';
+        } else {
+          buttons[k].className = 'catalog-type-btn px-3.5 py-1.5 rounded-lg text-gray-600 hover:text-black transition';
+        }
+      });
+      renderCatalog();
     }
 
-    async function confirmRegisterItem() {
-      const user = getStoredUser();
-      const type = document.getElementById('modalItemType').value;
-      const id = document.getElementById('modalItemId').value;
-      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'qr';
+    function clearCatalogSearch() {
+      const input = document.getElementById('catalogSearchInput');
+      if (input) input.value = '';
+      const clearBtn = document.getElementById('catalogSearchClearBtn');
+      if (clearBtn) clearBtn.classList.add('hidden');
+      renderCatalog();
+    }
 
-      const btn = document.getElementById('btnConfirmRegisterItem');
+    function handleCatalogFilter() {
+      const searchInput = document.getElementById('catalogSearchInput');
+      const clearBtn = document.getElementById('catalogSearchClearBtn');
+      if (clearBtn) {
+        if (searchInput && searchInput.value.trim().length > 0) {
+          clearBtn.classList.remove('hidden');
+        } else {
+          clearBtn.classList.add('hidden');
+        }
+      }
+      renderCatalog();
+    }
+
+    function renderCatalog() {
+      const plansContainer = document.getElementById('membershipPlansGrid');
+      const coursesContainer = document.getElementById('coursesGrid');
+      const plansSection = document.getElementById('plansSection');
+      const coursesSection = document.getElementById('coursesSection');
+      const countLabel = document.getElementById('catalogCountLabel');
+
+      const searchInput = document.getElementById('catalogSearchInput');
+      const keyword = (searchInput ? searchInput.value : '').trim().toLowerCase();
+      const specSelect = document.getElementById('catalogSpecialtyFilter');
+      const selectedSpecialty = specSelect ? specSelect.value : 'all';
+
+      // 1. Lọc gói tập
+      let filteredPlans = catalogPlansCache.filter(p => {
+        if (keyword) {
+          const matchName = (p.name || '').toLowerCase().includes(keyword);
+          const matchDesc = (p.description || '').toLowerCase().includes(keyword);
+          if (!matchName && !matchDesc) return false;
+        }
+        return true;
+      });
+
+      // 2. Lọc khóa học
+      let filteredCourses = catalogCoursesCache.filter(c => {
+        if (selectedSpecialty !== 'all' && String(c.specialty_id) !== String(selectedSpecialty)) {
+          return false;
+        }
+        if (keyword) {
+          const matchName = (c.name || '').toLowerCase().includes(keyword);
+          const matchDesc = (c.description || '').toLowerCase().includes(keyword);
+          const matchCode = (c.code || '').toLowerCase().includes(keyword);
+          const matchSpec = (c.specialty_name || '').toLowerCase().includes(keyword);
+          if (!matchName && !matchDesc && !matchCode && !matchSpec) return false;
+        }
+        return true;
+      });
+
+      // Ẩn/hiện section theo loại
+      if (currentCatalogTypeFilter === 'plan') {
+        if (plansSection) plansSection.classList.remove('hidden');
+        if (coursesSection) coursesSection.classList.add('hidden');
+      } else if (currentCatalogTypeFilter === 'course') {
+        if (plansSection) plansSection.classList.add('hidden');
+        if (coursesSection) coursesSection.classList.remove('hidden');
+      } else {
+        if (plansSection) plansSection.classList.remove('hidden');
+        if (coursesSection) coursesSection.classList.remove('hidden');
+      }
+
+      // Đếm kết quả
+      if (countLabel) {
+        if (currentCatalogTypeFilter === 'plan') {
+          countLabel.innerText = `Tìm thấy ${filteredPlans.length} gói tập hội viên`;
+        } else if (currentCatalogTypeFilter === 'course') {
+          countLabel.innerText = `Tìm thấy ${filteredCourses.length} khóa học đào tạo`;
+        } else {
+          countLabel.innerText = `Hiển thị ${filteredPlans.length} gói tập và ${filteredCourses.length} khóa học đang hoạt động`;
+        }
+      }
+
+      // Render danh sách gói tập
+      if (plansContainer) {
+        if (filteredPlans.length === 0) {
+          plansContainer.innerHTML = '<div class="col-span-3 text-center py-8 text-gray-400 text-xs">Không có gói tập nào phù hợp với bộ lọc.</div>';
+        } else {
+          plansContainer.innerHTML = filteredPlans.map(p => `
+            <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:border-black transition group">
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">Gói tập hội viên</span>
+                  <span class="text-[11px] text-gray-400 font-mono"><i class="fa-regular fa-clock mr-1"></i>${p.duration_days} ngày</span>
+                </div>
+                <h3 class="text-lg font-bold text-black mt-1 group-hover:text-purple-700 transition">${escapeHtml(p.name)}</h3>
+                <p class="text-xs text-gray-500 mt-1 mb-4 line-clamp-2">${escapeHtml(p.description || 'Quyền lợi tập luyện không giới hạn trang thiết bị')}</p>
+                <div class="mb-4">
+                  <span class="text-2xl font-black text-black">${formatVND(p.price_vnd)}</span>
+                  <span class="text-xs text-gray-500 font-normal">/ ${p.duration_months} tháng</span>
+                </div>
+                <div class="space-y-2 text-xs text-gray-600 border-t border-gray-100 pt-3.5 mb-2">
+                  <p class="flex items-center gap-2"><i class="fa-solid fa-check text-black text-[11px]"></i> Tập luyện mọi chi nhánh trung tâm</p>
+                  <p class="flex items-center gap-2"><i class="fa-solid fa-check text-black text-[11px]"></i> Miễn phí tủ locker & phòng tắm nóng</p>
+                  <p class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-amber-600 text-[11px]"></i> <strong>ĐK:</strong> ${escapeHtml(p.terms || 'Từ 16 tuổi trở lên')}</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 mt-5 pt-3 border-t border-gray-100">
+                <button onclick="openPlanDetailModal(${p.id})" class="w-full py-2.5 rounded-xl border border-gray-300 bg-gray-50 hover:bg-gray-100 text-black text-xs font-semibold transition active:scale-95 flex items-center justify-center gap-1.5">
+                  <i class="fa-regular fa-eye text-gray-500"></i> Xem chi tiết
+                </button>
+                <button onclick="openPlanRegisterModal(${p.id}, '${escapeHtml(p.name)}', '${formatVND(p.price_vnd)}')" class="w-full py-2.5 rounded-xl bg-black hover:bg-neutral-800 text-white text-xs font-semibold transition active:scale-95 shadow-2xs flex items-center justify-center gap-1.5">
+                  <i class="fa-solid fa-credit-card"></i> Đăng ký
+                </button>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Render danh sách khóa học
+      if (coursesContainer) {
+        if (filteredCourses.length === 0) {
+          coursesContainer.innerHTML = '<div class="col-span-3 text-center py-8 text-gray-400 text-xs">Không có khóa học nào phù hợp với bộ lọc tìm kiếm.</div>';
+        } else {
+          coursesContainer.innerHTML = filteredCourses.map(c => {
+            let regBtnHtml = '';
+
+            if (c.my_reg_status === 1) {
+              regBtnHtml = `
+                <button type="button" onclick="if(confirm('Bạn đã đăng ký khóa học này rồi (Lớp: \"${escapeHtml(c.my_enrolled_class || '')}\").\\nTrạng thái: Đang chờ duyệt tại quầy lễ tân.\\n\\nBạn có muốn mở tab \\'Lịch học của tôi\\' để theo dõi không?')) switchTab('my-schedule');" class="w-full py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer">
+                  <i class="fa-solid fa-clock"></i> Đang chờ duyệt
+                </button>
+              `;
+            } else if (c.my_reg_status === 2) {
+              regBtnHtml = `
+                <button type="button" onclick="if(confirm('Bạn đã đăng ký và đang theo học lớp \"${escapeHtml(c.my_enrolled_class || '')}\" của khóa học này!\\n\\nBạn có muốn mở tab \\'Lịch học của tôi\\' để xem chi tiết lịch học không?')) switchTab('my-schedule');" class="w-full py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer">
+                  <i class="fa-solid fa-circle-check"></i> Đang theo học
+                </button>
+              `;
+            } else if (c.my_reg_status === 5) {
+              regBtnHtml = `
+                <button type="button" onclick="if(confirm('Bạn đã đăng ký và đang nằm trong Danh sách chờ của khóa học này!\\n\\nBạn có muốn mở tab \\'Lịch học của tôi\\' để kiểm tra không?')) switchTab('my-schedule');" class="w-full py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer">
+                  <i class="fa-solid fa-list-ol"></i> Danh sách chờ
+                </button>
+              `;
+            } else {
+              regBtnHtml = `
+                <button onclick="openCourseRegisterModal(${c.id})" class="w-full py-2.5 rounded-xl bg-black hover:bg-neutral-800 text-white text-xs font-bold transition active:scale-95 shadow-2xs flex items-center justify-center gap-1.5">
+                  <i class="fa-solid fa-arrow-right"></i> Đăng ký học
+                </button>
+              `;
+            }
+
+            const badgeStatus = c.my_reg_status === 1 
+              ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">Chờ duyệt</span>'
+              : c.my_reg_status === 2
+              ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Đang học</span>'
+              : c.my_reg_status === 5
+              ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">Chờ xếp lớp</span>'
+              : `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">${c.class_count || 1} lớp đang mở</span>`;
+
+            return `
+              <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:border-black transition group">
+                <div>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[10px] font-bold uppercase tracking-wider text-purple-600 font-mono bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">${escapeHtml(c.code)}</span>
+                      <span class="text-[10px] font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">${escapeHtml(c.specialty_name || 'Thể hình')}</span>
+                    </div>
+                    ${badgeStatus}
+                  </div>
+                  <h3 class="text-lg font-bold text-black mt-1 group-hover:text-purple-700 transition">${escapeHtml(c.name)}</h3>
+                  <p class="text-xs text-gray-500 mt-1 mb-3 line-clamp-2">${escapeHtml(c.description || 'Khóa đào tạo chuyên sâu cùng HLV chuyên nghiệp')}</p>
+
+                  <div class="mb-4">
+                    <span class="text-2xl font-black text-black">${formatVND(c.price_vnd)}</span>
+                    <span class="text-xs text-gray-500 font-normal">/ trọn khóa</span>
+                  </div>
+
+                  <div class="space-y-1.5 text-xs text-gray-600 border-t border-gray-100 pt-3.5 mb-2">
+                    <p class="flex items-center gap-2"><i class="fa-regular fa-clock text-blue-600 text-[11px]"></i> <strong>Thời lượng:</strong> ${c.duration_weeks} tuần (${c.total_sessions} buổi)</p>
+                    <p class="flex items-center gap-2 text-amber-800 bg-amber-50/60 p-1.5 rounded-lg border border-amber-200/50">
+                      <i class="fa-solid fa-shield-halved text-amber-600 text-[11px] shrink-0"></i>
+                      <span class="truncate"><strong>Điều kiện:</strong> ${escapeHtml(c.terms || 'Không yêu cầu kinh nghiệm')}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mt-5 pt-3 border-t border-gray-100">
+                  <button onclick="openCourseDetailModal(${c.id})" class="w-full py-2.5 rounded-xl border border-gray-300 bg-gray-50 hover:bg-gray-100 text-black text-xs font-semibold transition active:scale-95 flex items-center justify-center gap-1.5">
+                    <i class="fa-regular fa-calendar-check text-gray-500"></i> Xem chi tiết
+                  </button>
+                  ${regBtnHtml}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+    }
+
+    // ==============================================================
+    // LUỒNG 1: XEM CHI TIẾT GÓI TẬP & KHÓA HỌC (USE CASE 1)
+    // ==============================================================
+    async function openPlanDetailModal(planId) {
+      try {
+        const res = await fetch(`${API_BASE}/api/customer/plan-detail?planId=${planId}`);
+        const result = await res.json();
+        if (!result.success || !result.data) {
+          alert('Không thể tải chi tiết gói tập: ' + (result.message || 'Lỗi không xác định'));
+          return;
+        }
+
+        const plan = result.data;
+        currentSelectedPlanDetail = plan;
+
+        document.getElementById('planDetailName').innerText = plan.name;
+        document.getElementById('planDetailPrice').innerText = formatVND(plan.price_vnd) + ` (${plan.duration_months} tháng)`;
+        document.getElementById('planDetailDesc').innerText = plan.description || 'Tập luyện không giới hạn khung giờ và máy móc tại trung tâm.';
+        document.getElementById('planDetailDuration').innerText = `${plan.duration_days} ngày (${plan.duration_months} tháng) tính từ thời điểm kích hoạt tại quầy hoặc gia hạn nối tiếp.`;
+        document.getElementById('planDetailTerms').innerText = plan.terms || 'Từ 16 tuổi trở lên, có đủ sức khỏe tham gia vận động thể lực theo nội quy FitCenter.';
+
+        openModal('planDetailModal');
+      } catch (e) {
+        console.error('Lỗi xem chi tiết gói tập:', e);
+        alert('Lỗi kết nối máy chủ khi xem chi tiết gói tập!');
+      }
+    }
+
+    function proceedToPlanRegister() {
+      closeModal('planDetailModal');
+      if (currentSelectedPlanDetail) {
+        openPlanRegisterModal(currentSelectedPlanDetail.id, currentSelectedPlanDetail.name, formatVND(currentSelectedPlanDetail.price_vnd));
+      }
+    }
+
+    async function openCourseDetailModal(courseId) {
+      const user = getStoredUser();
+      try {
+        const res = await fetch(`${API_BASE}/api/customer/course-detail?courseId=${courseId}&memberId=${user.id}`);
+        const result = await res.json();
+        if (!result.success || !result.data) {
+          alert('Không thể tải thông tin chi tiết khóa học: ' + (result.message || 'Lỗi không xác định'));
+          return;
+        }
+
+        const { course, classes } = result.data;
+        currentSelectedCourseDetail = result.data;
+
+        document.getElementById('courseDetailCode').innerText = course.code;
+        document.getElementById('courseDetailSpecialty').innerText = course.specialty_name || 'Khóa học thể hình';
+        document.getElementById('courseDetailName').innerText = course.name;
+        document.getElementById('courseDetailPrice').innerHTML = `${formatVND(course.price_vnd)} <span class="text-xs text-gray-500 font-normal">/ trọn khóa</span>`;
+
+        // 1. Nội dung
+        document.getElementById('courseDetailDesc').innerText = course.description || 'Khóa đào tạo chuyên sâu được hướng dẫn bởi đội ngũ Huấn luyện viên thể hình chuyên nghiệp.';
+
+        // 2. Thời lượng
+        document.getElementById('courseDetailWeeks').innerText = `${course.duration_weeks} tuần`;
+        document.getElementById('courseDetailSessions').innerText = `${course.total_sessions} buổi`;
+
+        // 3. Điều kiện tham gia
+        document.getElementById('courseDetailTerms').innerText = course.terms || 'Không yêu cầu kinh nghiệm trước đó. Học viên cần chuẩn bị trang phục thể thao thoải mái và tuân thủ giáo án huấn luyện.';
+
+        // 4. Lịch dự kiến & Các lớp đang mở
+        document.getElementById('courseDetailClassCount').innerText = `${classes.length} lớp đang mở`;
+        const classesListEl = document.getElementById('courseDetailClassesList');
+
+        if (classes.length === 0) {
+          classesListEl.innerHTML = '<div class="text-center py-4 text-gray-400 text-xs">Hiện tại chưa có lớp nào mở đăng ký cho khóa học này.</div>';
+        } else {
+          classesListEl.innerHTML = classes.map(c => {
+            let conflictBadge = '';
+            if (c.conflict && c.conflict.hasConflict) {
+              if (c.conflict.type === 'ALREADY_REGISTERED') {
+                conflictBadge = `<span class="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200">Đã đăng ký</span>`;
+              } else if (c.conflict.type === 'TIME_OVERLAP') {
+                conflictBadge = `<span class="text-[10px] font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded-full border border-rose-200">⚠️ Trùng lịch với ${escapeHtml(c.conflict.conflictingClass || 'lớp khác')}</span>`;
+              }
+            }
+
+            const slotColor = c.available_slots > 0 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-rose-700 bg-rose-50 border-rose-200';
+            const slotText = c.available_slots > 0 ? `Còn ${c.available_slots} / ${c.capacity} chỗ` : 'Hết chỗ (Chờ)';
+
+            return `
+              <div class="bg-gray-50/80 border border-gray-200 rounded-xl p-3.5 space-y-1.5 hover:border-black transition">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-black text-xs">${escapeHtml(c.class_name)}</span>
+                    <span class="text-[10px] font-mono text-gray-500 bg-white px-1.5 py-0.5 rounded border border-gray-200">${escapeHtml(c.class_code)}</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${slotColor}">${slotText}</span>
+                    ${conflictBadge}
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-gray-600 pt-1">
+                  <div>
+                    <i class="fa-regular fa-clock text-gray-400 mr-1"></i>
+                    <strong>Lịch học:</strong> ${escapeHtml(c.schedule_summary || 'Theo thông báo')}
+                  </div>
+                  <div>
+                    <i class="fa-solid fa-door-open text-gray-400 mr-1"></i>
+                    <strong>Phòng:</strong> ${escapeHtml(c.room_name || 'Phòng tập A')} | <strong>HLV:</strong> ${escapeHtml(c.trainer_name || 'FitCenter')}
+                  </div>
+                </div>
+
+                ${c.conflict?.hasConflict && c.conflict.type === 'TIME_OVERLAP' ? `
+                  <div class="text-[10px] text-rose-700 bg-rose-50 p-2 rounded-lg border border-rose-200 mt-1">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> ${escapeHtml(c.conflict.message)}
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          }).join('');
+        }
+
+        // Cập nhật nút đăng ký trong modal chi tiết
+        const btnReg = document.getElementById('btnGoRegisterCourse');
+        if (btnReg) {
+          if (course.my_reg_status) {
+            btnReg.disabled = true;
+            btnReg.className = 'px-5 py-2.5 bg-gray-200 text-gray-500 rounded-xl font-bold cursor-not-allowed';
+            btnReg.innerText = 'Đã đăng ký khóa học này';
+          } else {
+            btnReg.disabled = false;
+            btnReg.className = 'px-5 py-2.5 bg-black hover:bg-neutral-800 text-white rounded-xl font-bold transition shadow-xs';
+            btnReg.innerText = 'Đăng ký khóa học này';
+          }
+        }
+
+        openModal('courseDetailModal');
+
+      } catch (e) {
+        console.error('Lỗi xem chi tiết khóa học:', e);
+        alert('Lỗi kết nối máy chủ khi xem chi tiết khóa học!');
+      }
+    }
+
+    function proceedToCourseRegister() {
+      closeModal('courseDetailModal');
+      if (currentSelectedCourseDetail) {
+        openCourseRegisterModal(currentSelectedCourseDetail.course.id);
+      }
+    }
+
+    // ==============================================================
+    // LUỒNG 2: ĐĂNG KÝ KHÓA HỌC TRỰC TUYẾN & XỬ LÝ TRÙNG LỊCH (USE CASE 2)
+    // ==============================================================
+    async function openCourseRegisterModal(courseId) {
+      const user = getStoredUser();
+      try {
+        const res = await fetch(`${API_BASE}/api/customer/course-detail?courseId=${courseId}&memberId=${user.id}`);
+        const result = await res.json();
+        if (!result.success || !result.data) {
+          alert('Không thể tải thông tin đăng ký: ' + (result.message || 'Lỗi không xác định'));
+          return;
+        }
+
+        const { course, classes } = result.data;
+        currentSelectedCourseDetail = result.data;
+
+        document.getElementById('regCourseId').value = course.id;
+        document.getElementById('regCourseTitle').innerText = `Đăng ký Khóa học: ${course.name}`;
+        document.getElementById('regSummaryCourseName').innerText = `${course.name} (${course.code})`;
+        document.getElementById('regSummaryPrice').innerText = formatVND(course.price_vnd);
+        document.getElementById('regSummaryMemberName').innerText = `Hội viên: ${user.fullName} (${user.memberCode || 'KH'})`;
+        document.getElementById('regCourseTermsText').innerText = course.terms || 'Không yêu cầu kinh nghiệm trước đó. Cần có trang phục thể thao thoải mái và tuân thủ lịch học.';
+
+        const duplicateAlert = document.getElementById('regDuplicateCourseAlert');
+        const duplicateMsg = document.getElementById('regDuplicateCourseMsg');
+        const confirmBtn = document.getElementById('btnConfirmRegisterCourse');
+
+        // 1. Kiểm tra nếu đã đăng ký khóa học này rồi -> Thông báo trùng và KHÔNG CHO ĐĂNG KÝ
+        if (course.my_reg_status) {
+          const stText = course.my_reg_status === 1 ? 'Chờ duyệt' : course.my_reg_status === 2 ? 'Đang theo học' : 'Danh sách chờ';
+          duplicateAlert.classList.remove('hidden');
+          duplicateMsg.innerText = `Bạn đã có đăng ký khóa học này tại lớp "${course.my_enrolled_class || 'Lớp đã chọn'}" (Trạng thái: ${stText}). Mỗi hội viên chỉ đăng ký 1 lớp trong cùng khóa học!`;
+          confirmBtn.disabled = true;
+          confirmBtn.title = 'Bạn đã đăng ký khóa học này rồi!';
+        } else {
+          duplicateAlert.classList.add('hidden');
+          confirmBtn.disabled = false;
+        }
+
+        // 2. Render danh sách các lớp học / khung giờ
+        const radioList = document.getElementById('regClassesRadioList');
+        if (classes.length === 0) {
+          radioList.innerHTML = '<div class="text-center py-4 text-gray-400 text-xs">Khóa học này hiện chưa mở lớp nào. Vui lòng quay lại sau!</div>';
+          confirmBtn.disabled = true;
+        } else {
+          let hasAvailableSelectableClass = false;
+          let firstSelectableId = null;
+
+          radioList.innerHTML = classes.map((c, index) => {
+            const hasConflict = c.conflict && c.conflict.hasConflict;
+            const isFull = (c.available_slots <= 0);
+            const slotColor = isFull ? 'text-rose-700 bg-rose-50 border-rose-200' : 'text-emerald-700 bg-emerald-50 border-emerald-200';
+            const slotText = isFull ? 'Hết chỗ (Chờ)' : `Còn ${c.available_slots} / ${c.capacity} chỗ`;
+
+            let disabledAttr = '';
+            let conflictNoticeHtml = '';
+
+            if (hasConflict) {
+              disabledAttr = 'disabled';
+              conflictNoticeHtml = `
+                <div class="mt-2 text-[10px] text-rose-800 bg-rose-50 p-2 rounded-lg border border-rose-200 flex items-start gap-1.5">
+                  <i class="fa-solid fa-circle-exclamation text-rose-600 mt-0.5 shrink-0"></i>
+                  <span><strong>${c.conflict.type === 'TIME_OVERLAP' ? 'Trùng lịch học:' : 'Đã đăng ký:'}</strong> ${escapeHtml(c.conflict.message)}</span>
+                </div>
+              `;
+            } else if (!hasAvailableSelectableClass) {
+              hasAvailableSelectableClass = true;
+              firstSelectableId = c.class_id;
+            }
+
+            return `
+              <label class="block border ${hasConflict ? 'border-rose-200 bg-rose-50/30 opacity-75' : 'border-gray-200 hover:border-black bg-white'} rounded-2xl p-3.5 cursor-pointer transition relative">
+                <div class="flex items-start gap-3">
+                  <input 
+                    type="radio" 
+                    name="selectedClassId" 
+                    value="${c.class_id}" 
+                    data-has-conflict="${hasConflict ? '1' : '0'}"
+                    data-conflict-msg="${hasConflict ? escapeHtml(c.conflict.message) : ''}"
+                    onchange="onSelectClassRadio()"
+                    ${disabledAttr}
+                    class="mt-1 text-black focus:ring-0 disabled:opacity-40"
+                  >
+                  <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                      <strong class="text-xs text-black">${escapeHtml(c.class_name)}</strong>
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${slotColor}">${slotText}</span>
+                        ${hasConflict ? '<span class="text-[10px] font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full">Không thể chọn</span>' : ''}
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-gray-600 mt-1">
+                      <div>
+                        <i class="fa-regular fa-clock text-gray-400 mr-1"></i>
+                        <span>${escapeHtml(c.schedule_summary || 'Lịch theo thông báo')}</span>
+                      </div>
+                      <div>
+                        <i class="fa-solid fa-door-open text-gray-400 mr-1"></i>
+                        <span>${escapeHtml(c.room_name)} · HLV: ${escapeHtml(c.trainer_name)}</span>
+                      </div>
+                    </div>
+
+                    ${conflictNoticeHtml}
+                  </div>
+                </div>
+              </label>
+            `;
+          }).join('');
+
+          // Tự động chọn lớp đầu tiên không bị trùng lịch
+          if (firstSelectableId) {
+            const firstRadio = document.querySelector(`input[name="selectedClassId"][value="${firstSelectableId}"]`);
+            if (firstRadio) firstRadio.checked = true;
+          }
+        }
+
+        onSelectClassRadio();
+        openModal('courseRegisterModal');
+
+      } catch (e) {
+        console.error('Lỗi chuẩn bị đăng ký khóa học:', e);
+        alert('Lỗi kết nối máy chủ!');
+      }
+    }
+
+    function onSelectClassRadio() {
+      const selectedRadio = document.querySelector('input[name="selectedClassId"]:checked');
+      const conflictAlert = document.getElementById('regConflictScheduleAlert');
+      const conflictMsg = document.getElementById('regConflictScheduleMsg');
+      const confirmBtn = document.getElementById('btnConfirmRegisterCourse');
+      const termsCheckbox = document.getElementById('regTermsCheckbox');
+
+      const isCourseDuplicate = currentSelectedCourseDetail?.course?.my_reg_status;
+
+      if (isCourseDuplicate) {
+        confirmBtn.disabled = true;
+        return;
+      }
+
+      if (!selectedRadio) {
+        confirmBtn.disabled = true;
+        if (conflictAlert) conflictAlert.classList.add('hidden');
+        return;
+      }
+
+      const hasConflict = selectedRadio.getAttribute('data-has-conflict') === '1';
+      const msg = selectedRadio.getAttribute('data-conflict-msg') || '';
+
+      if (hasConflict) {
+        if (conflictAlert) {
+          conflictAlert.classList.remove('hidden');
+          conflictMsg.innerText = msg || 'Lớp học này bị trùng lịch học với các lớp bạn đã đăng ký!';
+        }
+        confirmBtn.disabled = true;
+      } else {
+        if (conflictAlert) conflictAlert.classList.add('hidden');
+        const termsAccepted = termsCheckbox ? termsCheckbox.checked : true;
+        confirmBtn.disabled = !termsAccepted;
+      }
+    }
+
+    // Sự kiện khi tích / bỏ tích cam kết điều kiện tham gia
+    document.addEventListener('change', function(e) {
+      if (e.target && e.target.id === 'regTermsCheckbox') {
+        onSelectClassRadio();
+      }
+    });
+
+    async function confirmRegisterCourseSubmit() {
+      const user = getStoredUser();
+      const courseId = document.getElementById('regCourseId').value;
+      const selectedRadio = document.querySelector('input[name="selectedClassId"]:checked');
+      const termsCheckbox = document.getElementById('regTermsCheckbox');
+      const paymentMethod = document.querySelector('input[name="regPaymentMethod"]:checked')?.value || 'qr';
+      const btn = document.getElementById('btnConfirmRegisterCourse');
+
+      if (!selectedRadio) {
+        alert('Vui lòng chọn một lớp học / khung giờ học phù hợp!');
+        return;
+      }
+
+      if (selectedRadio.getAttribute('data-has-conflict') === '1') {
+        alert('Không thể đăng ký: ' + (selectedRadio.getAttribute('data-conflict-msg') || 'Lớp học bị trùng lịch! Vui lòng chọn lớp khác.'));
+        return;
+      }
+
+      if (termsCheckbox && !termsCheckbox.checked) {
+        alert('Vui lòng tích chọn cam kết đáp ứng đầy đủ điều kiện tham gia khóa học!');
+        termsCheckbox.focus();
+        return;
+      }
+
+      const classId = Number(selectedRadio.value);
+
       btn.disabled = true;
-      btn.innerText = 'Đang xử lý...';
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Đang kiểm tra & đăng ký...';
 
       try {
-        const endpoint = type === 'plan' ? '/api/customer/membership/register' : '/api/customer/course/register';
-        const payload = type === 'plan' ? { memberId: user.id, planId: id, paymentMethod } : { memberId: user.id, courseId: id, paymentMethod };
-
-        const res = await fetch(`${API_BASE}${endpoint}`, {
+        const res = await fetch(`${API_BASE}/api/customer/course/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            memberId: user.id,
+            courseId,
+            classId,
+            paymentMethod,
+            termsAccepted: true
+          })
         });
 
         const data = await res.json();
 
         if (res.ok && data.success) {
-          alert(data.message);
-          closeModal('courseModal');
+          alert(`ĐĂNG KÝ KHÓA HỌC THÀNH CÔNG!\n\n${data.message}\nMã hóa đơn: ${data.invoiceCode}\n\nBạn có thể theo dõi ca học trong mục 'Lịch học cá nhân'.`);
+          closeModal('courseRegisterModal');
           if (typeof loadCoursesAndPlans === 'function') loadCoursesAndPlans();
           if (typeof loadPublishedSchedule === 'function') loadPublishedSchedule();
           if (typeof loadMySchedule === 'function') loadMySchedule();
           if (typeof loadDashboard === 'function') loadDashboard();
         } else {
-          alert(data.message || 'Đăng ký không thành công!');
+          // Báo trùng hoặc lỗi logic
+          alert('ĐĂNG KÝ KHÔNG THÀNH CÔNG:\n\n' + (data.message || 'Lỗi không xác định'));
+        }
+
+      } catch (err) {
+        console.error('Lỗi API course register:', err);
+        alert('Lỗi kết nối máy chủ!');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Xác nhận Đăng ký';
+      }
+    }
+
+
+    // ==============================================================
+    // ĐĂNG KÝ GÓI TẬP HỘI VIÊN (PLAN REGISTRATION)
+    // ==============================================================
+    function openPlanRegisterModal(planId, planName, planPrice) {
+      const user = getStoredUser();
+      document.getElementById('regPlanId').value = planId;
+      document.getElementById('regPlanTitle').innerText = `Đăng ký: ${planName}`;
+      document.getElementById('regPlanName').innerText = planName;
+      document.getElementById('regPlanPrice').innerText = planPrice;
+      document.getElementById('regPlanMemberName').innerText = `${user.fullName} (${user.memberCode || 'KH'})`;
+      openModal('planRegisterModal');
+    }
+
+    async function confirmRegisterPlanSubmit() {
+      const user = getStoredUser();
+      const planId = document.getElementById('regPlanId').value;
+      const paymentMethod = document.querySelector('input[name="regPlanPaymentMethod"]:checked')?.value || 'qr';
+      const btn = document.getElementById('btnConfirmRegisterPlan');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Đang kích hoạt...';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/customer/membership/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            memberId: user.id,
+            planId,
+            paymentMethod: paymentMethod === 'cash' ? 1 : 2
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alert(`ĐĂNG KÝ GÓI TẬP THÀNH CÔNG!\n\n${data.message}`);
+          closeModal('planRegisterModal');
+          if (typeof loadCoursesAndPlans === 'function') loadCoursesAndPlans();
+          if (typeof loadDashboard === 'function') loadDashboard();
+        } else {
+          alert('Đăng ký không thành công: ' + (data.message || 'Lỗi không xác định'));
         }
       } catch (err) {
         alert('Lỗi kết nối máy chủ API!');
       } finally {
         btn.disabled = false;
-        btn.innerText = 'Xác nhận Đăng ký';
+        btn.innerHTML = 'Xác nhận Đăng ký';
       }
+    }
+
+    // Modal Đăng ký cũ (dự phòng)
+    function openItemRegisterModal(type, id, name, price) {
+      if (type === 'plan') {
+        openPlanRegisterModal(id, name, price);
+      } else {
+        openCourseRegisterModal(id);
+      }
+    }
+
+    async function confirmRegisterItem() {
+      confirmRegisterPlanSubmit();
     }
 
     // ==============================================================
@@ -1728,6 +2723,15 @@
       const email = document.getElementById('profileInputEmail').value.trim();
       const address = document.getElementById('profileInputAddress').value.trim();
       const fitnessGoal = document.getElementById('profileInputGoal').value.trim();
+
+      if (phone) {
+        const phoneRegex = /^0\d{9}$/;
+        if (!phoneRegex.test(phone)) {
+          alert('Số điện thoại không hợp lệ!\nSố điện thoại phải gồm đúng 10 số, bắt đầu từ số 0 và không chứa các ký tự khác.');
+          document.getElementById('profileInputPhone').focus();
+          return;
+        }
+      }
 
       const btn = document.getElementById('btnSaveProfile');
       btn.disabled = true;
@@ -2194,7 +3198,7 @@
     function logoutMember() {
       if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi tài khoản hội viên?')) {
         localStorage.removeItem('fitcenter_user');
-        window.location.href = 'dang_nhap.html';
+        window.location.href = 'trang_chu.html';
       }
     }
 

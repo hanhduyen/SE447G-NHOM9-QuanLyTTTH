@@ -174,6 +174,15 @@ app.post('/api/auth/register', async (req, res) => {
     const cleanEmail = email.trim().toLowerCase();
     const cleanPhone = phone ? phone.trim() : null;
 
+    // Kiểm tra định dạng số điện thoại: đúng 10 số, bắt đầu từ 0, không có ký tự khác
+    const phoneRegex = /^0\d{9}$/;
+    if (!cleanPhone || !phoneRegex.test(cleanPhone)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Số điện thoại không hợp lệ! Số điện thoại phải đủ 10 số, bắt đầu từ số 0 và không được chứa các ký tự khác.' 
+      });
+    }
+
     // Kiểm tra trùng Email
     const [existingEmail] = await db.query('SELECT TaiKhoanID FROM TaiKhoan WHERE LOWER(Email) = ?', [cleanEmail]);
     if (existingEmail.length > 0) {
@@ -253,6 +262,12 @@ app.post('/api/auth/register', async (req, res) => {
 const customerRouter = require('./routes/customerRoutes');
 app.use('/api/customer', customerRouter);
 
+// =====================================================================
+// 2B. GOOGLE GEMINI AI BACKEND - DEDICATED MODULE (NHOM9/ai_backend.js)
+// =====================================================================
+const aiBackend = require('./ai_backend');
+app.use('/api/ai', aiBackend.router);
+
 
 // =====================================================================
 // 3. ADMIN & NHÂN VIÊN APIS (ADMIN PORTAL)
@@ -262,22 +277,67 @@ app.use('/api/customer', customerRouter);
 const staffRouter = require('./routes/staffRoutes');
 app.use('/api/staff', staffRouter);
 
-// GET /api/admin/stats (Thống kê tổng quan Admin)
+// API dành riêng cho Quản trị viên (Admin)
+const adminRoutes = require('./routes/adminRoutes');
+app.use('/api/admin', adminRoutes);
+
+// GET /api/admin/stats (Thống kê tổng quan Admin thực tế từ CSDL MySQL)
 app.get('/api/admin/stats', async (req, res) => {
   try {
     const [[{ total_members }]] = await db.query('SELECT COUNT(*) AS total_members FROM KhachHang');
+    const [[{ active_members }]] = await db.query('SELECT COUNT(*) AS active_members FROM KhachHang k JOIN TaiKhoan t ON k.KhachHangID = t.TaiKhoanID WHERE t.TrangThai = 1');
+    const [[{ locked_members }]] = await db.query('SELECT COUNT(*) AS locked_members FROM KhachHang k JOIN TaiKhoan t ON k.KhachHangID = t.TaiKhoanID WHERE t.TrangThai = 0');
+    const [[{ new_members_week }]] = await db.query('SELECT COUNT(*) AS new_members_week FROM KhachHang k JOIN TaiKhoan t ON k.KhachHangID = t.TaiKhoanID WHERE t.NgayTao >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)');
+
+    const [[{ pending_enrollments }]] = await db.query(`
+      SELECT (
+        (SELECT COUNT(*) FROM DangKyKhoaHoc WHERE TrangThai = 1) +
+        (SELECT COUNT(*) FROM DangKyGoiTap WHERE TrangThai = 1)
+      ) AS pending_enrollments
+    `);
+
+    const [[{ open_classes }]] = await db.query('SELECT COUNT(*) AS open_classes FROM LopHoc WHERE TrangThaiDangKy = 1');
+
+    const [[{ remaining_slots }]] = await db.query(`
+      SELECT COALESCE(SUM(GREATEST(0, lh.SucChua - (SELECT COUNT(*) FROM DangKyKhoaHoc dk WHERE dk.LopHocID = lh.LopHocID AND dk.TrangThai IN (1, 2)))), 0) AS remaining_slots
+      FROM LopHoc lh
+      WHERE lh.TrangThaiDangKy = 1
+    `);
+
+    const [[{ today_checkins }]] = await db.query('SELECT COUNT(*) AS today_checkins FROM DiemDanh WHERE DATE(ThoiGian) = CURDATE()');
+    const [[{ total_checkins }]] = await db.query('SELECT COUNT(*) AS total_checkins FROM DiemDanh');
+
+    const [[{ active_courses }]] = await db.query('SELECT COUNT(*) AS active_courses FROM KhoaHoc WHERE TrangThai = 1');
+    const [[{ active_packages }]] = await db.query('SELECT COUNT(*) AS active_packages FROM GoiTap WHERE TrangThai = 1');
+
+    const [[{ enrolled_students }]] = await db.query(`
+      SELECT COUNT(DISTINCT KhachHangID) AS enrolled_students
+      FROM (
+        SELECT KhachHangID FROM DangKyKhoaHoc WHERE TrangThai = 2
+        UNION
+        SELECT KhachHangID FROM DangKyGoiTap WHERE TrangThai = 1 AND CURDATE() BETWEEN NgayBatDau AND NgayHetHan
+      ) t
+    `);
+
     const [[{ total_trainers }]] = await db.query('SELECT COUNT(*) AS total_trainers FROM HuanLuyenVien');
-    const [[{ total_courses }]] = await db.query('SELECT COUNT(*) AS total_courses FROM KhoaHoc');
     const [[{ total_revenue }]] = await db.query('SELECT COALESCE(SUM(TongTien), 0) AS total_revenue FROM HoaDon WHERE TrangThai = 2');
-    const [[{ pending_enrollments }]] = await db.query('SELECT COUNT(*) AS pending_enrollments FROM DangKyKhoaHoc WHERE TrangThai = 1');
 
     res.json({
       success: true,
       stats: {
         totalMembers: total_members,
-        totalTrainers: total_trainers,
-        totalCourses: total_courses,
+        activeMembers: active_members,
+        lockedMembers: locked_members,
+        newMembersWeek: new_members_week,
         pendingEnrollments: pending_enrollments,
+        openClasses: open_classes,
+        remainingSlots: Number(remaining_slots),
+        todayCheckins: today_checkins,
+        totalCheckins: total_checkins,
+        activeCourses: active_courses,
+        activePackages: active_packages,
+        enrolledStudents: enrolled_students,
+        totalTrainers: total_trainers,
         totalRevenueVnd: Number(total_revenue)
       }
     });
@@ -317,6 +377,16 @@ app.put('/api/admin/customer/update', async (req, res) => {
   try {
     const { customerId, fullName, phone, address, fitnessGoal, height, weight, status } = req.body;
     if (!customerId) return res.status(400).json({ success: false, message: 'Thiếu mã ID hội viên!' });
+
+    if (phone && phone.trim()) {
+      const phoneRegex = /^0\d{9}$/;
+      if (!phoneRegex.test(phone.trim())) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Số điện thoại không hợp lệ! Số điện thoại phải đủ 10 số, bắt đầu từ số 0 và không được chứa các ký tự khác.' 
+        });
+      }
+    }
 
     const statusVal = status === 'locked' ? 0 : 1;
     await db.query(`
@@ -704,108 +774,10 @@ app.get('/api/admin/reports', async (req, res) => {
 
 
 // =====================================================================
-// 4. HUẤN LUYỆN VIÊN APIS (TRAINER PORTAL)
+// 4. HUẤN LUYỆN VIÊN APIS (TRAINER PORTAL) - DEDICATED MODULE
 // =====================================================================
-
-function getTrainerId(req) {
-  return Number(req.query.trainerId || req.body.trainerId || req.headers['x-trainer-id']) || 3;
-}
-
-// GET /api/trainer/schedule (Xem lịch dạy của HLV)
-app.get('/api/trainer/schedule', async (req, res) => {
-  try {
-    const trainerId = getTrainerId(req);
-
-    const [rows] = await db.query(`
-      SELECT b.BuoiHocID AS session_id, l.MaLop AS class_code, l.TenLop AS class_name,
-             CONCAT(b.NgayHoc, 'T', b.GioBatDau) AS starts_at,
-             CONCAT(b.NgayHoc, 'T', b.GioKetThuc) AS ends_at,
-             p.TenPhong AS room_name,
-             (SELECT COUNT(*) FROM DangKyKhoaHoc d WHERE d.LopHocID = l.LopHocID AND d.TrangThai = 2) AS student_count
-      FROM PhanCongHLV pc
-      JOIN BuoiHoc b ON pc.BuoiHocID = b.BuoiHocID
-      JOIN LopHoc l ON b.LopHocID = l.LopHocID
-      JOIN Phong p ON b.PhongID = p.PhongID
-      WHERE pc.HuanLuyenVienID = ? AND pc.TrangThai = 1
-      ORDER BY b.NgayHoc ASC, b.GioBatDau ASC
-    `, [trainerId]);
-
-    res.json({ success: true, data: rows });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// GET /api/trainer/students (Danh sách học viên theo lớp HLV dạy)
-app.get('/api/trainer/students', async (req, res) => {
-  try {
-    const trainerId = getTrainerId(req);
-
-    const [rows] = await db.query(`
-      SELECT DISTINCT k.KhachHangID AS student_id, k.MaKhachHang AS student_code,
-             tk.HoTen AS student_name, tk.SoDienThoai AS phone,
-             COALESCE(l.TenLop, 'Tập luyện cá nhân') AS class_name, 
-             COALESCE(l.MaLop, 'VIP-PT') AS class_code,
-             COALESCE(kq.MucDoHoanThanh, 75) AS completion_rate, 
-             COALESCE(kq.NhanXet, 'Tập luyện chăm chỉ, thể lực tăng rõ rệt.') AS note,
-             COALESCE(kq.CanNang, k.CanNang, 68.0) AS weight, 
-             COALESCE(kq.TyLeMo, 18.0) AS body_fat,
-             COALESCE(k.MucTieu, 'Tăng cơ giảm mỡ') AS fitness_goal
-      FROM KhachHang k
-      JOIN TaiKhoan tk ON k.KhachHangID = tk.TaiKhoanID
-      LEFT JOIN DangKyKhoaHoc d ON d.KhachHangID = k.KhachHangID AND d.TrangThai IN (1, 2)
-      LEFT JOIN LopHoc l ON d.LopHocID = l.LopHocID
-      LEFT JOIN KetQuaHocVien kq ON kq.DangKyID = d.DangKyID
-      ORDER BY k.KhachHangID ASC
-    `);
-
-    res.json({ success: true, data: rows });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// POST /api/trainer/update-progress (HLV cập nhật đánh giá học viên)
-app.post('/api/trainer/update-progress', async (req, res) => {
-  try {
-    const trainerId = getTrainerId(req);
-    const { studentId, classId, completionRate, note, weight, bodyFat } = req.body;
-
-    if (!studentId) {
-      return res.status(400).json({ success: false, message: 'Thiếu thông tin học viên!' });
-    }
-
-    if (weight) {
-      await db.query('UPDATE KhachHang SET CanNang = ? WHERE KhachHangID = ?', [Number(weight), studentId]);
-    }
-
-    // Tìm DangKyID
-    const [dRows] = await db.query(`
-      SELECT DangKyID FROM DangKyKhoaHoc 
-      WHERE KhachHangID = ?
-      ORDER BY DangKyID DESC LIMIT 1
-    `, [studentId]);
-
-    let dangKyID = dRows.length > 0 ? dRows[0].DangKyID : null;
-    if (!dangKyID) {
-      const [insertDk] = await db.query(
-        'INSERT INTO DangKyKhoaHoc (KhachHangID, LopHocID, NgayDangKy, TrangThai) VALUES (?, 1, NOW(), 2)',
-        [studentId]
-      );
-      dangKyID = insertDk.insertId;
-    }
-
-    // Lưu vào KetQuaHocVien
-    await db.query(`
-      INSERT INTO KetQuaHocVien (DangKyID, HuanLuyenVienID, NhanXet, MucDoHoanThanh, CanNang, TyLeMo, NgayCapNhat)
-      VALUES (?, ?, ?, ?, ?, ?, NOW())
-    `, [dangKyID, trainerId, note || null, completionRate ? Number(completionRate) : null, weight ? Number(weight) : null, bodyFat ? Number(bodyFat) : null]);
-
-    res.json({ success: true, message: 'Cập nhật tiến độ học viên thành công!' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+const trainerRoutes = require('./routes/trainerRoutes');
+app.use('/api/trainer', trainerRoutes);
 
 
 // =====================================================================
@@ -818,6 +790,7 @@ app.listen(PORT, () => {
   console.log(`🔑 Mở đăng nhập:   http://localhost:${PORT}/dang_nhap.html`);
   console.log(`📝 Mở đăng ký:     http://localhost:${PORT}/dang_ky.html`);
   console.log(`👤 Mở khách hàng:  http://localhost:${PORT}/khach_hang.html`);
+  console.log(`💼 Mở nhân viên:   http://localhost:${PORT}/staff.html`);
   console.log(`👑 Mở admin:       http://localhost:${PORT}/admin.html`);
   console.log(`🏋️ Mở HLV:         http://localhost:${PORT}/huan_luyen_vien.html`);
   console.log(`=======================================================`);

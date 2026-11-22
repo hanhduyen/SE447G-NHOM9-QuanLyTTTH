@@ -145,14 +145,17 @@
 
         <!-- Số điện thoại -->
         <div>
-          <label class="block text-xs font-semibold text-black mb-1.5">Số điện thoại</label>
+          <label class="block text-xs font-semibold text-black mb-1.5">Số điện thoại <span class="text-gray-400 font-normal">(10 số, bắt đầu từ số 0)</span></label>
           <div class="relative">
             <i class="fa-solid fa-mobile-screen absolute left-3.5 top-3 text-gray-400 text-sm"></i>
             <input 
               id="inputPhone" 
               type="tel" 
               required 
-              placeholder="Nhập số điện thoại" 
+              maxlength="10"
+              pattern="^0[0-9]{9}$"
+              inputmode="numeric"
+              placeholder="Ví dụ: 0912345678" 
               class="w-full border border-gray-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-black placeholder-gray-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition font-mono"
             >
           </div>
@@ -257,6 +260,15 @@
 
       const warningEl = document.getElementById('emailWarning');
       if (warningEl) warningEl.classList.add('hidden');
+
+      // Kiểm tra định dạng số điện thoại: đúng 10 số, bắt đầu từ số 0, không có ký tự khác
+      const phoneRegex = /^0\d{9}$/;
+      if (!phoneRegex.test(phone)) {
+        alert('Số điện thoại không hợp lệ!\nSố điện thoại phải gồm đúng 10 chữ số, bắt đầu từ số 0 và không chứa ký tự khác.');
+        const phoneInput = document.getElementById('inputPhone');
+        if (phoneInput) phoneInput.focus();
+        return;
+      }
 
       if (password !== confirmPassword) {
         alert('Mật khẩu xác nhận không khớp! Vui lòng kiểm tra lại.');

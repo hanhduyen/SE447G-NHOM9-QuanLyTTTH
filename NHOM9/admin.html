@@ -72,7 +72,7 @@
     <div>
       <!-- Logo FitCenter -->
       <div class="p-5 border-b border-gray-100 flex items-center justify-between">
-        <a href="trang_chu.html" class="flex items-center space-x-3 group">
+        <a href="javascript:void(0)" onclick="switchAdminTab('overview')" class="flex items-center space-x-3 group cursor-pointer" title="Về trang tổng quan quản trị">
           <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center text-xs shadow-sm group-hover:scale-105 transition">
             <i class="fa-solid fa-dumbbell text-xs"></i>
           </div>
@@ -141,33 +141,12 @@
           <i class="fa-solid fa-chart-line text-sm w-4 text-center"></i>
           <span>Báo cáo & thống kê</span>
         </button>
-
-        <!-- 10. Trợ lý AI hỗ trợ -->
-        <button onclick="switchAdminTab('ai-assistant')" class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition hover:bg-gray-100/80 hover:text-black" data-tab="ai-assistant">
-          <i class="fa-solid fa-wand-magic-sparkles text-sm w-4 text-center text-purple-600"></i>
-          <span class="flex items-center justify-between flex-1">
-            <span>Trợ lý AI</span>
-            <span class="text-[9px] bg-black text-white px-1.5 py-0.5 rounded-full font-bold">Mới</span>
-          </span>
-        </button>
       </nav>
     </div>
 
-    <!-- Thông tin tài khoản Admin & Đăng xuất -->
-    <div class="p-4 border-t border-gray-100 bg-white">
-      <div class="flex items-center gap-3 mb-3">
-        <div id="adminSidebarAvatar" class="w-9 h-9 rounded-full bg-neutral-200 text-neutral-800 font-bold text-xs flex items-center justify-center shrink-0 border border-neutral-300">
-          Q
-        </div>
-        <div class="truncate">
-          <p id="adminSidebarName" class="text-xs font-bold text-black leading-tight">Quản trị viên</p>
-          <p id="adminSidebarEmail" class="text-[11px] text-gray-500 truncate">admin@fitcenter.vn</p>
-        </div>
-      </div>
-      <button onclick="logoutAdmin()" class="flex items-center gap-2 text-xs text-gray-500 hover:text-red-600 font-medium transition py-1">
-        <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
-        <span>Đăng xuất</span>
-      </button>
+    <!-- Footer chân Sidebar -->
+    <div class="p-4 border-t border-gray-100 text-center">
+      <span class="text-[10px] text-gray-400 font-medium">FitCenter Management · v2.0</span>
     </div>
   </aside>
 
@@ -186,7 +165,7 @@
         </div>
       </div>
 
-      <!-- Chuông thông báo & Hồ sơ Quản trị viên -->
+      <!-- Chuông thông báo, Tên tài khoản & Nút Đăng xuất ở đầu bên góc phải -->
       <div class="flex items-center space-x-3">
         <!-- Nút chuông thông báo -->
         <button onclick="switchAdminTab('notifications')" class="relative w-9 h-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-600 transition shadow-2xs" title="Xem thông báo hệ thống">
@@ -196,16 +175,22 @@
           </span>
         </button>
 
-        <!-- Thẻ Admin Profile -->
-        <div class="flex items-center space-x-2.5 pl-2 border-l border-gray-200">
-          <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+        <!-- Thẻ Hồ sơ Quản trị viên: Tên tài khoản & Avatar ở đầu góc phải -->
+        <div class="flex items-center space-x-2.5 pl-3 border-l border-gray-200">
+          <div id="adminHeaderAvatar" class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center font-bold text-xs shadow-2xs shrink-0">
             Q
           </div>
           <div class="hidden sm:block text-left">
-            <span class="block text-xs font-bold text-black leading-tight">Quản trị viên</span>
-            <span class="text-[10px] text-gray-500">Quản trị viên</span>
+            <span id="adminHeaderName" class="block text-xs font-bold text-black leading-tight">Quản trị viên</span>
+            <span id="adminHeaderEmail" class="text-[10px] text-gray-500 block truncate max-w-[150px]">admin@fitcenter.vn</span>
           </div>
         </div>
+
+        <!-- Nút Đăng xuất ở đầu bên góc phải -->
+        <button onclick="logoutAdmin()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 hover:text-rose-700 border border-rose-200 transition shadow-2xs cursor-pointer" title="Đăng xuất khỏi hệ thống">
+          <i class="fa-solid fa-arrow-right-from-bracket text-[11px]"></i>
+          <span>Đăng xuất</span>
+        </button>
       </div>
     </header>
 
@@ -235,7 +220,7 @@
           </div>
         </div>
 
-        <!-- 4 Thẻ chỉ số tổng quan (Stat Cards) -->
+        <!-- 4 Thẻ chỉ số tổng quan (Stat Cards - Lấy 100% từ Database MySQL) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Card 1: Tổng hội viên -->
           <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs hover:border-gray-300 transition">
@@ -245,10 +230,10 @@
                 Tổng hội viên
               </span>
             </div>
-            <div id="statTotalMembers" class="text-2xl sm:text-3xl font-black text-black tracking-tight">...</div>
-            <p class="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+            <div id="statTotalMembers" class="text-2xl sm:text-3xl font-black text-black tracking-tight">--</div>
+            <p id="statTotalMembersTrend" class="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
               <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
-              +18 trong tuần
+              <span>Đang tính...</span>
             </p>
           </div>
 
@@ -260,8 +245,8 @@
                 Đăng ký chờ xử lý
               </span>
             </div>
-            <div id="statPendingEnrollments" class="text-2xl sm:text-3xl font-black text-black tracking-tight">...</div>
-            <p class="text-[11px] text-amber-600 font-semibold mt-1">
+            <div id="statPendingEnrollments" class="text-2xl sm:text-3xl font-black text-black tracking-tight">--</div>
+            <p id="statPendingNotice" class="text-[11px] text-amber-600 font-semibold mt-1">
               Cần nhân viên xác nhận
             </p>
           </div>
@@ -274,9 +259,9 @@
                 Lớp đang mở
               </span>
             </div>
-            <div id="statTotalCourses" class="text-2xl sm:text-3xl font-black text-black tracking-tight">...</div>
-            <p class="text-[11px] text-gray-500 font-medium mt-1">
-              Còn 64 chỗ trống
+            <div id="statTotalCourses" class="text-2xl sm:text-3xl font-black text-black tracking-tight">--</div>
+            <p id="statRemainingSlots" class="text-[11px] text-gray-500 font-medium mt-1">
+              Đang tính chỗ trống...
             </p>
           </div>
 
@@ -288,9 +273,9 @@
                 Check-in hôm nay
               </span>
             </div>
-            <div class="text-2xl sm:text-3xl font-black text-black tracking-tight">186</div>
-            <p class="text-[11px] text-gray-500 font-medium mt-1">
-              Cập nhật theo giờ
+            <div id="statTodayCheckins" class="text-2xl sm:text-3xl font-black text-black tracking-tight">--</div>
+            <p id="statCheckinsSubtitle" class="text-[11px] text-gray-500 font-medium mt-1">
+              Cập nhật từ CSDL điểm danh
             </p>
           </div>
         </div>
@@ -546,23 +531,23 @@
           <p class="text-xs text-gray-500 mt-0.5">Tra cứu và cập nhật hồ sơ khách hàng</p>
         </div>
 
-        <!-- 4 Stat Cards khách hàng -->
+        <!-- 4 Stat Cards khách hàng (Lấy 100% từ Database MySQL) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
             <span class="text-xs text-gray-500 font-medium">Tổng khách hàng</span>
-            <div class="text-2xl sm:text-3xl font-black text-black mt-1">1.248</div>
+            <div id="statCustomerTotal" class="text-2xl sm:text-3xl font-black text-black mt-1">--</div>
           </div>
           <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
             <span class="text-xs text-gray-500 font-medium">Đang hoạt động</span>
-            <div class="text-2xl sm:text-3xl font-black text-black mt-1">1.139</div>
+            <div id="statCustomerActive" class="text-2xl sm:text-3xl font-black text-black mt-1">--</div>
           </div>
           <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
             <span class="text-xs text-gray-500 font-medium">Đăng ký chờ xử lý</span>
-            <div class="text-2xl sm:text-3xl font-black text-black mt-1">12</div>
+            <div id="statCustomerPending" class="text-2xl sm:text-3xl font-black text-black mt-1">--</div>
           </div>
           <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
             <span class="text-xs text-gray-500 font-medium">Tài khoản bị khóa</span>
-            <div class="text-2xl sm:text-3xl font-black text-black mt-1">9</div>
+            <div id="statCustomerLocked" class="text-2xl sm:text-3xl font-black text-black mt-1">--</div>
           </div>
         </div>
 
@@ -585,7 +570,7 @@
               <option value="pending">Chờ xử lý</option>
               <option value="locked">Bị khóa</option>
             </select>
-            <button onclick="alert('Đã đồng bộ danh sách khách hàng mới nhất!')" class="border border-gray-200 bg-white hover:bg-gray-50 rounded-xl px-3 py-2.5 text-xs text-gray-600 transition shadow-2xs">
+            <button onclick="syncCustomerList()" class="border border-gray-200 bg-white hover:bg-gray-50 rounded-xl px-3 py-2.5 text-xs text-gray-600 transition shadow-2xs cursor-pointer" title="Làm mới danh sách khách hàng từ CSDL">
               <i class="fa-solid fa-rotate"></i>
             </button>
           </div>
@@ -609,167 +594,19 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700" id="customerTbody">
-                  <!-- Row 1: KH0001 -->
-                  <tr class="hover:bg-gray-50/70 transition cursor-pointer" onclick="openCustomerDrawer('KH0001', 'Nguyễn Văn An', '0905 123 456', 'Hải Châu, Đà Nẵng', 'Khách hàng · Đang hoạt động', 'Yoga buổi sáng', 24)">
-                    <td class="py-3.5 font-bold text-black">KH0001</td>
-                    <td class="py-3.5">
-                      <div class="font-bold text-black">Nguyễn Văn An</div>
-                      <div class="text-[11px] text-gray-400">0905 123 456</div>
-                    </td>
-                    <td class="py-3.5">Yoga buổi sáng</td>
-                    <td class="py-3.5 text-center font-semibold">24</td>
-                    <td class="py-3.5">
-                      <span class="bg-black text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
-                        Đang hoạt động
-                      </span>
-                    </td>
-                    <td class="py-3.5 text-right space-x-1">
-                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
-                        <i class="fa-regular fa-eye text-[11px]"></i>
-                      </button>
-                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
-                        <i class="fa-solid fa-pen text-[11px]"></i>
-                      </button>
-                    </td>
-                  </tr>
-
-                  <!-- Row 2: KH0002 -->
-                  <tr class="hover:bg-gray-50/70 transition cursor-pointer" onclick="openCustomerDrawer('KH0002', 'Trần Thị Bích', '0914 222 333', 'Sơn Trà, Đà Nẵng', 'Khách hàng · Đang hoạt động', 'CrossFit nâng cao', 31)">
-                    <td class="py-3.5 font-bold text-black">KH0002</td>
-                    <td class="py-3.5">
-                      <div class="font-bold text-black">Trần Thị Bích</div>
-                      <div class="text-[11px] text-gray-400">0914 222 333</div>
-                    </td>
-                    <td class="py-3.5">CrossFit nâng cao</td>
-                    <td class="py-3.5 text-center font-semibold">31</td>
-                    <td class="py-3.5">
-                      <span class="bg-black text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
-                        Đang hoạt động
-                      </span>
-                    </td>
-                    <td class="py-3.5 text-right space-x-1">
-                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
-                        <i class="fa-regular fa-eye text-[11px]"></i>
-                      </button>
-                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
-                        <i class="fa-solid fa-pen text-[11px]"></i>
-                      </button>
-                    </td>
-                  </tr>
-
-                  <!-- Row 3: KH0003 -->
-                  <tr class="hover:bg-gray-50/70 transition cursor-pointer" onclick="openCustomerDrawer('KH0003', 'Lê Hoàng Cường', '0935 456 789', 'Thanh Khê, Đà Nẵng', 'Khách hàng · Chờ xử lý', 'Pilates cơ bản', 12)">
-                    <td class="py-3.5 font-bold text-black">KH0003</td>
-                    <td class="py-3.5">
-                      <div class="font-bold text-black">Lê Hoàng Cường</div>
-                      <div class="text-[11px] text-gray-400">0935 456 789</div>
-                    </td>
-                    <td class="py-3.5">Pilates cơ bản</td>
-                    <td class="py-3.5 text-center font-semibold">12</td>
-                    <td class="py-3.5">
-                      <span class="border border-dashed border-gray-400 text-gray-700 px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
-                        Chờ xử lý
-                      </span>
-                    </td>
-                    <td class="py-3.5 text-right space-x-1">
-                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
-                        <i class="fa-regular fa-eye text-[11px]"></i>
-                      </button>
-                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
-                        <i class="fa-solid fa-pen text-[11px]"></i>
-                      </button>
-                    </td>
-                  </tr>
-
-                  <!-- Row 4: KH0004 -->
-                  <tr class="hover:bg-gray-50/70 transition cursor-pointer" onclick="openCustomerDrawer('KH0004', 'Phạm Minh Dũng', '0977 111 222', 'Ngũ Hành Sơn, Đà Nẵng', 'Khách hàng · Đang hoạt động', 'Kickboxing', 18)">
-                    <td class="py-3.5 font-bold text-black">KH0004</td>
-                    <td class="py-3.5">
-                      <div class="font-bold text-black">Phạm Minh Dũng</div>
-                      <div class="text-[11px] text-gray-400">0977 111 222</div>
-                    </td>
-                    <td class="py-3.5">Kickboxing</td>
-                    <td class="py-3.5 text-center font-semibold">18</td>
-                    <td class="py-3.5">
-                      <span class="bg-black text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
-                        Đang hoạt động
-                      </span>
-                    </td>
-                    <td class="py-3.5 text-right space-x-1">
-                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
-                        <i class="fa-regular fa-eye text-[11px]"></i>
-                      </button>
-                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
-                        <i class="fa-solid fa-pen text-[11px]"></i>
-                      </button>
-                    </td>
-                  </tr>
-
-                  <!-- Row 5: KH0005 (Bị khóa) -->
-                  <tr class="hover:bg-gray-50/70 transition cursor-pointer" onclick="openCustomerDrawer('KH0005', 'Võ Thu Hà', '0868 333 444', 'Cẩm Lệ, Đà Nẵng', 'Khách hàng · Bị khóa', 'Zumba Dance', 8)">
-                    <td class="py-3.5 font-bold text-black">KH0005</td>
-                    <td class="py-3.5">
-                      <div class="font-bold text-black">Võ Thu Hà</div>
-                      <div class="text-[11px] text-gray-400">0868 333 444</div>
-                    </td>
-                    <td class="py-3.5">Zumba Dance</td>
-                    <td class="py-3.5 text-center font-semibold">8</td>
-                    <td class="py-3.5">
-                      <span class="border border-gray-300 text-gray-500 bg-gray-50 px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
-                        Bị khóa
-                      </span>
-                    </td>
-                    <td class="py-3.5 text-right space-x-1">
-                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
-                        <i class="fa-regular fa-eye text-[11px]"></i>
-                      </button>
-                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
-                        <i class="fa-solid fa-pen text-[11px]"></i>
-                      </button>
-                    </td>
-                  </tr>
-
-                  <!-- Row 6: KH0006 -->
-                  <tr class="hover:bg-gray-50/70 transition cursor-pointer" onclick="openCustomerDrawer('KH0006', 'Đặng Quốc Huy', '0902 555 666', 'Liên Chiểu, Đà Nẵng', 'Khách hàng · Đang hoạt động', 'Bodybuilding', 27)">
-                    <td class="py-3.5 font-bold text-black">KH0006</td>
-                    <td class="py-3.5">
-                      <div class="font-bold text-black">Đặng Quốc Huy</div>
-                      <div class="text-[11px] text-gray-400">0902 555 666</div>
-                    </td>
-                    <td class="py-3.5">Bodybuilding</td>
-                    <td class="py-3.5 text-center font-semibold">27</td>
-                    <td class="py-3.5">
-                      <span class="bg-black text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
-                        Đang hoạt động
-                      </span>
-                    </td>
-                    <td class="py-3.5 text-right space-x-1">
-                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
-                        <i class="fa-regular fa-eye text-[11px]"></i>
-                      </button>
-                      <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
-                        <i class="fa-solid fa-pen text-[11px]"></i>
-                      </button>
+                  <tr>
+                    <td colspan="6" class="py-10 text-center text-gray-400">
+                      <i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Đang tải danh sách khách hàng từ CSDL...
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <!-- Phân trang phía dưới bảng -->
-            <div class="flex items-center justify-between border-t border-gray-100 pt-4 mt-2">
-              <span class="text-[11px] text-gray-500">Hiển thị 1–6 / 1.248 khách hàng</span>
-              <div class="flex items-center space-x-1">
-                <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-500 text-xs disabled:opacity-50" disabled>
-                  <i class="fa-solid fa-chevron-left text-[10px]"></i>
-                </button>
-                <button class="w-7 h-7 rounded-lg bg-black text-white font-bold flex items-center justify-center text-xs">1</button>
-                <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-600 text-xs">2</button>
-                <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-600 text-xs">3</button>
-                <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-500 text-xs">
-                  <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                </button>
-              </div>
+            <!-- Phân trang phía dưới bảng (Động theo dữ liệu thật) -->
+            <div id="customerPaginationContainer" class="flex items-center justify-between border-t border-gray-100 pt-4 mt-2">
+              <span id="customerPaginationInfo" class="text-[11px] text-gray-500">Đang tải danh sách khách hàng...</span>
+              <div id="customerPaginationButtons" class="flex items-center space-x-1"></div>
             </div>
           </div>
 
@@ -866,11 +703,15 @@
             <p class="text-xs text-gray-500 mt-0.5">Khóa học, lớp học, sức chứa và huấn luyện viên phụ trách</p>
           </div>
           <div class="flex items-center gap-2.5">
-            <button onclick="openModal('modalCreateClass')" class="border border-gray-200 bg-white hover:bg-gray-50 text-black text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-2xs">
+            <button onclick="openCreateClassModal()" class="border border-gray-200 bg-white hover:bg-gray-50 text-black text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-2xs">
               <i class="fa-solid fa-plus text-[10px]"></i>
               <span>Tạo lớp học</span>
             </button>
-            <button onclick="openModal('modalCreateCourse')" class="bg-black hover:bg-neutral-800 text-white text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-1.5 shadow-2xs">
+            <button onclick="openPackageFormModal(null)" class="border border-gray-200 bg-white hover:bg-gray-50 text-black text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shadow-2xs">
+              <i class="fa-solid fa-plus text-[10px]"></i>
+              <span>Tạo gói tập</span>
+            </button>
+            <button onclick="openCourseFormModal(null)" class="bg-black hover:bg-neutral-800 text-white text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-1.5 shadow-2xs">
               <i class="fa-solid fa-plus text-[10px]"></i>
               <span>Tạo khóa học</span>
             </button>
@@ -890,303 +731,34 @@
           </button>
         </div>
 
-        <!-- 4 Stat Cards Khóa tập -->
+        <!-- 4 Stat Cards Khóa tập & Gói tập -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
             <span class="text-xs text-gray-500 font-medium">Khóa học đang kinh doanh</span>
-            <div class="text-2xl sm:text-3xl font-black text-black mt-1">6</div>
+            <div id="statActiveCourses" class="text-2xl sm:text-3xl font-black text-black mt-1">--</div>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <span class="text-xs text-gray-500 font-medium">Gói tập đang kinh doanh</span>
+            <div id="statActivePackages" class="text-2xl sm:text-3xl font-black text-black mt-1">--</div>
           </div>
           <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
             <span class="text-xs text-gray-500 font-medium">Lớp đang mở đăng ký</span>
-            <div class="text-2xl sm:text-3xl font-black text-black mt-1">12</div>
+            <div id="statOpenClasses" class="text-2xl sm:text-3xl font-black text-black mt-1">--</div>
           </div>
           <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
             <span class="text-xs text-gray-500 font-medium">Học viên đang theo học</span>
-            <div class="text-2xl sm:text-3xl font-black text-black mt-1">114</div>
-          </div>
-          <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
-            <span class="text-xs text-gray-500 font-medium">HLV được phân công</span>
-            <div class="text-2xl sm:text-3xl font-black text-black mt-1">6</div>
+            <div id="statTotalEnrolledStudents" class="text-2xl sm:text-3xl font-black text-black mt-1">--</div>
           </div>
         </div>
 
-        <!-- Lưới 6 thẻ Khóa học chi tiết -->
+        <!-- Lưới thẻ Khóa học chi tiết (Dữ liệu động CSDL) -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="courseGridContainer">
-          
-          <!-- Card 1: Yoga buổi sáng -->
-          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-300 transition">
-            <div>
-              <div class="flex items-start justify-between mb-2">
-                <h3 class="font-bold text-sm text-black">Yoga buổi sáng</h3>
-                <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
-                  Cơ bản
-                </span>
-              </div>
-              <div class="text-xs text-gray-600 space-y-1.5 mt-3">
-                <p class="flex items-center gap-2">
-                  <i class="fa-regular fa-user text-gray-400 w-3.5"></i>
-                  <span>HLV: Lê Thị Hoa</span>
-                </p>
-                <p class="flex items-center gap-2">
-                  <i class="fa-regular fa-calendar text-gray-400 w-3.5"></i>
-                  <span>Thứ 2, 4, 6 · 06:00</span>
-                </p>
-                <p class="flex items-center gap-2">
-                  <i class="fa-solid fa-door-open text-gray-400 w-3.5"></i>
-                  <span>Phòng Yoga 1</span>
-                </p>
-              </div>
-            </div>
+          <div class="col-span-full py-12 text-center text-gray-400 text-xs">Đang tải danh sách khóa học từ CSDL...</div>
+        </div>
 
-            <div class="mt-5 pt-3 border-t border-gray-100">
-              <div class="flex items-center justify-between text-xs mb-1.5">
-                <span class="text-gray-500">Sức chứa</span>
-                <span class="font-bold text-black">18/20</span>
-              </div>
-              <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
-                <div class="bg-black h-full rounded-full" style="width: 90%;"></div>
-              </div>
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-xl text-gray-700 bg-gray-50">
-                  Mở đăng ký
-                </span>
-                <div class="space-x-1">
-                  <button onclick="alert('Xem chi tiết khóa Yoga buổi sáng')" class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">
-                    Chi tiết
-                  </button>
-                  <button onclick="alert('Chỉnh sửa khóa học')" class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">
-                    <i class="fa-solid fa-pen text-[10px]"></i> Sửa
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 2: CrossFit nâng cao -->
-          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-300 transition">
-            <div>
-              <div class="flex items-start justify-between mb-2">
-                <h3 class="font-bold text-sm text-black">CrossFit nâng cao</h3>
-                <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
-                  Nâng cao
-                </span>
-              </div>
-              <div class="text-xs text-gray-600 space-y-1.5 mt-3">
-                <p class="flex items-center gap-2">
-                  <i class="fa-regular fa-user text-gray-400 w-3.5"></i>
-                  <span>HLV: Trần Văn Mạnh</span>
-                </p>
-                <p class="flex items-center gap-2">
-                  <i class="fa-regular fa-calendar text-gray-400 w-3.5"></i>
-                  <span>Thứ 3, 5, 7 · 19:00</span>
-                </p>
-                <p class="flex items-center gap-2">
-                  <i class="fa-solid fa-door-open text-gray-400 w-3.5"></i>
-                  <span>Khu Functional</span>
-                </p>
-              </div>
-            </div>
-
-            <div class="mt-5 pt-3 border-t border-gray-100">
-              <div class="flex items-center justify-between text-xs mb-1.5">
-                <span class="text-gray-500">Sức chứa</span>
-                <span class="font-bold text-black">15/16</span>
-              </div>
-              <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
-                <div class="bg-black h-full rounded-full" style="width: 93%;"></div>
-              </div>
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-xl text-gray-700 bg-gray-50">
-                  Mở đăng ký
-                </span>
-                <div class="space-x-1">
-                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">Chi tiết</button>
-                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200"><i class="fa-solid fa-pen text-[10px]"></i> Sửa</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 3: Pilates cơ bản -->
-          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-300 transition">
-            <div>
-              <div class="flex items-start justify-between mb-2">
-                <h3 class="font-bold text-sm text-black">Pilates cơ bản</h3>
-                <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
-                  Cơ bản
-                </span>
-              </div>
-              <div class="text-xs text-gray-600 space-y-1.5 mt-3">
-                <p class="flex items-center gap-2">
-                  <i class="fa-regular fa-user text-gray-400 w-3.5"></i>
-                  <span>HLV: Nguyễn Quốc Bảo</span>
-                </p>
-                <p class="flex items-center gap-2">
-                  <i class="fa-regular fa-calendar text-gray-400 w-3.5"></i>
-                  <span>Thứ 2, 4 · 08:00</span>
-                </p>
-                <p class="flex items-center gap-2">
-                  <i class="fa-solid fa-door-open text-gray-400 w-3.5"></i>
-                  <span>Phòng Studio A</span>
-                </p>
-              </div>
-            </div>
-
-            <div class="mt-5 pt-3 border-t border-gray-100">
-              <div class="flex items-center justify-between text-xs mb-1.5">
-                <span class="text-gray-500">Sức chứa</span>
-                <span class="font-bold text-black">12/15</span>
-              </div>
-              <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
-                <div class="bg-black h-full rounded-full" style="width: 80%;"></div>
-              </div>
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-xl text-gray-700 bg-gray-50">
-                  Mở đăng ký
-                </span>
-                <div class="space-x-1">
-                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">Chi tiết</button>
-                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200"><i class="fa-solid fa-pen text-[10px]"></i> Sửa</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 4: Kickboxing (Đầy sĩ số) -->
-          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-300 transition">
-            <div>
-              <div class="flex items-start justify-between mb-2">
-                <h3 class="font-bold text-sm text-black">Kickboxing</h3>
-                <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
-                  Trung cấp
-                </span>
-              </div>
-              <div class="text-xs text-gray-600 space-y-1.5 mt-3">
-                <p class="flex items-center gap-2">
-                  <i class="fa-regular fa-user text-gray-400 w-3.5"></i>
-                  <span>HLV: Trần Văn Mạnh</span>
-                </p>
-                <p class="flex items-center gap-2">
-                  <i class="fa-regular fa-calendar text-gray-400 w-3.5"></i>
-                  <span>Thứ 3, 5 · 17:30</span>
-                </p>
-                <p class="flex items-center gap-2">
-                  <i class="fa-solid fa-door-open text-gray-400 w-3.5"></i>
-                  <span>Phòng Studio B</span>
-                </p>
-              </div>
-            </div>
-
-            <div class="mt-5 pt-3 border-t border-gray-100">
-              <div class="flex items-center justify-between text-xs mb-1.5">
-                <span class="text-gray-500">Sức chứa</span>
-                <span class="font-bold text-black">15/15</span>
-              </div>
-              <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
-                <div class="bg-black h-full rounded-full" style="width: 100%;"></div>
-              </div>
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-[11px] font-bold bg-black text-white px-2.5 py-1 rounded-xl shadow-2xs">
-                  Đã đầy
-                </span>
-                <div class="space-x-1">
-                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">Chi tiết</button>
-                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200"><i class="fa-solid fa-pen text-[10px]"></i> Sửa</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 5: Zumba Dance -->
-          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-300 transition">
-            <div>
-              <div class="flex items-start justify-between mb-2">
-                <h3 class="font-bold text-sm text-black">Zumba Dance</h3>
-                <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
-                  Cơ bản
-                </span>
-              </div>
-              <div class="text-xs text-gray-600 space-y-1.5 mt-3">
-                <p class="flex items-center gap-2">
-                  <i class="fa-regular fa-user text-gray-400 w-3.5"></i>
-                  <span>HLV: Nguyễn Quốc Bảo</span>
-                </p>
-                <p class="flex items-center gap-2">
-                  <i class="fa-regular fa-calendar text-gray-400 w-3.5"></i>
-                  <span>Thứ 6 · 19:00</span>
-                </p>
-                <p class="flex items-center gap-2">
-                  <i class="fa-solid fa-door-open text-gray-400 w-3.5"></i>
-                  <span>Phòng Studio A</span>
-                </p>
-              </div>
-            </div>
-
-            <div class="mt-5 pt-3 border-t border-gray-100">
-              <div class="flex items-center justify-between text-xs mb-1.5">
-                <span class="text-gray-500">Sức chứa</span>
-                <span class="font-bold text-black">9/25</span>
-              </div>
-              <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
-                <div class="bg-black h-full rounded-full" style="width: 36%;"></div>
-              </div>
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-xl text-gray-700 bg-gray-50">
-                  Mở đăng ký
-                </span>
-                <div class="space-x-1">
-                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">Chi tiết</button>
-                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200"><i class="fa-solid fa-pen text-[10px]"></i> Sửa</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 6: Bodybuilding (Ngừng kinh doanh) -->
-          <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-300 transition opacity-90">
-            <div>
-              <div class="flex items-start justify-between mb-2">
-                <h3 class="font-bold text-sm text-black">Bodybuilding</h3>
-                <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
-                  Nâng cao
-                </span>
-              </div>
-              <div class="text-xs text-gray-600 space-y-1.5 mt-3">
-                <p class="flex items-center gap-2">
-                  <i class="fa-regular fa-user text-gray-400 w-3.5"></i>
-                  <span>HLV: Lê Thị Hoa</span>
-                </p>
-                <p class="flex items-center gap-2">
-                  <i class="fa-regular fa-calendar text-gray-400 w-3.5"></i>
-                  <span>Thứ 7, CN · 17:00</span>
-                </p>
-                <p class="flex items-center gap-2">
-                  <i class="fa-solid fa-door-open text-gray-400 w-3.5"></i>
-                  <span>Khu tập tạ</span>
-                </p>
-              </div>
-            </div>
-
-            <div class="mt-5 pt-3 border-t border-gray-100">
-              <div class="flex items-center justify-between text-xs mb-1.5">
-                <span class="text-gray-500">Sức chứa</span>
-                <span class="font-bold text-black">0/12</span>
-              </div>
-              <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
-                <div class="bg-gray-300 h-full rounded-full" style="width: 0%;"></div>
-              </div>
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-[11px] font-semibold border border-gray-300 text-gray-500 bg-gray-50 px-2.5 py-1 rounded-xl">
-                  Ngừng kinh doanh
-                </span>
-                <div class="space-x-1">
-                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">Chi tiết</button>
-                  <button class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200"><i class="fa-solid fa-pen text-[10px]"></i> Sửa</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
+        <!-- Lưới thẻ Gói tập chi tiết (Dữ liệu động CSDL, ẩn mặc định) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 hidden" id="packageGridContainer">
+          <div class="col-span-full py-12 text-center text-gray-400 text-xs">Đang tải danh sách gói tập từ CSDL...</div>
         </div>
 
         <!-- Khung Lịch lớp tuần này & Cảnh báo xung đột (Dữ liệu CSDL) -->
@@ -1241,53 +813,55 @@
             <h2 class="text-xl sm:text-2xl font-black text-black tracking-tight">Thống kê & báo cáo</h2>
             <p class="text-xs text-gray-500 mt-0.5">Báo cáo tổng hợp hoạt động của trung tâm</p>
           </div>
-          <button onclick="openExportModal()" class="bg-black hover:bg-neutral-800 text-white text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-2 shadow-2xs self-start">
-            <i class="fa-solid fa-download text-[11px]"></i>
-            <span>Xuất báo cáo</span>
+          <button onclick="exportReportData()" class="bg-black hover:bg-neutral-800 text-white text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-2 shadow-2xs self-start">
+            <i class="fa-solid fa-file-excel text-[11px] text-emerald-400"></i>
+            <span>Xuất file báo cáo</span>
           </button>
         </div>
 
-        <!-- Bộ lọc phân loại & Khoảng thời gian -->
+        <!-- Bộ lọc phân loại & Khoảng thời gian (Chọn từ ngày đến ngày cụ thể) -->
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-200 pb-3">
           <div class="flex flex-wrap items-center gap-1.5 text-xs">
-            <button class="px-3.5 py-1.5 rounded-xl font-bold bg-black text-white shadow-2xs">Hội viên</button>
-            <button class="px-3.5 py-1.5 rounded-xl font-semibold text-gray-600 hover:text-black hover:bg-gray-100">Đăng ký lớp</button>
-            <button class="px-3.5 py-1.5 rounded-xl font-semibold text-gray-600 hover:text-black hover:bg-gray-100">Điểm danh</button>
-            <button class="px-3.5 py-1.5 rounded-xl font-semibold text-gray-600 hover:text-black hover:bg-gray-100">Doanh thu tại quầy</button>
-            <button class="px-3.5 py-1.5 rounded-xl font-semibold text-gray-600 hover:text-black hover:bg-gray-100">Hiệu quả lớp học</button>
+            <button onclick="filterReportCategory('all')" id="btnReportCatAll" class="px-3.5 py-1.5 rounded-xl font-bold bg-black text-white shadow-2xs">Tất cả dịch vụ</button>
+            <button onclick="filterReportCategory('package')" id="btnReportCatPackage" class="px-3.5 py-1.5 rounded-xl font-semibold text-gray-600 hover:text-black hover:bg-gray-100">Gói tập</button>
+            <button onclick="filterReportCategory('course')" id="btnReportCatCourse" class="px-3.5 py-1.5 rounded-xl font-semibold text-gray-600 hover:text-black hover:bg-gray-100">Khóa học</button>
+            <button onclick="filterReportCategory('product')" id="btnReportCatProduct" class="px-3.5 py-1.5 rounded-xl font-semibold text-gray-600 hover:text-black hover:bg-gray-100">Sản phẩm quầy</button>
           </div>
-          <div class="flex items-center gap-2">
-            <div class="border border-gray-200 bg-white px-3 py-1.5 rounded-xl text-xs text-gray-700 flex items-center gap-2 shadow-2xs">
-              <i class="fa-regular fa-calendar text-gray-400"></i>
-              <span>01/10/2026 – 31/10/2026</span>
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-xl text-xs shadow-2xs">
+              <span class="text-gray-400 font-semibold">Từ:</span>
+              <input type="date" id="reportFromDate" class="text-xs font-semibold text-gray-800 focus:outline-none">
+              <span class="text-gray-400 font-semibold">Đến:</span>
+              <input type="date" id="reportToDate" class="text-xs font-semibold text-gray-800 focus:outline-none">
             </div>
-            <button onclick="alert('Đã cập nhật số liệu theo khoảng thời gian!')" class="bg-black text-white text-xs font-semibold px-3 py-1.5 rounded-xl hover:bg-neutral-800 transition">
-              Áp dụng
+            <button onclick="applyReportDateFilter()" class="bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl hover:bg-neutral-800 transition shadow-2xs flex items-center gap-1.5">
+              <i class="fa-solid fa-filter text-[10px]"></i>
+              <span>Áp dụng</span>
             </button>
           </div>
         </div>
 
-        <!-- 4 Stat Cards báo cáo -->
+        <!-- 4 Stat Cards báo cáo (Lấy 100% từ Database MySQL) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
             <span class="text-xs text-gray-500 font-medium">Hội viên mới</span>
-            <div class="text-2xl sm:text-3xl font-black text-black mt-1">86</div>
-            <p class="text-[11px] text-emerald-600 font-semibold mt-1">+12% so với tháng trước</p>
+            <div id="repStatNewMembers" class="text-2xl sm:text-3xl font-black text-black mt-1">--</div>
+            <p id="repStatNewMembersSub" class="text-[11px] text-emerald-600 font-semibold mt-1">Hội viên đăng ký trong kỳ</p>
           </div>
           <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
             <span class="text-xs text-gray-500 font-medium">Lượt đăng ký lớp</span>
-            <div class="text-2xl sm:text-3xl font-black text-black mt-1">342</div>
-            <p class="text-[11px] text-emerald-600 font-semibold mt-1">+8%</p>
+            <div id="repStatEnrollments" class="text-2xl sm:text-3xl font-black text-black mt-1">--</div>
+            <p id="repStatEnrollmentsSub" class="text-[11px] text-emerald-600 font-semibold mt-1">Lượt đăng ký ghi nhận</p>
           </div>
           <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
             <span class="text-xs text-gray-500 font-medium">Lượt điểm danh</span>
-            <div class="text-2xl sm:text-3xl font-black text-black mt-1">4.870</div>
-            <p class="text-[11px] text-gray-500 font-medium mt-1">Tỷ lệ tham gia 86%</p>
+            <div id="repStatCheckins" class="text-2xl sm:text-3xl font-black text-black mt-1">--</div>
+            <p id="repStatCheckinsSub" class="text-[11px] text-gray-500 font-medium mt-1">Lượt check-in ghi nhận</p>
           </div>
           <div class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-2xs">
             <span class="text-xs text-gray-500 font-medium">Doanh thu tại quầy</span>
-            <div class="text-2xl sm:text-3xl font-black text-black mt-1">48,6 tr</div>
-            <p class="text-[11px] text-gray-500 font-medium mt-1">Chỉ tính giao dịch đã xác nhận</p>
+            <div id="repStatRevenue" class="text-2xl sm:text-3xl font-black text-black mt-1">--</div>
+            <p id="repStatRevenueSub" class="text-[11px] text-gray-500 font-medium mt-1">Chỉ tính giao dịch đã xác nhận</p>
           </div>
         </div>
 
@@ -1400,7 +974,7 @@
                   <th class="pb-3 font-semibold text-right">Hiệu quả</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-100 text-gray-700">
+              <tbody class="divide-y divide-gray-100 text-gray-700" id="reportClassEfficiencyTbody">
                 <tr class="hover:bg-gray-50/50">
                   <td class="py-3 font-bold text-black">Yoga buổi sáng</td>
                   <td class="py-3">Lê Thị Hoa</td>
@@ -1498,227 +1072,7 @@
 
       </div>
 
-      <!-- ============================================================== -->
-      <!-- TAB 5: TRỢ LÝ AI HỖ TRỢ (THEO HÌNH 5) ============================ -->
-      <!-- ============================================================== -->
-      <div id="tab-ai-assistant" class="admin-tab space-y-6">
-        
-        <!-- Tiêu đề -->
-        <div class="pb-2">
-          <h2 class="text-xl sm:text-2xl font-black text-black tracking-tight flex items-center gap-2">
-            <span>Trợ lý AI hỗ trợ</span>
-            <i class="fa-solid fa-wand-magic-sparkles text-purple-600 text-base"></i>
-          </h2>
-          <p class="text-xs text-gray-500 mt-0.5">Hỏi nhanh về gói tập, khóa học, lịch học và quy định trung tâm</p>
-        </div>
 
-        <!-- Bố cục 2 cột: Cửa sổ Chat & Sidebar Hỗ trợ -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
-          <!-- Khung Hội thoại Chatbot (8 cols) -->
-          <div class="lg:col-span-8 bg-white border border-gray-200/90 rounded-2xl shadow-2xs flex flex-col h-[650px] overflow-hidden">
-            
-            <!-- Header Chatbot -->
-            <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-neutral-50/60">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center text-xs shadow-xs">
-                  <i class="fa-solid fa-wand-magic-sparkles"></i>
-                </div>
-                <div>
-                  <h3 class="font-bold text-xs text-black">Trợ lý AI FitCenter</h3>
-                  <p class="text-[10px] text-emerald-600 flex items-center gap-1 font-semibold">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-                    Đang trực tuyến
-                  </p>
-                </div>
-              </div>
-
-              <button onclick="resetAIChat()" class="border border-gray-200 bg-white hover:bg-gray-100 text-gray-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition shadow-2xs">
-                Cuộc trò chuyện mới
-              </button>
-            </div>
-
-            <!-- Vùng hiển thị tin nhắn (Scrollable) -->
-            <div id="chatMessageList" class="flex-1 p-5 overflow-y-auto space-y-4 text-xs">
-              
-              <!-- Ngày tháng ngăn cách -->
-              <div class="text-center my-2">
-                <span class="border border-gray-200 bg-gray-50 px-3 py-0.5 rounded-full text-[10px] text-gray-500 font-medium">
-                  Hôm nay
-                </span>
-              </div>
-
-              <!-- Message 1: AI chào mừng -->
-              <div class="flex items-start gap-2.5 max-w-[85%]">
-                <div class="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5">
-                  <i class="fa-solid fa-wand-magic-sparkles"></i>
-                </div>
-                <div class="space-y-1">
-                  <div class="bg-gray-100/80 rounded-2xl p-3.5 text-gray-800 leading-relaxed rounded-tl-sm">
-                    Xin chào! Mình là Trợ lý AI FitCenter. Mình có thể giúp bạn tra cứu gói tập, khóa học, lịch học và các quy định của trung tâm.
-                  </div>
-                  <span class="text-[10px] text-gray-400 block pl-1">Trợ lý AI · 09:14</span>
-                </div>
-              </div>
-
-              <!-- Message 2: Khách hỏi lịch Yoga -->
-              <div class="flex items-start justify-end gap-2.5 ml-auto max-w-[85%]">
-                <div class="space-y-1 text-right">
-                  <div class="bg-black text-white rounded-2xl p-3.5 text-left leading-relaxed rounded-tr-sm">
-                    Lớp Yoga buổi sáng thứ Hai còn chỗ không?
-                  </div>
-                  <span class="text-[10px] text-gray-400 block pr-1">Bạn · 09:13</span>
-                </div>
-              </div>
-
-              <!-- Message 3: AI trả lời kèm thẻ lịch học -->
-              <div class="flex items-start gap-2.5 max-w-[90%]">
-                <div class="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5">
-                  <i class="fa-solid fa-wand-magic-sparkles"></i>
-                </div>
-                <div class="space-y-2">
-                  <div class="bg-gray-100/80 rounded-2xl p-3.5 text-gray-800 leading-relaxed rounded-tl-sm space-y-2.5">
-                    <p>
-                      Lớp <span class="font-bold text-black">Yoga buổi sáng</span> sáng thứ Hai hiện <span class="font-bold text-black">còn 2/20 chỗ</span>. Bạn có thể đăng ký trực tuyến trong mục Đặt lịch tập.
-                    </p>
-
-                    <!-- Thẻ khóa học được gắn kèm trong tin nhắn -->
-                    <div class="border border-gray-200 bg-white rounded-xl p-3 shadow-2xs">
-                      <div class="flex items-center justify-between mb-1.5">
-                        <span class="font-bold text-black text-xs">Yoga buổi sáng</span>
-                        <span class="border border-gray-200 px-2 py-0.5 rounded-full text-[10px] font-semibold text-gray-600 bg-gray-50">Còn 2 chỗ</span>
-                      </div>
-                      <p class="text-[11px] text-gray-500">Thứ 2, 4, 6 · 06:00 · Phòng Yoga 1 · HLV Lê Thị Hoa</p>
-                      <button onclick="switchAdminTab('courses')" class="mt-2 text-xs font-semibold text-black underline hover:text-gray-700">
-                        Xem & đặt lịch
-                      </button>
-                    </div>
-                  </div>
-                  <span class="text-[10px] text-gray-400 block pl-1">Trợ lý AI · 09:14</span>
-                </div>
-              </div>
-
-              <!-- Message 4: Khách hỏi mua hàng online -->
-              <div class="flex items-start justify-end gap-2.5 ml-auto max-w-[85%]">
-                <div class="space-y-1 text-right">
-                  <div class="bg-black text-white rounded-2xl p-3.5 text-left leading-relaxed rounded-tr-sm">
-                    Mình có mua găng tay tập ngay trên website được không?
-                  </div>
-                  <span class="text-[10px] text-gray-400 block pr-1">Bạn · 09:13</span>
-                </div>
-              </div>
-
-              <!-- Message 5: AI giải thích quy định nghiệp vụ cốt lõi -->
-              <div class="flex items-start gap-2.5 max-w-[85%]">
-                <div class="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5">
-                  <i class="fa-solid fa-wand-magic-sparkles"></i>
-                </div>
-                <div class="space-y-1">
-                  <div class="bg-gray-100/80 rounded-2xl p-3.5 text-gray-800 leading-relaxed rounded-tl-sm">
-                    Website hiện chỉ hỗ trợ <span class="font-bold text-black">đăng ký khóa học trực tuyến</span>. Sản phẩm của cửa hàng chỉ được bán <span class="font-bold text-black">trực tiếp tại quầy thông qua nhân viên</span>. Bạn có muốn mình chuyển yêu cầu cho nhân viên hỗ trợ không?
-                  </div>
-                  <span class="text-[10px] text-gray-400 block pl-1">Trợ lý AI · 09:14</span>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Vùng Gợi ý & Nhập câu hỏi (Footer Chatbot) -->
-            <div class="p-4 border-t border-gray-100 bg-white space-y-3">
-              
-              <!-- Chips gợi ý câu hỏi nhanh -->
-              <div class="flex flex-wrap items-center gap-1.5">
-                <button onclick="sendQuickPrompt('Lịch học của tôi')" class="border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-[11px] font-medium transition">
-                  Lịch học của tôi
-                </button>
-                <button onclick="sendQuickPrompt('Các gói tập hiện có')" class="border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-[11px] font-medium transition">
-                  Các gói tập hiện có
-                </button>
-                <button onclick="sendQuickPrompt('Quy trình hủy hoặc đổi lịch học')" class="border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-[11px] font-medium transition">
-                  Hủy / đổi lịch học
-                </button>
-                <button onclick="sendQuickPrompt('Liên hệ nhân viên')" class="border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-[11px] font-medium transition">
-                  Liên hệ nhân viên
-                </button>
-              </div>
-
-              <!-- Input gửi tin nhắn -->
-              <form onsubmit="event.preventDefault(); submitChatMessage();" class="flex items-center gap-2">
-                <input 
-                  id="chatInputText"
-                  type="text" 
-                  placeholder="Nhập câu hỏi của bạn..." 
-                  class="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-black focus:outline-none focus:border-black"
-                >
-                <button type="submit" class="bg-black hover:bg-neutral-800 text-white font-semibold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 transition">
-                  <i class="fa-solid fa-paper-plane text-[11px]"></i>
-                  <span>Gửi</span>
-                </button>
-              </form>
-
-              <p class="text-[10px] text-gray-400 text-center">
-                AI có thể chưa chính xác. Thông tin chính thức theo thông báo và quy định của trung tâm.
-              </p>
-            </div>
-
-          </div>
-
-          <!-- Cột Thông tin & Thao tác nhanh (4 cols) -->
-          <div class="lg:col-span-4 space-y-4">
-            
-            <!-- Thẻ Liên kết nhanh -->
-            <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs">
-              <h4 class="font-bold text-xs text-black mb-3">Liên kết nhanh</h4>
-              <div class="space-y-2">
-                <button onclick="switchAdminTab('courses'); filterCourseTab('schedule');" class="w-full border border-gray-200 hover:bg-gray-50 text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-gray-800 flex items-center justify-between transition">
-                  <span class="flex items-center gap-2">
-                    <i class="fa-regular fa-calendar-check text-gray-500"></i>
-                    Đặt lịch tập
-                  </span>
-                  <i class="fa-solid fa-chevron-right text-[10px] text-gray-400"></i>
-                </button>
-                <button onclick="alert('Đang mở danh sách lịch học của học viên')" class="w-full border border-gray-200 hover:bg-gray-50 text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-gray-800 flex items-center justify-between transition">
-                  <span class="flex items-center gap-2">
-                    <i class="fa-regular fa-clock text-gray-500"></i>
-                    Lịch học của tôi
-                  </span>
-                  <i class="fa-solid fa-chevron-right text-[10px] text-gray-400"></i>
-                </button>
-                <button onclick="switchAdminTab('courses')" class="w-full border border-gray-200 hover:bg-gray-50 text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold text-gray-800 flex items-center justify-between transition">
-                  <span class="flex items-center gap-2">
-                    <i class="fa-solid fa-layer-group text-gray-500"></i>
-                    Gói tập & khóa học
-                  </span>
-                  <i class="fa-solid fa-chevron-right text-[10px] text-gray-400"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Thẻ Cần hỗ trợ trực tiếp -->
-            <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs space-y-3">
-              <h4 class="font-bold text-xs text-black">Cần hỗ trợ trực tiếp?</h4>
-              <p class="text-[11px] text-gray-500 leading-relaxed">
-                Gửi yêu cầu để nhân viên tiếp nhận và phản hồi trong giờ làm việc.
-              </p>
-              <button onclick="alert('Đã gửi thông báo yêu cầu hỗ trợ đến nhân viên ca trực!')" class="w-full bg-black hover:bg-neutral-800 text-white font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-2xs">
-                <i class="fa-solid fa-headset text-xs"></i>
-                <span>Chuyển cho nhân viên</span>
-              </button>
-            </div>
-
-            <!-- Lưu ý nghiệp vụ -->
-            <div class="border border-gray-200 bg-gray-50/70 rounded-2xl p-4 flex items-start gap-2.5 text-[11px] text-gray-500">
-              <i class="fa-solid fa-circle-info mt-0.5 text-gray-400 shrink-0"></i>
-              <p class="leading-relaxed">
-                AI chỉ cung cấp thông tin. Việc đăng ký lớp, hủy/đổi lịch được thực hiện trong các chức năng tương ứng.
-              </p>
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
 
       <!-- ============================================================== -->
       <!-- TAB PHỤ: TÀI KHOẢN NHÂN SỰ ==================================== -->
@@ -1729,7 +1083,7 @@
             <h2 class="text-xl sm:text-2xl font-black text-black tracking-tight">Tài khoản nhân sự</h2>
             <p class="text-xs text-gray-500 mt-0.5">Quản lý tài khoản và phân quyền cho Quản trị viên, Nhân viên và Huấn luyện viên</p>
           </div>
-          <button onclick="alert('Mở form tạo tài khoản nhân sự mới')" class="bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5">
+          <button onclick="openCreateStaffModal()" class="bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs hover:bg-neutral-800 transition">
             <i class="fa-solid fa-plus text-[10px]"></i> Tạo tài khoản
           </button>
         </div>
@@ -1748,36 +1102,9 @@
             </thead>
             <tbody class="divide-y divide-gray-100" id="staffTbody">
               <tr>
-                <td class="py-3 font-bold">NS001</td>
-                <td class="py-3 font-bold text-black">Trần Hoàng Admin</td>
-                <td class="py-3 text-gray-500">admin@fitcenter.vn</td>
-                <td class="py-3"><span class="bg-black text-white px-2 py-0.5 rounded-full text-[10px] font-bold">Quản trị viên</span></td>
-                <td class="py-3"><span class="text-emerald-600 font-semibold text-[11px]">Đang làm việc</span></td>
-                <td class="py-3 text-right"><button class="text-gray-500 hover:text-black">Sửa</button></td>
-              </tr>
-              <tr>
-                <td class="py-3 font-bold">NS002</td>
-                <td class="py-3 font-bold text-black">Hoàng Nhân viên</td>
-                <td class="py-3 text-gray-500">nhanvien@fitcenter.vn</td>
-                <td class="py-3"><span class="border border-gray-300 text-gray-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">Nhân viên quầy</span></td>
-                <td class="py-3"><span class="text-emerald-600 font-semibold text-[11px]">Đang làm việc</span></td>
-                <td class="py-3 text-right"><button class="text-gray-500 hover:text-black">Sửa</button></td>
-              </tr>
-              <tr>
-                <td class="py-3 font-bold">HLV01</td>
-                <td class="py-3 font-bold text-black">Lê Thị Hoa</td>
-                <td class="py-3 text-gray-500">hoale@fitcenter.vn</td>
-                <td class="py-3"><span class="border border-gray-300 text-gray-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">Huấn luyện viên</span></td>
-                <td class="py-3"><span class="text-emerald-600 font-semibold text-[11px]">Đang hoạt động</span></td>
-                <td class="py-3 text-right"><button class="text-gray-500 hover:text-black">Sửa</button></td>
-              </tr>
-              <tr>
-                <td class="py-3 font-bold">HLV02</td>
-                <td class="py-3 font-bold text-black">Trần Văn Mạnh</td>
-                <td class="py-3 text-gray-500">manhtran@fitcenter.vn</td>
-                <td class="py-3"><span class="border border-gray-300 text-gray-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">Huấn luyện viên</span></td>
-                <td class="py-3"><span class="text-emerald-600 font-semibold text-[11px]">Đang hoạt động</span></td>
-                <td class="py-3 text-right"><button class="text-gray-500 hover:text-black">Sửa</button></td>
+                <td colspan="6" class="py-6 text-center text-gray-400">
+                  <i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Đang tải tài khoản nhân sự từ CSDL...
+                </td>
               </tr>
             </tbody>
           </table>
@@ -1793,7 +1120,7 @@
             <h2 class="text-xl sm:text-2xl font-black text-black tracking-tight">Danh mục sản phẩm cửa hàng</h2>
             <p class="text-xs text-gray-500 mt-0.5">Sản phẩm bán trực tiếp tại quầy thông qua nhân viên (không bán online)</p>
           </div>
-          <button onclick="alert('Mở form thêm sản phẩm mới')" class="bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5">
+          <button onclick="openCreateProductModal()" class="bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs hover:bg-neutral-800 transition">
             <i class="fa-solid fa-plus text-[10px]"></i> Thêm sản phẩm
           </button>
         </div>
@@ -1841,29 +1168,16 @@
         <div class="flex items-center justify-between pb-2">
           <div>
             <h2 class="text-xl sm:text-2xl font-black text-black tracking-tight">Quản lý thông báo hệ thống</h2>
-            <p class="text-xs text-gray-500 mt-0.5">Soạn và gửi thông báo chung đến hội viên hoặc nhân sự</p>
+            <p class="text-xs text-gray-500 mt-0.5">Soạn và phát hành thông báo chung đến hội viên, nhân viên hoặc huấn luyện viên</p>
           </div>
-          <button onclick="alert('Soạn thông báo mới')" class="bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5">
+          <button onclick="openComposeNotificationModal()" class="bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 hover:bg-gray-800 transition cursor-pointer shadow-2xs">
             <i class="fa-solid fa-plus text-[10px]"></i> Soạn thông báo
           </button>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs divide-y divide-gray-100">
-          <div class="py-3 flex items-start justify-between">
-            <div>
-              <h4 class="font-bold text-xs text-black">Bảo trì hệ thống phòng xông hơi</h4>
-              <p class="text-[11px] text-gray-500 mt-0.5">Tạm ngưng phục vụ khu xông hơi khô ngày 10/11 để bảo dưỡng định kỳ.</p>
-              <span class="text-[10px] text-gray-400 mt-1 block">Gửi đến: Tất cả hội viên · 07/11/2026</span>
-            </div>
-            <span class="bg-black text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Đã gửi</span>
-          </div>
-          <div class="py-3 flex items-start justify-between">
-            <div>
-              <h4 class="font-bold text-xs text-black">Khai giảng lớp Kickboxing mới</h4>
-              <p class="text-[11px] text-gray-500 mt-0.5">Mở thêm ca 19:30 Thứ 3, 5 cho các học viên trong danh sách chờ.</p>
-              <span class="text-[10px] text-gray-400 mt-1 block">Gửi đến: Danh sách chờ · 06/11/2026</span>
-            </div>
-            <span class="bg-black text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Đã gửi</span>
+        <div id="adminNotificationsContainer" class="bg-white border border-gray-200 rounded-2xl p-5 shadow-2xs divide-y divide-gray-100">
+          <div class="py-8 text-center text-gray-400 text-xs">
+            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Đang tải danh sách thông báo từ hệ thống...
           </div>
         </div>
       </div>
@@ -1872,87 +1186,461 @@
 
   </div>
 
-  <!-- ================= MODAL: TẠO KHÓA HỌC ================= -->
-  <div id="modalCreateCourse" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+  <!-- ================= MODAL: SOẠN THÔNG BÁO MỚI ================= -->
+  <div id="modalComposeNotification" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-gray-100">
-        <h3 class="font-bold text-sm text-black">Tạo khóa học mới</h3>
-        <button onclick="closeModal('modalCreateCourse')" class="text-gray-400 hover:text-black">
-          <i class="fa-solid fa-xmark text-sm"></i>
+        <div>
+          <h3 class="text-base font-bold text-black">Soạn thông báo hệ thống mới</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Phát hành thông báo tới học viên, nhân viên hoặc HLV</p>
+        </div>
+        <button onclick="closeModal('modalComposeNotification')" class="text-gray-400 hover:text-black cursor-pointer">
+          <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
-      <form onsubmit="event.preventDefault(); alert('Đã tạo khóa học thành công!'); closeModal('modalCreateCourse');" class="mt-4 space-y-3.5 text-xs">
+
+      <form onsubmit="submitAdminNotification(event)" class="mt-4 space-y-4 text-xs">
         <div>
-          <label class="block font-semibold text-black mb-1">Tên khóa học</label>
-          <input type="text" required placeholder="Ví dụ: Power Yoga nâng cao" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+          <label class="block font-semibold text-gray-700 mb-1">Tiêu đề thông báo <span class="text-red-500">*</span></label>
+          <input type="text" id="notifTitle" required placeholder="Ví dụ: Lịch nghỉ lễ, bảo trì phòng tập..." class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black focus:outline-none focus:border-black">
         </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-black mb-1">Cấp độ</label>
-            <select class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
-              <option>Cơ bản</option>
-              <option>Trung cấp</option>
-              <option>Nâng cao</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-black mb-1">Sức chứa tối đa</label>
-            <input type="number" value="20" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
-          </div>
-        </div>
+
         <div>
-          <label class="block font-semibold text-black mb-1">Giá khóa học (VNĐ)</label>
-          <input type="text" value="1.200.000" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+          <label class="block font-semibold text-gray-700 mb-1">Nhóm người nhận <span class="text-red-500">*</span></label>
+          <select id="notifTarget" required class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-black focus:outline-none focus:border-black">
+            <option value="1">Tất cả người dùng (Hội viên & Nhân sự)</option>
+            <option value="4">Tất cả Hội viên / Khách hàng</option>
+            <option value="2">Nhân viên quầy lễ tân</option>
+            <option value="3">Huấn luyện viên (HLV)</option>
+          </select>
         </div>
-        <div class="pt-2 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeModal('modalCreateCourse')" class="px-4 py-2 border border-gray-200 rounded-xl text-gray-600 font-semibold hover:bg-gray-50">Hủy</button>
-          <button type="submit" class="px-4 py-2 bg-black text-white rounded-xl font-semibold hover:bg-neutral-800">Lưu khóa học</button>
+
+        <div>
+          <label class="block font-semibold text-gray-700 mb-1">Nội dung thông báo chi tiết <span class="text-red-500">*</span></label>
+          <textarea id="notifContent" rows="4" required placeholder="Nhập nội dung thông báo đầy đủ gửi đến các thành viên..." class="w-full border border-gray-300 rounded-xl p-3 text-black focus:outline-none focus:border-black"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-gray-100">
+          <button type="button" onclick="closeModal('modalComposeNotification')" class="px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 cursor-pointer">
+            Hủy
+          </button>
+          <button type="submit" id="btnSubmitNotif" class="px-5 py-2 bg-black hover:bg-gray-800 text-white rounded-xl font-semibold cursor-pointer">
+            Phát hành thông báo
+          </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ================= MODAL: TẠO LỚP HỌC ================= -->
-  <div id="modalCreateClass" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-gray-100">
+  <!-- ================= MODAL: TẠO / SỬA KHÓA HỌC ================= -->
+  <div id="modalCourseForm" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-gray-100">
-        <h3 class="font-bold text-sm text-black">Mở lớp học mới</h3>
+        <div>
+          <h3 id="modalCourseTitle" class="font-bold text-sm text-black">Tạo khóa học mới</h3>
+          <p class="text-[11px] text-gray-400">Quản lý thông tin, thời lượng, điều kiện và trạng thái kinh doanh</p>
+        </div>
+        <button onclick="closeModal('modalCourseForm')" class="text-gray-400 hover:text-black">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+      <form id="courseFormElement" onsubmit="event.preventDefault(); saveCourse();" class="mt-4 space-y-3.5 text-xs">
+        <input type="hidden" id="courseFormId">
+        
+        <div>
+          <label class="block font-semibold text-black mb-1">Tên khóa học *</label>
+          <input type="text" id="courseFormName" required placeholder="Ví dụ: Power Yoga nâng cao" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-black mb-1">Chuyên môn</label>
+            <select id="courseFormSpecialty" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+              <!-- Load động từ ChuyenMon -->
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Giá khóa học (VNĐ) *</label>
+            <input type="number" id="courseFormPrice" required min="0" step="10000" placeholder="1200000" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-black mb-1">Thời lượng (Số tuần) *</label>
+            <input type="number" id="courseFormDurationWeeks" required min="1" max="52" placeholder="8" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Tổng số buổi học *</label>
+            <input type="number" id="courseFormTotalSessions" required min="1" max="365" placeholder="16" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-black mb-1">Trạng thái kinh doanh</label>
+            <select id="courseFormStatus" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+              <option value="1">Đang kinh doanh</option>
+              <option value="0">Ngừng kinh doanh</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Trạng thái công bố</label>
+            <select id="courseFormPublished" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+              <option value="1">Đã công bố (Hiển thị cho hội viên)</option>
+              <option value="0">Chưa công bố (Tạm ẩn)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-black mb-1">Điều kiện tham gia</label>
+          <input type="text" id="courseFormRequirements" placeholder="Ví dụ: Sức khỏe tốt, từ 16 tuổi trở lên" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-black mb-1">Mô tả khóa học</label>
+          <textarea id="courseFormDescription" rows="3" placeholder="Giới thiệu nội dung, giáo án, lộ trình của khóa học..." class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black"></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2 border-t border-gray-100">
+          <button type="button" onclick="closeModal('modalCourseForm')" class="px-4 py-2 border border-gray-200 rounded-xl text-gray-600 font-semibold hover:bg-gray-50">Hủy</button>
+          <button type="submit" id="btnSubmitCourseForm" class="px-4 py-2 bg-black text-white rounded-xl font-semibold hover:bg-neutral-800"><i class="fa-solid fa-floppy-disk mr-1.5"></i>Lưu khóa học</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: TẠO / SỬA GÓI TẬP ================= -->
+  <div id="modalPackageForm" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+        <div>
+          <h3 id="modalPackageTitle" class="font-bold text-sm text-black">Tạo gói tập mới</h3>
+          <p class="text-[11px] text-gray-400">Thiết lập thời hạn ngày, giá và trạng thái kinh doanh của gói tập</p>
+        </div>
+        <button onclick="closeModal('modalPackageForm')" class="text-gray-400 hover:text-black">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+      <form id="packageFormElement" onsubmit="event.preventDefault(); savePackage();" class="mt-4 space-y-3.5 text-xs">
+        <input type="hidden" id="pkgFormId">
+        
+        <div>
+          <label class="block font-semibold text-black mb-1">Tên gói tập *</label>
+          <input type="text" id="pkgFormName" required placeholder="Ví dụ: Gói tập 6 tháng VIP" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-black mb-1">Thời lượng (Số ngày) *</label>
+            <input type="number" id="pkgFormDurationDays" required min="1" placeholder="180" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Giá gói tập (VNĐ) *</label>
+            <input type="number" id="pkgFormPrice" required min="0" step="10000" placeholder="1800000" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-black mb-1">Trạng thái kinh doanh</label>
+            <select id="pkgFormStatus" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+              <option value="1">Đang kinh doanh</option>
+              <option value="0">Ngừng kinh doanh</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Trạng thái công bố</label>
+            <select id="pkgFormPublished" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+              <option value="1">Đã công bố (Hiển thị cho hội viên)</option>
+              <option value="0">Chưa công bố (Tạm ẩn)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-black mb-1">Điều kiện tham gia</label>
+          <input type="text" id="pkgFormRequirements" placeholder="Ví dụ: Từ 16 tuổi trở lên, tặng kèm bình nước" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-black mb-1">Mô tả gói tập</label>
+          <textarea id="pkgFormDescription" rows="3" placeholder="Quyền lợi của hội viên khi đăng ký gói tập..." class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black"></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2 border-t border-gray-100">
+          <button type="button" onclick="closeModal('modalPackageForm')" class="px-4 py-2 border border-gray-200 rounded-xl text-gray-600 font-semibold hover:bg-gray-50">Hủy</button>
+          <button type="submit" id="btnSubmitPackageForm" class="px-4 py-2 bg-black text-white rounded-xl font-semibold hover:bg-neutral-800"><i class="fa-solid fa-floppy-disk mr-1.5"></i>Lưu gói tập</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: TẠO LỚP HỌC MỚI (CHI TIẾT THỨ, NGÀY, THÁNG, GIỜ) ================= -->
+  <div id="modalCreateClass" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+        <div>
+          <h3 class="font-bold text-sm text-black">Mở lớp học mới</h3>
+          <p class="text-[11px] text-gray-500">Thiết lập khóa học, thời gian, lịch thứ trong tuần và phòng học</p>
+        </div>
         <button onclick="closeModal('modalCreateClass')" class="text-gray-400 hover:text-black">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
-      <form onsubmit="event.preventDefault(); alert('Đã mở lớp học thành công!'); closeModal('modalCreateClass');" class="mt-4 space-y-3.5 text-xs">
+      <form onsubmit="event.preventDefault(); saveNewClass();" class="mt-4 space-y-3.5 text-xs">
         <div>
-          <label class="block font-semibold text-black mb-1">Khóa học</label>
-          <select class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
-            <option>Yoga buổi sáng</option>
-            <option>CrossFit nâng cao</option>
-            <option>Pilates cơ bản</option>
-            <option>Kickboxing</option>
+          <label class="block font-semibold text-black mb-1">Khóa học áp dụng *</label>
+          <select id="createClassCourse" required onchange="onClassCourseChange()" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-semibold">
+            <!-- Nạp động từ Danh sách khóa học -->
           </select>
         </div>
+
+        <div>
+          <label class="block font-semibold text-black mb-1">Tên lớp học *</label>
+          <input type="text" id="createClassName" required placeholder="Ví dụ: Yoga buổi sáng - Sáng T2/T4/T6" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+        </div>
+
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-semibold text-black mb-1">Phòng học</label>
-            <select class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
-              <option>Phòng Yoga 1</option>
-              <option>Phòng Studio A</option>
-              <option>Phòng Studio B</option>
-              <option>Khu Functional</option>
+            <label class="block font-semibold text-black mb-1">Phòng học *</label>
+            <select id="createClassRoom" required onchange="onClassRoomChange()" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+              <!-- Nạp động từ Phòng học -->
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-black mb-1">Huấn luyện viên</label>
-            <select class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
-              <option>Lê Thị Hoa</option>
-              <option>Trần Văn Mạnh</option>
-              <option>Nguyễn Quốc Bảo</option>
+            <label class="block font-semibold text-black mb-1">Sức chứa tối đa (người) *</label>
+            <input type="number" id="createClassCapacity" required min="1" max="100" placeholder="20" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono">
+            <span id="roomCapacityNotice" class="text-[10px] text-gray-400 block mt-0.5">Sức chứa phòng: -- người</span>
+          </div>
+        </div>
+
+        <!-- Thời gian: Ngày bắt đầu & Ngày kết thúc -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-black mb-1">Ngày bắt đầu *</label>
+            <input type="date" id="createClassStartDate" required class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-semibold">
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Ngày kết thúc *</label>
+            <input type="date" id="createClassEndDate" required class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-semibold">
+          </div>
+        </div>
+
+        <!-- Khung giờ học trong ngày -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-black mb-1">Giờ bắt đầu *</label>
+            <input type="time" id="createClassStartTime" required value="06:00" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Giờ kết thúc *</label>
+            <input type="time" id="createClassEndTime" required value="07:00" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono">
+          </div>
+        </div>
+
+        <!-- Lịch thứ trong tuần -->
+        <div class="space-y-1.5 border border-gray-100 bg-neutral-50/70 p-3 rounded-2xl">
+          <div class="flex items-center justify-between">
+            <label class="block font-semibold text-black text-[11px]">Lịch học các thứ trong tuần *</label>
+            <div class="space-x-1.5 text-[10px]">
+              <button type="button" onclick="selectClassDaysPreset([2, 4, 6])" class="px-2 py-0.5 rounded-lg border border-gray-200 hover:bg-white bg-white/70 font-semibold text-gray-700">T2 - T4 - T6</button>
+              <button type="button" onclick="selectClassDaysPreset([3, 5, 7])" class="px-2 py-0.5 rounded-lg border border-gray-200 hover:bg-white bg-white/70 font-semibold text-gray-700">T3 - T5 - T7</button>
+              <button type="button" onclick="selectClassDaysPreset([2, 3, 4, 5, 6, 7])" class="px-2 py-0.5 rounded-lg border border-gray-200 hover:bg-white bg-white/70 font-semibold text-gray-700">Cả tuần</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-7 gap-1 pt-1 text-center font-bold text-[11px]">
+            <label class="cursor-pointer border border-gray-200 rounded-xl py-1.5 hover:bg-white has-[:checked]:bg-black has-[:checked]:text-white transition">
+              <input type="checkbox" name="classDayOfWeek" value="2" checked class="hidden">
+              <span>T2</span>
+            </label>
+            <label class="cursor-pointer border border-gray-200 rounded-xl py-1.5 hover:bg-white has-[:checked]:bg-black has-[:checked]:text-white transition">
+              <input type="checkbox" name="classDayOfWeek" value="3" class="hidden">
+              <span>T3</span>
+            </label>
+            <label class="cursor-pointer border border-gray-200 rounded-xl py-1.5 hover:bg-white has-[:checked]:bg-black has-[:checked]:text-white transition">
+              <input type="checkbox" name="classDayOfWeek" value="4" checked class="hidden">
+              <span>T4</span>
+            </label>
+            <label class="cursor-pointer border border-gray-200 rounded-xl py-1.5 hover:bg-white has-[:checked]:bg-black has-[:checked]:text-white transition">
+              <input type="checkbox" name="classDayOfWeek" value="5" class="hidden">
+              <span>T5</span>
+            </label>
+            <label class="cursor-pointer border border-gray-200 rounded-xl py-1.5 hover:bg-white has-[:checked]:bg-black has-[:checked]:text-white transition">
+              <input type="checkbox" name="classDayOfWeek" value="6" checked class="hidden">
+              <span>T6</span>
+            </label>
+            <label class="cursor-pointer border border-gray-200 rounded-xl py-1.5 hover:bg-white has-[:checked]:bg-black has-[:checked]:text-white transition">
+              <input type="checkbox" name="classDayOfWeek" value="7" class="hidden">
+              <span>T7</span>
+            </label>
+            <label class="cursor-pointer border border-gray-200 rounded-xl py-1.5 hover:bg-white has-[:checked]:bg-black has-[:checked]:text-white transition">
+              <input type="checkbox" name="classDayOfWeek" value="8" class="hidden">
+              <span>CN</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('modalCreateClass')" class="px-4 py-2 border border-gray-200 rounded-xl text-gray-600 font-semibold hover:bg-gray-50">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-black text-white rounded-xl font-semibold hover:bg-neutral-800 shadow-2xs">Tạo lớp học</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: TẠO TÀI KHOẢN NHÂN SỰ ================= -->
+  <div id="modalStaffForm" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-gray-100">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+        <div>
+          <h3 class="font-bold text-sm text-black">Tạo tài khoản nhân sự mới</h3>
+          <p class="text-[11px] text-gray-500">Phân quyền Quản trị viên, Nhân viên lễ tân hoặc Huấn luyện viên</p>
+        </div>
+        <button onclick="closeModal('modalStaffForm')" class="text-gray-400 hover:text-black">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+      <form onsubmit="event.preventDefault(); saveStaffAccount();" class="mt-4 space-y-3.5 text-xs">
+        <div>
+          <label class="block font-semibold text-black mb-1">Họ và tên *</label>
+          <input type="text" id="staffFormName" required placeholder="Ví dụ: Nguyễn Văn Hưng" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-black mb-1">Email đăng nhập *</label>
+            <input type="email" id="staffFormEmail" required placeholder="nhanvien@fitcenter.vn" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Số điện thoại *</label>
+            <input type="tel" id="staffFormPhone" required pattern="^0[0-9]{9}$" placeholder="0901234567" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-black mb-1">Mật khẩu *</label>
+            <input type="password" id="staffFormPassword" required minlength="6" placeholder="Tối thiểu 6 ký tự" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Vai trò hệ thống *</label>
+            <select id="staffFormRole" required onchange="onStaffRoleChange()" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-semibold">
+              <option value="2">Nhân viên lễ tân / quầy</option>
+              <option value="3">Huấn luyện viên (HLV)</option>
+              <option value="1">Quản trị viên (Admin)</option>
             </select>
           </div>
         </div>
+
+        <!-- Trường phụ riêng cho Nhân viên -->
+        <div id="staffPositionGroup">
+          <label class="block font-semibold text-black mb-1">Chức vụ / Vị trí làm việc</label>
+          <input type="text" id="staffFormPosition" placeholder="Ví dụ: Nhân viên lễ tân ca sáng" value="Nhân viên lễ tân" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+        </div>
+
+        <!-- Trường phụ riêng cho HLV -->
+        <div id="staffTrainerGroup" class="hidden space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-semibold text-black mb-1">Chuyên môn chính</label>
+              <select id="staffFormSpecialty" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+                <!-- Nạp động từ ChuyenMon -->
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-black mb-1">Số năm kinh nghiệm</label>
+              <input type="number" id="staffFormExp" min="0" max="50" value="2" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono">
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Tiểu sử tóm tắt</label>
+            <textarea id="staffFormBiography" rows="2" placeholder="Kinh nghiệm, chứng chỉ huấn luyện..." class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black"></textarea>
+          </div>
+        </div>
+
         <div class="pt-2 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeModal('modalCreateClass')" class="px-4 py-2 border border-gray-200 rounded-xl text-gray-600 font-semibold hover:bg-gray-50">Hủy</button>
-          <button type="submit" class="px-4 py-2 bg-black text-white rounded-xl font-semibold hover:bg-neutral-800">Tạo lớp</button>
+          <button type="button" onclick="closeModal('modalStaffForm')" class="px-4 py-2 border border-gray-200 rounded-xl text-gray-600 font-semibold hover:bg-gray-50">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-black text-white rounded-xl font-semibold hover:bg-neutral-800 shadow-2xs">Tạo tài khoản</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: XEM CHI TIẾT NHÂN SỰ ================= -->
+  <div id="modalStaffDetail" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-gray-100">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+        <h3 class="font-bold text-sm text-black">Hồ sơ chi tiết nhân sự</h3>
+        <button onclick="closeModal('modalStaffDetail')" class="text-gray-400 hover:text-black">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+      <div id="staffDetailContent" class="mt-4 space-y-3.5 text-xs">
+        <!-- Đang tải -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: THÊM SẢN PHẨM MỚI ================= -->
+  <div id="modalProductForm" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-gray-100">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+        <div>
+          <h3 class="font-bold text-sm text-black">Thêm sản phẩm mới</h3>
+          <p class="text-[11px] text-gray-500">Mặt hàng bày bán trực tiếp tại quầy trung tâm</p>
+        </div>
+        <button onclick="closeModal('modalProductForm')" class="text-gray-400 hover:text-black">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+      <form onsubmit="event.preventDefault(); saveProduct();" class="mt-4 space-y-3.5 text-xs">
+        <div>
+          <label class="block font-semibold text-black mb-1">Tên sản phẩm *</label>
+          <input type="text" id="productFormName" required placeholder="Ví dụ: Whey Protein Isolate 2kg" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-black mb-1">Mã sản phẩm (Tùy chọn)</label>
+            <input type="text" id="productFormCode" placeholder="Để trống để tự tạo" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono uppercase">
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Danh mục *</label>
+            <select id="productFormCategory" required class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-semibold">
+              <!-- Nạp động từ Danh mục sản phẩm -->
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-black mb-1">Giá bán (VNĐ) *</label>
+            <input type="number" id="productFormPrice" required min="0" step="5000" placeholder="1200000" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold text-black mb-1">Số lượng tồn kho *</label>
+            <input type="number" id="productFormStock" required min="0" step="1" value="20" placeholder="20" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-mono">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-black mb-1">Trạng thái kinh doanh *</label>
+          <select id="productFormStatus" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black font-semibold">
+            <option value="1">Đang kinh doanh (Bán tại quầy)</option>
+            <option value="0">Ngừng kinh doanh (Tạm khóa)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-black mb-1">Mô tả sản phẩm</label>
+          <textarea id="productFormDescription" rows="2" placeholder="Hương vị, công dụng, quy cách đóng gói..." class="w-full border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-black"></textarea>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('modalProductForm')" class="px-4 py-2 border border-gray-200 rounded-xl text-gray-600 font-semibold hover:bg-gray-50">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-black text-white rounded-xl font-semibold hover:bg-neutral-800 shadow-2xs">Lưu sản phẩm</button>
         </div>
       </form>
     </div>
@@ -2028,7 +1716,6 @@
         'customers': { title: 'Quản lý khách hàng', sub: 'Tra cứu và cập nhật hồ sơ khách hàng' },
         'courses': { title: 'Quản lý gói tập & khóa học', sub: 'Khóa học, lớp học, sức chứa và huấn luyện viên phụ trách' },
         'reports': { title: 'Thống kê & báo cáo', sub: 'Báo cáo tổng hợp hoạt động của trung tâm' },
-        'ai-assistant': { title: 'Trợ lý AI hỗ trợ', sub: 'Hỏi nhanh về gói tập, khóa học, lịch học và quy định trung tâm' },
         'staff': { title: 'Tài khoản nhân sự', sub: 'Phân quyền và tài khoản ban quản trị' },
         'products': { title: 'Sản phẩm cửa hàng', sub: 'Quản lý mặt hàng bán trực tiếp tại quầy' },
         'notifications': { title: 'Thông báo hệ thống', sub: 'Quản trị thông báo đến người dùng' }
@@ -2037,6 +1724,10 @@
       if (headerMap[tabId]) {
         document.getElementById('headerTitle').textContent = headerMap[tabId].title;
         document.getElementById('headerSubtitle').textContent = headerMap[tabId].sub;
+      }
+
+      if (tabId === 'notifications') {
+        loadAdminNotifications();
       }
 
       // Đóng sidebar trên mobile nếu đang mở
@@ -2055,14 +1746,24 @@
       document.getElementById('tabBtnPackages').className = 'px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:text-black hover:bg-gray-100 transition';
       document.getElementById('tabBtnSchedule').className = 'px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:text-black hover:bg-gray-100 transition';
 
+      const courseGrid = document.getElementById('courseGridContainer');
+      const packageGrid = document.getElementById('packageGridContainer');
       const scheduleSec = document.getElementById('adminScheduleSection');
 
       if (type === 'courses') {
         document.getElementById('tabBtnCourses').className = 'px-4 py-2 rounded-xl text-xs font-bold bg-black text-white shadow-2xs transition';
+        if (courseGrid) courseGrid.classList.remove('hidden');
+        if (packageGrid) packageGrid.classList.add('hidden');
+        loadAdminCourses();
       } else if (type === 'packages') {
         document.getElementById('tabBtnPackages').className = 'px-4 py-2 rounded-xl text-xs font-bold bg-black text-white shadow-2xs transition';
+        if (courseGrid) courseGrid.classList.add('hidden');
+        if (packageGrid) packageGrid.classList.remove('hidden');
+        loadAdminPackages();
       } else if (type === 'schedule') {
         document.getElementById('tabBtnSchedule').className = 'px-4 py-2 rounded-xl text-xs font-bold bg-black text-white shadow-2xs transition';
+        if (courseGrid) courseGrid.classList.remove('hidden');
+        if (packageGrid) packageGrid.classList.add('hidden');
         if (scheduleSec) {
           scheduleSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
           scheduleSec.classList.add('ring-2', 'ring-black');
@@ -2276,6 +1977,15 @@
       const newAddress = document.getElementById('drawerInputAddress').value;
       const status = document.getElementById('drawerCustomerStatus').value || 'active';
 
+      if (newPhone && newPhone.trim()) {
+        const phoneRegex = /^0\d{9}$/;
+        if (!phoneRegex.test(newPhone.trim())) {
+          alert('Số điện thoại không hợp lệ!\nSố điện thoại phải gồm đúng 10 số, bắt đầu từ số 0 và không chứa các ký tự khác.');
+          document.getElementById('drawerInputPhone').focus();
+          return;
+        }
+      }
+
       if (!customerId) {
         document.getElementById('drawerName').textContent = newName;
         alert(`Đã lưu thay đổi hồ sơ khách hàng: ${newName}`);
@@ -2309,7 +2019,11 @@
       }
     }
 
-    // 4. Tìm kiếm và lọc Khách hàng theo thời gian thực
+    let customerCurrentPage = 1;
+    const customerPageSize = 5;
+    let currentFilteredCustomers = [];
+
+    // 4. Tìm kiếm và lọc Khách hàng theo thời gian thực (reset về trang 1 khi lọc)
     function filterCustomerTable() {
       const query = (document.getElementById('searchCustomerInput').value || '').toLowerCase().trim();
       const statusFilter = document.getElementById('selectCustomerStatus').value;
@@ -2328,74 +2042,8 @@
         return matchQuery && matchStatus;
       });
 
+      customerCurrentPage = 1;
       renderCustomerTable(filtered);
-    }
-
-    // 5. Trợ lý AI Chatbot tương tác
-    function sendQuickPrompt(promptText) {
-      document.getElementById('chatInputText').value = promptText;
-      submitChatMessage();
-    }
-
-    function submitChatMessage() {
-      const input = document.getElementById('chatInputText');
-      const text = (input.value || '').trim();
-      if (!text) return;
-
-      const chatList = document.getElementById('chatMessageList');
-
-      // 1. Thêm tin nhắn của User
-      const userHtml = `
-        <div class="flex items-start justify-end gap-2.5 ml-auto max-w-[85%] animate-in fade-in duration-200">
-          <div class="space-y-1 text-right">
-            <div class="bg-black text-white rounded-2xl p-3.5 text-left leading-relaxed rounded-tr-sm">
-              ${escapeHtml(text)}
-            </div>
-            <span class="text-[10px] text-gray-400 block pr-1">Bạn · Vừa xong</span>
-          </div>
-        </div>
-      `;
-      chatList.insertAdjacentHTML('beforeend', userHtml);
-      input.value = '';
-      chatList.scrollTop = chatList.scrollHeight;
-
-      // 2. Mô phỏng AI phản hồi sau 400ms theo đúng quy tắc nghiệp vụ FitCenter
-      setTimeout(() => {
-        let aiReply = "Mình đã ghi nhận câu hỏi của bạn. Bạn có thể tra cứu chi tiết hơn tại các mục nghiệp vụ hoặc yêu cầu chuyển tiếp nhân viên quầy tư vấn.";
-        const lower = text.toLowerCase();
-
-        if (lower.includes('yoga') || lower.includes('chỗ') || lower.includes('lớp')) {
-          aiReply = "Lớp <strong>Yoga buổi sáng</strong> hiện còn 2/20 chỗ (Thứ 2, 4, 6 lúc 06:00). Bạn có thể vào tab <strong>Gói tập & khóa học</strong> để mở danh sách đăng ký học viên.";
-        } else if (lower.includes('mua') || lower.includes('găng') || lower.includes('online') || lower.includes('sản phẩm')) {
-          aiReply = "Theo quy định của FitCenter, <strong>sản phẩm chỉ được bán trực tiếp tại quầy thông qua nhân viên</strong> để đảm bảo kiểm soát chất lượng và kho hàng. Website chỉ hỗ trợ đăng ký khóa học trực tuyến.";
-        } else if (lower.includes('hủy') || lower.includes('đổi') || lower.includes('lịch')) {
-          aiReply = "Hội viên có thể gửi yêu cầu hủy hoặc đổi lịch học trước giờ bắt đầu ít nhất 2 tiếng trong mục <strong>Lịch học của tôi</strong>. Quản trị viên và Nhân viên sẽ nhận thông báo để phê duyệt.";
-        } else if (lower.includes('gói') || lower.includes('khóa')) {
-          aiReply = "Trung tâm hiện có 6 khóa học đang mở (Yoga, Pilates, Kickboxing, CrossFit, Zumba, Bodybuilding) và các gói thẻ tập Gym tháng, quý, năm linh hoạt.";
-        }
-
-        const aiHtml = `
-          <div class="flex items-start gap-2.5 max-w-[85%] animate-in fade-in duration-200">
-            <div class="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5">
-              <i class="fa-solid fa-wand-magic-sparkles"></i>
-            </div>
-            <div class="space-y-1">
-              <div class="bg-gray-100/80 rounded-2xl p-3.5 text-gray-800 leading-relaxed rounded-tl-sm">
-                ${aiReply}
-              </div>
-              <span class="text-[10px] text-gray-400 block pl-1">Trợ lý AI · Vừa xong</span>
-            </div>
-          </div>
-        `;
-        chatList.insertAdjacentHTML('beforeend', aiHtml);
-        chatList.scrollTop = chatList.scrollHeight;
-      }, 450);
-    }
-
-    function resetAIChat() {
-      if (confirm('Bắt đầu cuộc trò chuyện mới với Trợ lý AI?')) {
-        location.reload();
-      }
     }
 
     // 6. Quản lý Modal
@@ -2410,7 +2058,7 @@
     }
 
     function openExportModal() {
-      alert('Đang tạo tệp Excel báo cáo thống kê hoạt động trung tâm (Tháng 11/2026)...\nTải xuống hoàn tất: BaoCao_FitCenter_11_2026.xlsx');
+      exportReportData();
     }
 
     function toggleMobileSidebar() {
@@ -2433,21 +2081,34 @@
 
     const API_BASE = (window.location.origin.includes(':3000')) ? '' : 'http://localhost:3000';
 
-    // 1. Render danh sách Khách hàng
+    // 1. Render danh sách Khách hàng có phân trang động (khắc phục lỗi số trang thừa khi rỗng/ít data)
     function renderCustomerTable(customers) {
       const tbody = document.getElementById('customerTbody');
       if (!tbody) return;
 
-      if (!customers || customers.length === 0) {
+      currentFilteredCustomers = customers || [];
+      const totalItems = currentFilteredCustomers.length;
+      const totalPages = Math.ceil(totalItems / customerPageSize);
+
+      if (customerCurrentPage > totalPages) {
+        customerCurrentPage = totalPages || 1;
+      }
+
+      if (totalItems === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="py-6 text-center text-gray-400">Không tìm thấy khách hàng nào</td>
+            <td colspan="6" class="py-8 text-center text-gray-400 font-medium">Không tìm thấy khách hàng nào phù hợp với bộ lọc</td>
           </tr>
         `;
+        renderCustomerPagination(0, 1, customerPageSize);
         return;
       }
 
-      tbody.innerHTML = customers.map(c => {
+      const startIndex = (customerCurrentPage - 1) * customerPageSize;
+      const endIndex = Math.min(startIndex + customerPageSize, totalItems);
+      const pageData = currentFilteredCustomers.slice(startIndex, endIndex);
+
+      tbody.innerHTML = pageData.map(c => {
         const statusLabel = c.status === 'active' ? 'Đang hoạt động' : 'Bị khóa';
         const statusBadge = c.status === 'active'
           ? `<span class="bg-black text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold">Đang hoạt động</span>`
@@ -2469,20 +2130,75 @@
             <td class="py-3.5">${escapeHtml(serviceName)}</td>
             <td class="py-3.5 text-center font-semibold">${c.checkin_count || 0}</td>
             <td class="py-3.5">${statusBadge}</td>
-            <td class="py-3.5 text-right space-x-1">
-              <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+            <td class="py-3.5 text-right space-x-1 whitespace-nowrap">
+              <button onclick="event.stopPropagation(); openCustomerDrawer('${code}', '${fullName}', '${phone}', '${address}', 'Khách hàng · ${statusLabel}', '${escapeHtml(serviceName)}', ${c.checkin_count || 0}, ${c.id})" class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600 cursor-pointer" title="Xem hồ sơ">
                 <i class="fa-regular fa-eye text-[11px]"></i>
               </button>
-              <button class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600">
+              <button onclick="event.stopPropagation(); openCustomerDrawer('${code}', '${fullName}', '${phone}', '${address}', 'Khách hàng · ${statusLabel}', '${escapeHtml(serviceName)}', ${c.checkin_count || 0}, ${c.id}); setTimeout(() => { const inp = document.getElementById('drawerCustomerName'); if(inp) inp.focus(); }, 120);" class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 inline-flex items-center justify-center text-gray-600 cursor-pointer" title="Chỉnh sửa hồ sơ">
                 <i class="fa-solid fa-pen text-[11px]"></i>
               </button>
             </td>
           </tr>
         `;
       }).join('');
+
+      renderCustomerPagination(totalItems, customerCurrentPage, customerPageSize);
     }
 
-    // 2. Tải danh sách Khách hàng từ MySQL
+    function renderCustomerPagination(totalItems, currentPage, pageSize) {
+      const infoEl = document.getElementById('customerPaginationInfo');
+      const btnsEl = document.getElementById('customerPaginationButtons');
+      if (!infoEl || !btnsEl) return;
+
+      if (totalItems === 0) {
+        infoEl.innerText = 'Hiển thị 0 khách hàng';
+        btnsEl.innerHTML = '';
+        return;
+      }
+
+      const startIndex = (currentPage - 1) * pageSize + 1;
+      const endIndex = Math.min(currentPage * pageSize, totalItems);
+      const totalPages = Math.ceil(totalItems / pageSize);
+
+      infoEl.innerText = `Hiển thị ${startIndex}–${endIndex} / ${totalItems} khách hàng`;
+
+      if (totalPages <= 1) {
+        btnsEl.innerHTML = '';
+        return;
+      }
+
+      let buttonsHtml = '';
+      buttonsHtml += `
+        <button onclick="changeCustomerPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled class="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center text-gray-300 text-xs cursor-not-allowed"' : 'class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-600 text-xs transition"'}>
+          <i class="fa-solid fa-chevron-left text-[10px]"></i>
+        </button>
+      `;
+
+      for (let p = 1; p <= totalPages; p++) {
+        if (p === currentPage) {
+          buttonsHtml += `<button type="button" disabled class="w-7 h-7 rounded-lg bg-black text-white font-bold flex items-center justify-center text-xs shadow-2xs">${p}</button>`;
+        } else {
+          buttonsHtml += `<button onclick="changeCustomerPage(${p})" class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-600 text-xs transition">${p}</button>`;
+        }
+      }
+
+      buttonsHtml += `
+        <button onclick="changeCustomerPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled class="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center text-gray-300 text-xs cursor-not-allowed"' : 'class="w-7 h-7 rounded-lg border border-gray-200 hover:bg-gray-100 flex items-center justify-center text-gray-600 text-xs transition"'}>
+          <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        </button>
+      `;
+
+      btnsEl.innerHTML = buttonsHtml;
+    }
+
+    function changeCustomerPage(page) {
+      const totalPages = Math.ceil(currentFilteredCustomers.length / customerPageSize);
+      if (page < 1 || page > totalPages) return;
+      customerCurrentPage = page;
+      renderCustomerTable(currentFilteredCustomers);
+    }
+
+    // 2. Tải danh sách Khách hàng từ MySQL (Đồng bộ số liệu thật lên 4 Card)
     async function loadAdminCustomers() {
       try {
         const res = await fetch(`${API_BASE}/api/admin/customers`);
@@ -2490,6 +2206,18 @@
         if (data.success && data.data) {
           adminCustomersList = data.data;
           renderCustomerTable(adminCustomersList);
+
+          // Cập nhật ngay 4 thẻ thống kê khách hàng
+          const tot = adminCustomersList.length;
+          const act = adminCustomersList.filter(c => c.status === 'active').length;
+          const lck = adminCustomersList.filter(c => c.status === 'locked').length;
+
+          const custTotEl = document.getElementById('statCustomerTotal');
+          if (custTotEl) custTotEl.innerText = tot;
+          const custActEl = document.getElementById('statCustomerActive');
+          if (custActEl) custActEl.innerText = act;
+          const custLockEl = document.getElementById('statCustomerLocked');
+          if (custLockEl) custLockEl.innerText = lck;
         }
       } catch (e) {
         console.warn('Lỗi tải customers:', e);
@@ -2582,12 +2310,57 @@
         const enrollData = await enrollRes.json();
 
         if (statsData.success && statsData.stats) {
+          const s = statsData.stats;
+
+          // TAB 1: TỔNG QUAN HOẠT ĐỘNG
           const mEl = document.getElementById('statTotalMembers');
-          if (mEl) mEl.innerText = statsData.stats.totalMembers;
+          if (mEl) mEl.innerText = s.totalMembers ?? 0;
+          const mTrendEl = document.getElementById('statTotalMembersTrend');
+          if (mTrendEl) {
+            const w = s.newMembersWeek ?? 0;
+            mTrendEl.innerHTML = `<i class="fa-solid fa-arrow-trend-up text-[10px]"></i> ${w > 0 ? ('+' + w + ' trong tuần') : '0 hội viên mới tuần này'}`;
+          }
+
           const pEl = document.getElementById('statPendingEnrollments');
-          if (pEl) pEl.innerText = statsData.stats.pendingEnrollments;
+          if (pEl) pEl.innerText = s.pendingEnrollments ?? 0;
+          const pNoticeEl = document.getElementById('statPendingNotice');
+          if (pNoticeEl) {
+            pNoticeEl.innerText = (s.pendingEnrollments > 0) ? 'Cần nhân viên xác nhận' : 'Tất cả đăng ký đã duyệt';
+          }
+
           const cEl = document.getElementById('statTotalCourses');
-          if (cEl) cEl.innerText = statsData.stats.totalCourses;
+          if (cEl) cEl.innerText = s.openClasses ?? s.totalCourses ?? 0;
+          const remEl = document.getElementById('statRemainingSlots');
+          if (remEl) {
+            remEl.innerText = `Còn ${s.remainingSlots ?? 0} chỗ trống`;
+          }
+
+          const chkEl = document.getElementById('statTodayCheckins');
+          if (chkEl) chkEl.innerText = s.todayCheckins ?? 0;
+          const chkSubEl = document.getElementById('statCheckinsSubtitle');
+          if (chkSubEl) {
+            chkSubEl.innerText = `Tổng ${s.totalCheckins ?? 0} lượt điểm danh`;
+          }
+
+          // TAB 2: QUẢN LÝ KHÁCH HÀNG (4 THẺ THỐNG KÊ THẬT)
+          const custTotEl = document.getElementById('statCustomerTotal');
+          if (custTotEl) custTotEl.innerText = s.totalMembers ?? 0;
+          const custActEl = document.getElementById('statCustomerActive');
+          if (custActEl) custActEl.innerText = s.activeMembers ?? s.totalMembers ?? 0;
+          const custPendEl = document.getElementById('statCustomerPending');
+          if (custPendEl) custPendEl.innerText = s.pendingEnrollments ?? 0;
+          const custLockEl = document.getElementById('statCustomerLocked');
+          if (custLockEl) custLockEl.innerText = s.lockedMembers ?? 0;
+
+          // TAB 3: GÓI TẬP & KHÓA HỌC
+          const statCoursesEl = document.getElementById('statActiveCourses');
+          if (statCoursesEl && s.activeCourses !== undefined) statCoursesEl.innerText = s.activeCourses;
+          const statPkgEl = document.getElementById('statActivePackages');
+          if (statPkgEl && s.activePackages !== undefined) statPkgEl.innerText = s.activePackages;
+          const statClassesEl = document.getElementById('statOpenClasses');
+          if (statClassesEl && s.openClasses !== undefined) statClassesEl.innerText = s.openClasses;
+          const statStudentsEl = document.getElementById('statTotalEnrolledStudents');
+          if (statStudentsEl && s.enrolledStudents !== undefined) statStudentsEl.innerText = s.enrolledStudents;
         }
 
         if (enrollData.success && enrollData.data) {
@@ -2598,10 +2371,43 @@
       }
     }
 
-    // 5. Tải danh sách Khóa học & Lớp học
+    // Helper headers xác thực Quản trị viên
+    function getAdminAuthHeaders() {
+      const userJson = localStorage.getItem('fitcenter_user');
+      let adminId = 1;
+      if (userJson) {
+        try { adminId = JSON.parse(userJson).id || 1; } catch (e) {}
+      }
+      return {
+        'Content-Type': 'application/json',
+        'x-admin-id': String(adminId)
+      };
+    }
+
+    // Danh mục chuyên môn cho Khóa học
+    let adminSpecialtiesCache = [];
+    async function loadSpecialtiesDropdown() {
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/specialties`, { headers: getAdminAuthHeaders() });
+        const json = await res.json();
+        if (json.success && json.data) {
+          adminSpecialtiesCache = json.data;
+          const select = document.getElementById('courseFormSpecialty');
+          if (select) {
+            select.innerHTML = adminSpecialtiesCache.map(s => `
+              <option value="${s.ChuyenMonID}">${escapeHtml(s.TenChuyenMon)}</option>
+            `).join('');
+          }
+        }
+      } catch (e) {
+        console.warn('Lỗi load specialties:', e);
+      }
+    }
+
+    // 5. Tải danh sách Khóa học & Lớp học từ CSDL MySQL
     async function loadAdminCourses() {
       try {
-        const res = await fetch(`${API_BASE}/api/admin/courses`);
+        const res = await fetch(`${API_BASE}/api/admin/courses`, { headers: getAdminAuthHeaders() });
         const data = await res.json();
         if (data.success && data.data && data.data.courses) {
           const container = document.getElementById('courseGridContainer');
@@ -2609,49 +2415,88 @@
 
           const { courses, classes } = data.data;
 
+          // Cập nhật các thẻ thống kê tổng quan
+          const activeCoursesCount = courses.filter(c => Number(c.status) === 1).length;
+          const openClassesCount = (classes || []).filter(cl => (cl.available_slots || 0) > 0).length;
+          const totalEnrolledAll = (classes || []).reduce((sum, cl) => sum + (cl.enrolled_count || 0), 0);
+          
+          const statCoursesEl = document.getElementById('statActiveCourses');
+          const statClassesEl = document.getElementById('statOpenClasses');
+          const statStudentsEl = document.getElementById('statTotalEnrolledStudents');
+          if (statCoursesEl) statCoursesEl.innerText = activeCoursesCount;
+          if (statClassesEl) statClassesEl.innerText = openClassesCount;
+          if (statStudentsEl) statStudentsEl.innerText = totalEnrolledAll;
+
+          if (!courses.length) {
+            container.innerHTML = '<div class="col-span-full py-12 text-center text-gray-400 text-xs">Chưa có khóa học nào trong hệ thống. Hãy bấm "Tạo khóa học" để thêm mới.</div>';
+            return;
+          }
+
           container.innerHTML = courses.map(c => {
             const courseClasses = (classes || []).filter(cl => cl.course_id === c.id);
             const totalEnrolled = courseClasses.reduce((sum, cl) => sum + (cl.enrolled_count || 0), 0);
             const totalCap = courseClasses.reduce((sum, cl) => sum + (cl.capacity || 20), 0) || 20;
             const pct = Math.min(100, Math.round((totalEnrolled / totalCap) * 100));
             const priceStr = Number(c.price_vnd || 0).toLocaleString('vi-VN') + ' đ';
+            const isActive = Number(c.status) === 1;
+            const isPublished = Number(c.is_published) === 1;
 
             return `
-              <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-300 transition">
+              <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-400 transition ${!isActive ? 'opacity-80 bg-gray-50/50' : ''}">
                 <div>
                   <div class="flex items-start justify-between mb-2">
                     <h3 class="font-bold text-sm text-black">${escapeHtml(c.name)}</h3>
-                    <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
-                      ${escapeHtml(c.specialty || 'Chung')}
-                    </span>
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[10px] font-semibold border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 bg-gray-50">
+                        ${escapeHtml(c.specialty || 'Chung')}
+                      </span>
+                    </div>
                   </div>
-                  <p class="text-xs text-gray-500 mb-3">${escapeHtml(c.description || 'Khóa học thể hình tại FitCenter')}</p>
+
+                  <p class="text-xs text-gray-500 mb-3 line-clamp-2">${escapeHtml(c.description || 'Chưa có mô tả chi tiết')}</p>
+
                   <div class="text-xs text-gray-600 space-y-1.5 mt-2">
                     <p class="flex items-center gap-2">
                       <i class="fa-regular fa-clock text-gray-400 w-3.5"></i>
-                      <span>Thời lượng: ${c.duration_weeks || 4} tuần (${c.total_sessions || 12} buổi)</span>
+                      <span>Thời lượng: <b>${c.duration_weeks || 4} tuần</b> (${c.total_sessions || 12} buổi)</span>
                     </p>
                     <p class="flex items-center gap-2">
                       <i class="fa-solid fa-tag text-gray-400 w-3.5"></i>
                       <span class="font-bold text-black">${priceStr}</span>
+                    </p>
+                    <p class="flex items-center gap-2">
+                      <i class="fa-solid fa-circle-check text-gray-400 w-3.5"></i>
+                      <span>Đ/k: ${escapeHtml(c.requirements || 'Không yêu cầu')}</span>
                     </p>
                   </div>
                 </div>
 
                 <div class="mt-5 pt-3 border-t border-gray-100">
                   <div class="flex items-center justify-between text-xs mb-1.5">
-                    <span class="text-gray-500">Sức chứa</span>
-                    <span class="font-bold text-black">${totalEnrolled}/${totalCap}</span>
+                    <span class="text-gray-500">Sĩ số lớp (${c.total_classes || 0} lớp)</span>
+                    <span class="font-bold text-black">${totalEnrolled}/${totalCap} học viên</span>
                   </div>
-                  <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-4">
+                  <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-3">
                     <div class="bg-black h-full rounded-full" style="width: ${pct}%;"></div>
                   </div>
-                  <div class="flex items-center justify-between gap-2">
-                    <span class="text-[11px] font-semibold border border-gray-200 px-2.5 py-1 rounded-xl text-gray-700 bg-gray-50">
-                      ${pct >= 100 ? 'Đã đầy' : 'Mở đăng ký'}
-                    </span>
+
+                  <div class="flex items-center justify-between gap-1 pt-1 border-t border-gray-100/80">
+                    <div class="flex items-center gap-1">
+                      <button onclick="toggleCourseStatus(${c.id}, ${c.status})" title="Bấm để chuyển trạng thái kinh doanh" class="text-[10px] font-bold px-2 py-0.5 rounded-full transition ${isActive ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                        ${isActive ? 'Đang kinh doanh' : 'Ngừng kinh doanh'}
+                      </button>
+                      <span class="text-[9px] px-1.5 py-0.5 rounded ${isPublished ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-gray-100 text-gray-500'}">
+                        ${isPublished ? 'Công bố' : 'Ẩn'}
+                      </span>
+                    </div>
+
                     <div class="space-x-1">
-                      <button onclick="alert('Khóa học: ${escapeHtml(c.name)}\nGiá: ${priceStr}\nTổng học viên: ${totalEnrolled}/${totalCap}')" class="px-2.5 py-1 rounded-xl text-xs font-medium text-gray-600 hover:text-black hover:bg-gray-100 border border-gray-200">Chi tiết</button>
+                      <button onclick="openCourseFormModal(${c.id})" class="px-2.5 py-1 rounded-xl text-xs font-semibold text-black hover:bg-gray-100 border border-gray-200">
+                        <i class="fa-solid fa-pen text-[10px] mr-1"></i>Sửa
+                      </button>
+                      <button onclick="deleteCourse(${c.id}, '${escapeHtml(c.name)}')" class="px-2 py-1 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200" title="Xóa khóa học">
+                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -2664,20 +2509,447 @@
       }
     }
 
-    // 6. Tải danh sách Nhân sự
-    async function loadAdminStaff() {
+    // 5b. Tải danh sách Gói tập từ CSDL MySQL
+    async function loadAdminPackages() {
       try {
-        const res = await fetch(`${API_BASE}/api/admin/staff`);
+        const res = await fetch(`${API_BASE}/api/admin/packages`, { headers: getAdminAuthHeaders() });
         const data = await res.json();
         if (data.success && data.data) {
+          const container = document.getElementById('packageGridContainer');
+          if (!container) return;
+
+          const packages = data.data;
+
+          // Cập nhật stat card gói tập đang kinh doanh
+          const activePkgCount = packages.filter(p => Number(p.status) === 1).length;
+          const statPkgEl = document.getElementById('statActivePackages');
+          if (statPkgEl) statPkgEl.innerText = activePkgCount;
+
+          if (!packages.length) {
+            container.innerHTML = '<div class="col-span-full py-12 text-center text-gray-400 text-xs">Chưa có gói tập nào trong hệ thống. Hãy bấm "Tạo gói tập" để thêm mới.</div>';
+            return;
+          }
+
+          container.innerHTML = packages.map(p => {
+            const priceStr = Number(p.price_vnd || 0).toLocaleString('vi-VN') + ' đ';
+            const isActive = Number(p.status) === 1;
+            const isPublished = Number(p.is_published) === 1;
+
+            return `
+              <div class="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between hover:border-gray-400 transition ${!isActive ? 'opacity-80 bg-gray-50/50' : ''}">
+                <div>
+                  <div class="flex items-start justify-between mb-2">
+                    <h3 class="font-bold text-sm text-black">${escapeHtml(p.name)}</h3>
+                    <span class="text-[10px] font-bold border border-black px-2 py-0.5 rounded-full text-black bg-neutral-50">
+                      ${p.duration_days} ngày
+                    </span>
+                  </div>
+
+                  <p class="text-xs text-gray-500 mb-3 line-clamp-2">${escapeHtml(p.description || 'Gói tập thể hình tự do tại FitCenter')}</p>
+
+                  <div class="text-xs text-gray-600 space-y-1.5 mt-2">
+                    <p class="flex items-center gap-2">
+                      <i class="fa-solid fa-tag text-gray-400 w-3.5"></i>
+                      <span class="font-bold text-black text-sm">${priceStr}</span>
+                    </p>
+                    <p class="flex items-center gap-2">
+                      <i class="fa-regular fa-calendar-check text-gray-400 w-3.5"></i>
+                      <span>Thời hạn sử dụng: <b>${p.duration_days} ngày</b></span>
+                    </p>
+                    <p class="flex items-center gap-2">
+                      <i class="fa-solid fa-shield-halved text-gray-400 w-3.5"></i>
+                      <span>Đ/k: ${escapeHtml(p.requirements || 'Từ 16 tuổi trở lên')}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="mt-5 pt-3 border-t border-gray-100">
+                  <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+                    <span>Đã đăng ký: <b>${p.total_enrollments || 0}</b> lượt</span>
+                    <span>Đang hiệu lực: <b class="text-emerald-700">${p.active_enrollments || 0}</b></span>
+                  </div>
+
+                  <div class="flex items-center justify-between gap-1 pt-1 border-t border-gray-100/80">
+                    <div class="flex items-center gap-1">
+                      <button onclick="togglePackageStatus(${p.id}, ${p.status})" title="Bấm để chuyển trạng thái kinh doanh" class="text-[10px] font-bold px-2 py-0.5 rounded-full transition ${isActive ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                        ${isActive ? 'Đang kinh doanh' : 'Ngừng kinh doanh'}
+                      </button>
+                      <span class="text-[9px] px-1.5 py-0.5 rounded ${isPublished ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-gray-100 text-gray-500'}">
+                        ${isPublished ? 'Công bố' : 'Ẩn'}
+                      </span>
+                    </div>
+
+                    <div class="space-x-1">
+                      <button onclick="openPackageFormModal(${p.id})" class="px-2.5 py-1 rounded-xl text-xs font-semibold text-black hover:bg-gray-100 border border-gray-200">
+                        <i class="fa-solid fa-pen text-[10px] mr-1"></i>Sửa
+                      </button>
+                      <button onclick="deletePackage(${p.id}, '${escapeHtml(p.name)}')" class="px-2 py-1 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200" title="Xóa gói tập">
+                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (e) {
+        console.warn('Lỗi tải packages:', e);
+      }
+    }
+
+    // Modal Khóa học: Mở form Tạo mới hoặc Chỉnh sửa
+    async function openCourseFormModal(courseId = null) {
+      await loadSpecialtiesDropdown();
+      const modal = document.getElementById('modalCourseForm');
+      const title = document.getElementById('modalCourseTitle');
+      const form = document.getElementById('courseFormElement');
+      if (!modal || !form) return;
+
+      if (courseId) {
+        title.innerText = 'Chỉnh sửa khóa học';
+        try {
+          const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}`, { headers: getAdminAuthHeaders() });
+          const json = await res.json();
+          if (json.success && json.data) {
+            const c = json.data;
+            document.getElementById('courseFormId').value = c.id;
+            document.getElementById('courseFormName').value = c.name || '';
+            document.getElementById('courseFormSpecialty').value = c.specialty_id || 1;
+            document.getElementById('courseFormDurationWeeks').value = c.duration_weeks || 4;
+            document.getElementById('courseFormTotalSessions').value = c.total_sessions || 12;
+            document.getElementById('courseFormPrice').value = c.price_vnd || 0;
+            document.getElementById('courseFormRequirements').value = c.requirements || '';
+            document.getElementById('courseFormStatus').value = c.status !== undefined ? c.status : 1;
+            document.getElementById('courseFormPublished').value = c.is_published !== undefined ? c.is_published : 1;
+            document.getElementById('courseFormDescription').value = c.description || '';
+          }
+        } catch (e) {
+          alert('Không thể tải thông tin khóa học: ' + e.message);
+          return;
+        }
+      } else {
+        title.innerText = 'Tạo khóa học mới';
+        form.reset();
+        document.getElementById('courseFormId').value = '';
+        document.getElementById('courseFormDurationWeeks').value = 8;
+        document.getElementById('courseFormTotalSessions').value = 16;
+        document.getElementById('courseFormPrice').value = 1200000;
+        document.getElementById('courseFormStatus').value = 1;
+        document.getElementById('courseFormPublished').value = 1;
+      }
+
+      openModal('modalCourseForm');
+    }
+
+    // Modal Khóa học: Lưu thông tin (Tạo mới hoặc Cập nhật)
+    async function saveCourse() {
+      const id = document.getElementById('courseFormId').value;
+      const name = document.getElementById('courseFormName').value.trim();
+      const specialtyId = document.getElementById('courseFormSpecialty').value;
+      const durationWeeks = Number(document.getElementById('courseFormDurationWeeks').value);
+      const totalSessions = Number(document.getElementById('courseFormTotalSessions').value);
+      const price = Number(document.getElementById('courseFormPrice').value);
+      const requirements = document.getElementById('courseFormRequirements').value.trim();
+      const status = Number(document.getElementById('courseFormStatus').value);
+      const isPublished = Number(document.getElementById('courseFormPublished').value);
+      const description = document.getElementById('courseFormDescription').value.trim();
+
+      if (!name) {
+        alert('Vui lòng nhập tên khóa học!');
+        return;
+      }
+      if (!durationWeeks || durationWeeks <= 0) {
+        alert('Thời lượng khóa học không hợp lệ! Vui lòng nhập số tuần lớn hơn 0.');
+        return;
+      }
+      if (!totalSessions || totalSessions <= 0) {
+        alert('Số buổi học không hợp lệ! Vui lòng nhập số buổi lớn hơn 0.');
+        return;
+      }
+      if (isNaN(price) || price < 0) {
+        alert('Giá khóa học không hợp lệ! Giá phải là số lớn hơn hoặc bằng 0.');
+        return;
+      }
+
+      const payload = {
+        name,
+        specialtyId,
+        durationWeeks,
+        totalSessions,
+        price,
+        requirements,
+        status,
+        isPublished,
+        description
+      };
+
+      const btn = document.getElementById('btnSubmitCourseForm');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Đang lưu...';
+      }
+
+      try {
+        const endpoint = id ? `${API_BASE}/api/admin/courses/${id}` : `${API_BASE}/api/admin/courses`;
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(endpoint, {
+          method,
+          headers: getAdminAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+
+        if (json.success) {
+          alert(json.message || 'Lưu khóa học thành công!');
+          closeModal('modalCourseForm');
+          loadAdminCourses();
+        } else {
+          alert('Không thể lưu khóa học: ' + (json.message || 'Lỗi không xác định!'));
+        }
+      } catch (e) {
+        alert('Lỗi kết nối khi lưu khóa học: ' + e.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1.5"></i>Lưu khóa học';
+        }
+      }
+    }
+
+    // Khóa học: Đổi trạng thái kinh doanh nhanh (Đang kinh doanh <-> Ngừng kinh doanh)
+    async function toggleCourseStatus(courseId, currentStatus) {
+      const nextStatus = Number(currentStatus) === 1 ? 0 : 1;
+      const confirmMsg = nextStatus === 0
+        ? 'Bạn có chắc chắn muốn chuyển khóa học này sang trạng thái "Ngừng kinh doanh"?'
+        : 'Bạn có chắc chắn muốn mở lại kinh doanh cho khóa học này?';
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}/status`, {
+          method: 'PATCH',
+          headers: getAdminAuthHeaders(),
+          body: JSON.stringify({ status: nextStatus })
+        });
+        const json = await res.json();
+        if (json.success) {
+          loadAdminCourses();
+        } else {
+          alert(json.message || 'Lỗi cập nhật trạng thái!');
+        }
+      } catch (e) {
+        alert('Lỗi kết nối: ' + e.message);
+      }
+    }
+
+    // Khóa học: Xóa khóa học (Ràng buộc: Cấm xóa nếu đã có lớp/đăng ký)
+    async function deleteCourse(courseId, courseName) {
+      if (!confirm(`Bạn có chắc chắn muốn xóa khóa học "${courseName}"?`)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/courses/${courseId}`, {
+          method: 'DELETE',
+          headers: getAdminAuthHeaders()
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert(json.message || 'Đã xóa khóa học thành công!');
+          loadAdminCourses();
+        } else {
+          alert('THÔNG BÁO HỆ THỐNG:\n' + json.message);
+        }
+      } catch (e) {
+        alert('Lỗi kết nối khi xóa: ' + e.message);
+      }
+    }
+
+    // Modal Gói tập: Mở form Tạo mới hoặc Chỉnh sửa
+    async function openPackageFormModal(pkgId = null) {
+      const modal = document.getElementById('modalPackageForm');
+      const title = document.getElementById('modalPackageTitle');
+      const form = document.getElementById('packageFormElement');
+      if (!modal || !form) return;
+
+      if (pkgId) {
+        title.innerText = 'Chỉnh sửa gói tập';
+        try {
+          const res = await fetch(`${API_BASE}/api/admin/packages/${pkgId}`, { headers: getAdminAuthHeaders() });
+          const json = await res.json();
+          if (json.success && json.data) {
+            const p = json.data;
+            document.getElementById('pkgFormId').value = p.id;
+            document.getElementById('pkgFormName').value = p.name || '';
+            document.getElementById('pkgFormDurationDays').value = p.duration_days || 30;
+            document.getElementById('pkgFormPrice').value = p.price_vnd || 0;
+            document.getElementById('pkgFormRequirements').value = p.requirements || '';
+            document.getElementById('pkgFormStatus').value = p.status !== undefined ? p.status : 1;
+            document.getElementById('pkgFormPublished').value = p.is_published !== undefined ? p.is_published : 1;
+            document.getElementById('pkgFormDescription').value = p.description || '';
+          }
+        } catch (e) {
+          alert('Không thể tải thông tin gói tập: ' + e.message);
+          return;
+        }
+      } else {
+        title.innerText = 'Tạo gói tập mới';
+        form.reset();
+        document.getElementById('pkgFormId').value = '';
+        document.getElementById('pkgFormDurationDays').value = 30;
+        document.getElementById('pkgFormPrice').value = 400000;
+        document.getElementById('pkgFormStatus').value = 1;
+        document.getElementById('pkgFormPublished').value = 1;
+      }
+
+      openModal('modalPackageForm');
+    }
+
+    // Modal Gói tập: Lưu thông tin (Tạo mới hoặc Cập nhật)
+    async function savePackage() {
+      const id = document.getElementById('pkgFormId').value;
+      const name = document.getElementById('pkgFormName').value.trim();
+      const durationDays = Number(document.getElementById('pkgFormDurationDays').value);
+      const price = Number(document.getElementById('pkgFormPrice').value);
+      const requirements = document.getElementById('pkgFormRequirements').value.trim();
+      const status = Number(document.getElementById('pkgFormStatus').value);
+      const isPublished = Number(document.getElementById('pkgFormPublished').value);
+      const description = document.getElementById('pkgFormDescription').value.trim();
+
+      if (!name) {
+        alert('Vui lòng nhập tên gói tập!');
+        return;
+      }
+      if (!durationDays || durationDays <= 0) {
+        alert('Thời lượng gói tập không hợp lệ! Vui lòng nhập số ngày là số nguyên dương lớn hơn 0 (VD: 30, 90, 365).');
+        return;
+      }
+      if (isNaN(price) || price < 0) {
+        alert('Giá gói tập không hợp lệ! Giá phải là số lớn hơn hoặc bằng 0.');
+        return;
+      }
+
+      const payload = {
+        name,
+        durationDays,
+        price,
+        requirements,
+        status,
+        isPublished,
+        description
+      };
+
+      const btn = document.getElementById('btnSubmitPackageForm');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Đang lưu...';
+      }
+
+      try {
+        const endpoint = id ? `${API_BASE}/api/admin/packages/${id}` : `${API_BASE}/api/admin/packages`;
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(endpoint, {
+          method,
+          headers: getAdminAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+
+        if (json.success) {
+          alert(json.message || 'Lưu gói tập thành công!');
+          closeModal('modalPackageForm');
+          loadAdminPackages();
+        } else {
+          alert('Không thể lưu gói tập: ' + (json.message || 'Lỗi không xác định!'));
+        }
+      } catch (e) {
+        alert('Lỗi kết nối khi lưu gói tập: ' + e.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1.5"></i>Lưu gói tập';
+        }
+      }
+    }
+
+    // Gói tập: Đổi trạng thái kinh doanh nhanh (Đang kinh doanh <-> Ngừng kinh doanh)
+    async function togglePackageStatus(pkgId, currentStatus) {
+      const nextStatus = Number(currentStatus) === 1 ? 0 : 1;
+      const confirmMsg = nextStatus === 0
+        ? 'Bạn có chắc chắn muốn chuyển gói tập này sang trạng thái "Ngừng kinh doanh"?'
+        : 'Bạn có chắc chắn muốn mở lại kinh doanh cho gói tập này?';
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/packages/${pkgId}/status`, {
+          method: 'PATCH',
+          headers: getAdminAuthHeaders(),
+          body: JSON.stringify({ status: nextStatus })
+        });
+        const json = await res.json();
+        if (json.success) {
+          loadAdminPackages();
+        } else {
+          alert(json.message || 'Lỗi cập nhật trạng thái!');
+        }
+      } catch (e) {
+        alert('Lỗi kết nối: ' + e.message);
+      }
+    }
+
+    // Gói tập: Xóa gói tập (Ràng buộc: Cấm xóa nếu đã phát sinh đăng ký)
+    async function deletePackage(pkgId, pkgName) {
+      if (!confirm(`Bạn có chắc chắn muốn xóa gói tập "${pkgName}"?`)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/packages/${pkgId}`, {
+          method: 'DELETE',
+          headers: getAdminAuthHeaders()
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert(json.message || 'Đã xóa gói tập thành công!');
+          loadAdminPackages();
+        } else {
+          alert('THÔNG BÁO HỆ THỐNG:\n' + json.message);
+        }
+      } catch (e) {
+        alert('Lỗi kết nối khi xóa: ' + e.message);
+      }
+    }
+
+    // ==============================================================
+    // 6. QUẢN LÝ NHÂN SỰ & TÀI KHOẢN HỆ THỐNG
+    // ==============================================================
+    let adminStaffList = [];
+
+    async function loadAdminStaff() {
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/staff`, { headers: getAdminAuthHeaders() });
+        const data = await res.json();
+        if (data.success && data.data) {
+          adminStaffList = data.data;
           const tbody = document.getElementById('staffTbody');
           if (!tbody) return;
 
-          tbody.innerHTML = data.data.map(s => {
-            const isTrainer = s.role_name && s.role_name.includes('Huấn luyện');
-            const roleBadge = isTrainer
-              ? `<span class="border border-gray-300 text-gray-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">Huấn luyện viên</span>`
-              : `<span class="bg-black text-white px-2 py-0.5 rounded-full text-[10px] font-bold">${escapeHtml(s.role_name || 'Nhân sự')}</span>`;
+          if (adminStaffList.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-gray-400">Chưa có tài khoản nhân sự nào.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = adminStaffList.map(s => {
+            let roleBadge = '';
+            if (s.role_id === 1) {
+              roleBadge = '<span class="bg-black text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold">Quản trị viên</span>';
+            } else if (s.role_id === 3) {
+              roleBadge = '<span class="border border-purple-300 text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full text-[10px] font-semibold">Huấn luyện viên</span>';
+            } else {
+              roleBadge = '<span class="border border-gray-300 text-gray-700 bg-gray-50 px-2.5 py-0.5 rounded-full text-[10px] font-semibold">Nhân viên</span>';
+            }
+
+            const statusBadge = (s.status === 1)
+              ? '<span class="text-emerald-600 font-semibold text-[11px] flex items-center gap-1"><i class="fa-solid fa-circle text-[7px]"></i> Đang hoạt động</span>'
+              : '<span class="text-rose-500 font-semibold text-[11px] flex items-center gap-1"><i class="fa-solid fa-circle text-[7px]"></i> Bị khóa</span>';
 
             return `
               <tr class="hover:bg-gray-50/50 transition">
@@ -2685,8 +2957,12 @@
                 <td class="py-3 font-bold text-black">${escapeHtml(s.full_name)}</td>
                 <td class="py-3 text-gray-500">${escapeHtml(s.email)}</td>
                 <td class="py-3">${roleBadge}</td>
-                <td class="py-3"><span class="text-emerald-600 font-semibold text-[11px]">Đang hoạt động</span></td>
-                <td class="py-3 text-right"><button onclick="alert('Nhân sự: ${escapeHtml(s.full_name)}\nChuyên môn: ${escapeHtml(s.specialties || '')}')" class="text-gray-500 hover:text-black font-medium">Chi tiết</button></td>
+                <td class="py-3">${statusBadge}</td>
+                <td class="py-3 text-right">
+                  <button onclick="viewStaffDetail(${s.id})" class="px-2.5 py-1 text-xs font-semibold text-black bg-gray-100 hover:bg-black hover:text-white rounded-lg transition">
+                    Chi tiết
+                  </button>
+                </td>
               </tr>
             `;
           }).join('');
@@ -2696,26 +2972,272 @@
       }
     }
 
-    // 7. Tải danh mục Sản phẩm cửa hàng
+    // Mở modal tạo tài khoản nhân sự
+    async function openCreateStaffModal() {
+      const form = document.querySelector('#modalStaffForm form');
+      if (form) form.reset();
+      document.getElementById('staffFormRole').value = '2';
+      onStaffRoleChange();
+
+      // Nạp danh mục Chuyên môn cho HLV
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/specialties`, { headers: getAdminAuthHeaders() });
+        const data = await res.json();
+        const sel = document.getElementById('staffFormSpecialty');
+        if (sel && data.success && data.data) {
+          sel.innerHTML = data.data.map(sp => `<option value="${escapeHtml(sp.TenChuyenMon)}">${escapeHtml(sp.TenChuyenMon)}</option>`).join('');
+        }
+      } catch (e) {
+        console.warn('Lỗi tải chuyên môn:', e);
+      }
+
+      openModal('modalStaffForm');
+    }
+
+    // Thay đổi trường phụ theo vai trò nhân sự
+    function onStaffRoleChange() {
+      const role = document.getElementById('staffFormRole').value;
+      const posGroup = document.getElementById('staffPositionGroup');
+      const trGroup = document.getElementById('staffTrainerGroup');
+
+      if (role === '2') { // Nhân viên
+        if (posGroup) posGroup.classList.remove('hidden');
+        if (trGroup) trGroup.classList.add('hidden');
+      } else if (role === '3') { // Huấn luyện viên
+        if (posGroup) posGroup.classList.add('hidden');
+        if (trGroup) trGroup.classList.remove('hidden');
+      } else { // Admin
+        if (posGroup) posGroup.classList.add('hidden');
+        if (trGroup) trGroup.classList.add('hidden');
+      }
+    }
+
+    // Lưu tài khoản nhân sự mới
+    async function saveStaffAccount() {
+      const fullName = (document.getElementById('staffFormName').value || '').trim();
+      const email = (document.getElementById('staffFormEmail').value || '').trim();
+      const phone = (document.getElementById('staffFormPhone').value || '').trim();
+      const password = document.getElementById('staffFormPassword').value || '';
+      const roleId = Number(document.getElementById('staffFormRole').value);
+
+      if (!fullName) {
+        alert('Vui lòng nhập họ và tên nhân sự!');
+        return;
+      }
+      if (!email) {
+        alert('Vui lòng nhập email nhân sự!');
+        return;
+      }
+      if (!/^0\d{9}$/.test(phone)) {
+        alert('Số điện thoại không hợp lệ! Vui lòng nhập đúng 10 số và bắt đầu bằng số 0.');
+        return;
+      }
+      if (password.length < 6) {
+        alert('Mật khẩu tối thiểu phải từ 6 ký tự!');
+        return;
+      }
+
+      const payload = {
+        fullName,
+        email,
+        phone,
+        password,
+        roleId
+      };
+
+      if (roleId === 2) {
+        payload.position = (document.getElementById('staffFormPosition').value || '').trim() || 'Nhân viên lễ tân';
+      } else if (roleId === 3) {
+        payload.specialty = document.getElementById('staffFormSpecialty').value || 'Gym / Fitness';
+        payload.experienceYears = Number(document.getElementById('staffFormExp').value) || 1;
+        payload.biography = (document.getElementById('staffFormBiography').value || '').trim();
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/staff`, {
+          method: 'POST',
+          headers: getAdminAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Tạo tài khoản nhân sự thành công! Mã nhân sự: ' + (data.data?.code || ''));
+          closeModal('modalStaffForm');
+          await loadAdminStaff();
+        } else {
+          alert(data.message || 'Lỗi khi tạo tài khoản nhân sự!');
+        }
+      } catch (e) {
+        alert('Lỗi kết nối máy chủ: ' + e.message);
+      }
+    }
+
+    // Xem chi tiết nhân sự & Xem thông tin chuyên môn / lớp phụ trách
+    async function viewStaffDetail(staffId) {
+      const container = document.getElementById('staffDetailContent');
+      if (!container) return;
+
+      container.innerHTML = `
+        <div class="py-8 text-center text-gray-400">
+          <i class="fa-solid fa-spinner fa-spin text-xl"></i>
+          <p class="mt-2 text-xs">Đang tải hồ sơ nhân sự...</p>
+        </div>
+      `;
+      openModal('modalStaffDetail');
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/staff/${staffId}`, { headers: getAdminAuthHeaders() });
+        const data = await res.json();
+        if (!data.success || !data.data) {
+          container.innerHTML = '<p class="text-rose-500 py-4 text-center">Không tìm thấy thông tin hồ sơ nhân sự!</p>';
+          return;
+        }
+
+        const s = data.data.profile || data.data;
+        const assignedClasses = (data.data.assignedClasses && data.data.assignedClasses.length > 0)
+          ? data.data.assignedClasses.map(c => c.name || c.TenLop || c).join(', ')
+          : (s.assigned_classes && s.assigned_classes.length > 0 ? s.assigned_classes.join(', ') : 'Chưa được phân công lớp học nào');
+        const isTrainer = (s.role_id === 3);
+        const isStaff = (s.role_id === 2);
+        const isActive = (s.status === 1);
+
+        let extraDetails = '';
+        if (isStaff) {
+          extraDetails = `
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+              <span class="text-gray-400 text-[10px] uppercase font-bold block mb-1">Chức vụ công tác</span>
+              <p class="font-bold text-black">${escapeHtml(s.position || 'Nhân viên lễ tân')}</p>
+            </div>
+          `;
+        } else if (isTrainer) {
+          extraDetails = `
+            <div class="bg-purple-50/60 p-3.5 rounded-xl border border-purple-100 space-y-2">
+              <div>
+                <span class="text-purple-600 text-[10px] uppercase font-bold block">Chuyên môn & Kinh nghiệm</span>
+                <p class="font-bold text-black text-xs mt-0.5">${escapeHtml(s.specialties || 'Đang cập nhật')} · ${s.experience_years || 0} năm kinh nghiệm</p>
+              </div>
+              ${s.biography ? `<div><span class="text-purple-600 text-[10px] uppercase font-bold block">Tiểu sử</span><p class="text-gray-600 text-[11px] mt-0.5">${escapeHtml(s.biography)}</p></div>` : ''}
+              <div>
+                <span class="text-purple-600 text-[10px] uppercase font-bold block">Lớp học đang phụ trách</span>
+                <p class="text-black font-semibold text-[11px] mt-0.5">${escapeHtml(assignedClasses)}</p>
+              </div>
+            </div>
+          `;
+        }
+
+        container.innerHTML = `
+          <div class="flex items-center gap-3.5 pb-3 border-b border-gray-100">
+            <div class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center font-bold text-base shadow-xs shrink-0">
+              ${escapeHtml(s.full_name ? s.full_name.slice(0, 2).toUpperCase() : 'NS')}
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-sm text-black">${escapeHtml(s.full_name)}</h4>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 font-semibold">${escapeHtml(s.code || ('NS' + s.id))}</span>
+              </div>
+              <p class="text-xs text-gray-500">${escapeHtml(s.role_name || 'Nhân sự')} · ${isActive ? '<span class="text-emerald-600 font-bold">Đang hoạt động</span>' : '<span class="text-rose-500 font-bold">Đã bị khóa</span>'}</p>
+            </div>
+          </div>
+
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between py-1.5 border-b border-gray-50 text-xs">
+              <span class="text-gray-400 font-semibold">Email đăng nhập:</span>
+              <span class="font-bold text-black font-mono">${escapeHtml(s.email)}</span>
+            </div>
+            <div class="flex items-center justify-between py-1.5 border-b border-gray-50 text-xs">
+              <span class="text-gray-400 font-semibold">Số điện thoại:</span>
+              <span class="font-bold text-black font-mono">${escapeHtml(s.phone || 'Chưa cập nhật')}</span>
+            </div>
+            <div class="flex items-center justify-between py-1.5 border-b border-gray-50 text-xs">
+              <span class="text-gray-400 font-semibold">Ngày tạo tài khoản:</span>
+              <span class="text-gray-700 font-mono">${s.created_at || 'Không có'}</span>
+            </div>
+          </div>
+
+          ${extraDetails}
+
+          <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+            <button onclick="toggleStaffStatus(${s.id}, ${isActive ? 0 : 1})" class="px-4 py-2 rounded-xl text-xs font-semibold transition ${isActive ? 'bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100' : 'bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100'}">
+              <i class="fa-solid ${isActive ? 'fa-user-lock' : 'fa-user-check'} mr-1"></i>
+              ${isActive ? 'Khóa tài khoản này' : 'Mở khóa tài khoản'}
+            </button>
+            <button onclick="closeModal('modalStaffDetail')" class="px-4 py-2 bg-black text-white rounded-xl text-xs font-semibold hover:bg-neutral-800">
+              Đóng
+            </button>
+          </div>
+        `;
+      } catch (e) {
+        container.innerHTML = '<p class="text-rose-500 py-4 text-center">Lỗi kết nối khi tải hồ sơ nhân sự: ' + escapeHtml(e.message) + '</p>';
+      }
+    }
+
+    // Khóa / Mở khóa tài khoản nhân sự
+    async function toggleStaffStatus(staffId, newStatus) {
+      const actionName = (newStatus === 1) ? 'mở khóa' : 'khóa';
+      if (!confirm(`Bạn có chắc chắn muốn ${actionName} tài khoản nhân sự này?`)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/staff/${staffId}/status`, {
+          method: 'PATCH',
+          headers: getAdminAuthHeaders(),
+          body: JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+        alert(data.message || (data.success ? `Đã ${actionName} tài khoản thành công!` : 'Lỗi cập nhật trạng thái!'));
+        if (data.success) {
+          await loadAdminStaff();
+          await viewStaffDetail(staffId);
+        }
+      } catch (e) {
+        alert('Lỗi kết nối máy chủ: ' + e.message);
+      }
+    }
+
+    // ==============================================================
+    // 7. QUẢN LÝ SẢN PHẨM CỬA HÀNG (STORE PRODUCTS)
+    // ==============================================================
     async function loadAdminProducts() {
       try {
-        const res = await fetch(`${API_BASE}/api/admin/products`);
+        const res = await fetch(`${API_BASE}/api/admin/products`, { headers: getAdminAuthHeaders() });
         const data = await res.json();
         if (data.success && data.data) {
           const grid = document.getElementById('adminProductGrid');
           if (!grid) return;
 
+          if (data.data.length === 0) {
+            grid.innerHTML = '<div class="col-span-full py-10 text-center text-gray-400 text-xs">Chưa có sản phẩm nào. Hãy bấm "Thêm sản phẩm" để tạo mới.</div>';
+            return;
+          }
+
           grid.innerHTML = data.data.map(p => {
-            const price = Number(p.price_vnd || 0).toLocaleString('vi-VN') + ' đ';
+            const price = Number(p.price || 0).toLocaleString('vi-VN') + ' đ';
+            const isSelling = (Number(p.status) === 1);
+            const statusBadge = isSelling
+              ? '<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px] font-bold">Đang kinh doanh</span>'
+              : '<span class="bg-gray-100 text-gray-600 border border-gray-200 px-2 py-0.5 rounded-full text-[10px] font-bold">Ngừng kinh doanh</span>';
+
             return `
-              <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-2xs hover:border-gray-300 transition">
-                <div class="h-28 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 mb-3">
-                  <i class="fa-solid fa-box text-3xl"></i>
+              <div class="bg-white border ${isSelling ? 'border-gray-200' : 'border-gray-200 opacity-75'} rounded-2xl p-4 shadow-2xs hover:border-gray-300 transition flex flex-col justify-between">
+                <div>
+                  <div class="h-24 bg-neutral-50 border border-neutral-100 rounded-xl flex items-center justify-center text-gray-400 mb-3">
+                    <i class="fa-solid fa-box-open text-2xl"></i>
+                  </div>
+                  <div class="flex items-center justify-between gap-1 mb-1">
+                    <span class="text-[10px] uppercase font-bold text-gray-400 truncate">${escapeHtml(p.category_name || 'Quầy')}</span>
+                    ${statusBadge}
+                  </div>
+                  <h4 class="font-bold text-xs text-black leading-tight">${escapeHtml(p.name)}</h4>
+                  <p class="text-xs font-black text-black mt-1 font-mono">${price}</p>
+                  <p class="text-[11px] text-gray-500 mt-0.5">Tồn kho: <span class="font-semibold text-black">${p.stock_quantity ?? 0}</span> sản phẩm</p>
                 </div>
-                <span class="text-[10px] uppercase font-bold text-gray-400">${escapeHtml(p.category || 'Quầy')}</span>
-                <h4 class="font-bold text-xs text-black mt-0.5">${escapeHtml(p.name)}</h4>
-                <p class="text-xs font-black text-black mt-1">${price}</p>
-                <p class="text-[11px] text-gray-500 mt-0.5">Tồn kho: ${p.stock_quantity || 0} sản phẩm</p>
+                <div class="pt-3 mt-3 border-t border-gray-100 flex items-center justify-between gap-2 text-xs">
+                  <button onclick="toggleProductStatus(${p.id}, ${isSelling ? 0 : 1})" class="text-[11px] font-semibold ${isSelling ? 'text-amber-600 hover:text-amber-700' : 'text-emerald-600 hover:text-emerald-700'}">
+                    ${isSelling ? 'Ngừng bán' : 'Mở bán lại'}
+                  </button>
+                  <button onclick="deleteProduct(${p.id})" class="text-[11px] font-semibold text-rose-600 hover:text-rose-700">
+                    Xóa
+                  </button>
+                </div>
               </div>
             `;
           }).join('');
@@ -2725,24 +3247,608 @@
       }
     }
 
-    // 8. Tự động đồng bộ toàn diện dữ liệu thật khi tải trang
+    // Mở modal thêm sản phẩm mới
+    async function openCreateProductModal() {
+      const form = document.querySelector('#modalProductForm form');
+      if (form) form.reset();
+      document.getElementById('productFormStock').value = '20';
+      document.getElementById('productFormStatus').value = '1';
+
+      // Nạp danh mục sản phẩm từ backend
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/products/categories`, { headers: getAdminAuthHeaders() });
+        const data = await res.json();
+        const sel = document.getElementById('productFormCategory');
+        if (sel && data.success && data.data) {
+          sel.innerHTML = data.data.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+        }
+      } catch (e) {
+        console.warn('Lỗi tải danh mục sản phẩm:', e);
+      }
+
+      openModal('modalProductForm');
+    }
+
+    // Lưu sản phẩm mới
+    async function saveProduct() {
+      const name = (document.getElementById('productFormName').value || '').trim();
+      const code = (document.getElementById('productFormCode').value || '').trim();
+      const categoryId = Number(document.getElementById('productFormCategory').value);
+      const price = Number(document.getElementById('productFormPrice').value);
+      const stock = Number(document.getElementById('productFormStock').value);
+      const status = Number(document.getElementById('productFormStatus').value);
+      const description = (document.getElementById('productFormDescription').value || '').trim();
+
+      if (!name) {
+        alert('Vui lòng nhập tên sản phẩm!');
+        return;
+      }
+      if (isNaN(price) || price < 0) {
+        alert('Giá bán sản phẩm không hợp lệ!');
+        return;
+      }
+      if (isNaN(stock) || stock < 0) {
+        alert('Số lượng tồn kho không được âm!');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/products`, {
+          method: 'POST',
+          headers: getAdminAuthHeaders(),
+          body: JSON.stringify({
+            name,
+            code,
+            categoryId,
+            price,
+            stock,
+            status,
+            description
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Thêm sản phẩm thành công!');
+          closeModal('modalProductForm');
+          await loadAdminProducts();
+        } else {
+          alert(data.message || 'Lỗi thêm sản phẩm!');
+        }
+      } catch (e) {
+        alert('Lỗi kết nối máy chủ: ' + e.message);
+      }
+    }
+
+    async function toggleProductStatus(id, newStatus) {
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/products/${id}/status`, {
+          method: 'PATCH',
+          headers: getAdminAuthHeaders(),
+          body: JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+        if (data.success) {
+          await loadAdminProducts();
+        } else {
+          alert(data.message || 'Lỗi cập nhật trạng thái sản phẩm!');
+        }
+      } catch (e) {
+        alert('Lỗi kết nối khi cập nhật sản phẩm: ' + e.message);
+      }
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/products/${id}`, {
+          method: 'DELETE',
+          headers: getAdminAuthHeaders()
+        });
+        const data = await res.json();
+        alert(data.message || (data.success ? 'Đã xóa sản phẩm thành công!' : 'Không thể xóa sản phẩm!'));
+        if (data.success) await loadAdminProducts();
+      } catch (e) {
+        alert('Lỗi kết nối khi xóa sản phẩm: ' + e.message);
+      }
+    }
+
+    // ==============================================================
+    // 8. QUẢN LÝ LỚP HỌC & THỜI GIAN THỨ, NGÀY, THÁNG (MỤC 3)
+    // ==============================================================
+    let adminRoomsList = [];
+
+    async function openCreateClassModal() {
+      const form = document.querySelector('#modalCreateClass form');
+      if (form) form.reset();
+
+      // Đặt mặc định ngày bắt đầu là ngày mai, ngày kết thúc là 3 tháng sau
+      const tomorrow = new Date(Date.now() + 86400000);
+      const after3Months = new Date(Date.now() + 90 * 86400000);
+      document.getElementById('createClassStartDate').value = tomorrow.toISOString().slice(0, 10);
+      document.getElementById('createClassEndDate').value = after3Months.toISOString().slice(0, 10);
+      document.getElementById('createClassStartTime').value = '06:00';
+      document.getElementById('createClassEndTime').value = '07:00';
+
+      selectClassDaysPreset([2, 4, 6]); // Mặc định T2 - T4 - T6
+
+      // Nạp danh sách Khóa học
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/courses`, { headers: getAdminAuthHeaders() });
+        const data = await res.json();
+        const sel = document.getElementById('createClassCourse');
+        if (sel && data.success && data.data) {
+          const list = Array.isArray(data.data) ? data.data : (data.data.courses || []);
+          sel.innerHTML = list.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+          onClassCourseChange();
+        }
+      } catch (e) {
+        console.warn('Lỗi tải courses:', e);
+      }
+
+      // Nạp danh sách Phòng học
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/rooms`, { headers: getAdminAuthHeaders() });
+        const data = await res.json();
+        const sel = document.getElementById('createClassRoom');
+        if (sel && data.success && data.data) {
+          adminRoomsList = data.data;
+          sel.innerHTML = adminRoomsList.map(r => `<option value="${r.id}" data-capacity="${r.max_capacity}">${escapeHtml(r.name)} (Tối đa: ${r.max_capacity} người)</option>`).join('');
+          onClassRoomChange();
+        }
+      } catch (e) {
+        console.warn('Lỗi tải rooms:', e);
+      }
+
+      openModal('modalCreateClass');
+    }
+
+    function onClassCourseChange() {
+      const sel = document.getElementById('createClassCourse');
+      if (!sel || !sel.options[sel.selectedIndex]) return;
+      const courseName = sel.options[sel.selectedIndex].text;
+      const nameInput = document.getElementById('createClassName');
+      if (nameInput) {
+        nameInput.value = `${courseName} - Sáng T2/T4/T6`;
+      }
+    }
+
+    function onClassRoomChange() {
+      const sel = document.getElementById('createClassRoom');
+      if (!sel || !sel.options[sel.selectedIndex]) return;
+      const cap = sel.options[sel.selectedIndex].getAttribute('data-capacity') || 20;
+      const capInput = document.getElementById('createClassCapacity');
+      const notice = document.getElementById('roomCapacityNotice');
+      if (capInput) capInput.value = cap;
+      if (notice) notice.innerText = `Sức chứa tối đa của phòng này: ${cap} học viên`;
+    }
+
+    function selectClassDaysPreset(days) {
+      const checkboxes = document.querySelectorAll('input[name="classDayOfWeek"]');
+      checkboxes.forEach(cb => {
+        cb.checked = days.includes(Number(cb.value));
+      });
+    }
+
+    async function saveNewClass() {
+      const courseId = Number(document.getElementById('createClassCourse').value);
+      const className = (document.getElementById('createClassName').value || '').trim();
+      const roomId = Number(document.getElementById('createClassRoom').value);
+      const capacity = Number(document.getElementById('createClassCapacity').value);
+      const startDate = document.getElementById('createClassStartDate').value;
+      const endDate = document.getElementById('createClassEndDate').value;
+      const startTime = document.getElementById('createClassStartTime').value;
+      const endTime = document.getElementById('createClassEndTime').value;
+
+      const selectedDays = Array.from(document.querySelectorAll('input[name="classDayOfWeek"]:checked')).map(cb => Number(cb.value));
+
+      if (!className) {
+        alert('Vui lòng nhập tên lớp học!');
+        return;
+      }
+      if (!startDate || !endDate) {
+        alert('Vui lòng chọn ngày bắt đầu và ngày kết thúc cho khóa học!');
+        return;
+      }
+      if (new Date(endDate) < new Date(startDate)) {
+        alert('Thời gian không hợp lệ: Ngày kết thúc không thể sớm hơn ngày bắt đầu!');
+        return;
+      }
+      if (!startTime || !endTime || endTime <= startTime) {
+        alert('Khung giờ học không hợp lệ: Giờ kết thúc phải muộn hơn giờ bắt đầu!');
+        return;
+      }
+      if (selectedDays.length === 0) {
+        alert('Vui lòng chọn ít nhất một thứ trong tuần để xếp lịch cho lớp học!');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/classes`, {
+          method: 'POST',
+          headers: getAdminAuthHeaders(),
+          body: JSON.stringify({
+            courseId,
+            className,
+            roomId,
+            capacity,
+            startDate,
+            endDate,
+            startTime,
+            endTime,
+            daysOfWeek: selectedDays
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(data.message || 'Mở lớp học thành công!');
+          closeModal('modalCreateClass');
+          await loadAdminCourses();
+          await loadAdminSchedule();
+        } else {
+          alert(data.message || 'Lỗi khi mở lớp học!');
+        }
+      } catch (e) {
+        alert('Lỗi kết nối máy chủ: ' + e.message);
+      }
+    }
+
+    // ==============================================================
+    // 9. THÔNG BÁO HỆ THỐNG
+    // ==============================================================
+    async function loadAdminNotifications() {
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/notifications`, { headers: getAdminAuthHeaders() });
+        const data = await res.json();
+        if (data.success && data.data) {
+          const list = document.querySelector('#tab-notifications .divide-y');
+          if (!list) return;
+
+          if (data.data.length === 0) {
+            list.innerHTML = '<div class="py-8 text-center text-gray-400 text-xs">Chưa có thông báo nào trong hệ thống. Hãy soạn thông báo mới.</div>';
+            return;
+          }
+
+          list.innerHTML = data.data.map(n => {
+            const isSent = (n.status === 3);
+            const statusBadge = isSent
+              ? '<span class="bg-black text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Đã phát hành</span>'
+              : (n.status === 2
+                  ? '<span class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Đã lên lịch</span>'
+                  : '<span class="bg-gray-200 text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Ngừng phát hành</span>');
+
+            return `
+              <div class="py-3 flex items-start justify-between gap-4">
+                <div class="space-y-1">
+                  <h4 class="font-bold text-xs text-black">${escapeHtml(n.title)}</h4>
+                  <p class="text-[11px] text-gray-600 leading-relaxed">${escapeHtml(n.content)}</p>
+                  <div class="flex items-center gap-3 text-[10px] text-gray-400 pt-0.5">
+                    <span>Gửi đến: <strong class="text-gray-700">${escapeHtml(n.recipient_group_name || 'Tất cả')}</strong></span>
+                    <span>·</span>
+                    <span>Thời gian: ${n.sent_at || n.created_at}</span>
+                    <span>·</span>
+                    <span>Đã đọc: ${n.read_count || 0}/${n.total_recipients || 0}</span>
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-2 shrink-0">
+                  ${statusBadge}
+                  <button onclick="deleteNotification(${n.id})" class="text-[10px] text-rose-500 hover:text-rose-700 font-semibold">
+                    Xóa
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (e) {
+        console.warn('Lỗi tải notifications:', e);
+      }
+    }
+
+    async function deleteNotification(id) {
+      if (!confirm('Bạn có chắc chắn muốn xóa thông báo này?')) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/notifications/${id}`, {
+          method: 'DELETE',
+          headers: getAdminAuthHeaders()
+        });
+        const data = await res.json();
+        alert(data.message || (data.success ? 'Đã xóa thông báo thành công!' : 'Không thể xóa thông báo!'));
+        if (data.success) await loadAdminNotifications();
+      } catch (e) {
+        alert('Lỗi kết nối khi xóa thông báo: ' + e.message);
+      }
+    }
+
+    function openComposeNotificationModal() {
+      const t = document.getElementById('notifTitle');
+      const g = document.getElementById('notifTarget');
+      const c = document.getElementById('notifContent');
+      if (t) t.value = '';
+      if (g) g.value = 'ALL';
+      if (c) c.value = '';
+      openModal('modalComposeNotification');
+    }
+
+    async function submitAdminNotification(event) {
+      if (event) event.preventDefault();
+      const title = document.getElementById('notifTitle').value.trim();
+      const targetGroup = parseInt(document.getElementById('notifTarget').value, 10) || 1;
+      const content = document.getElementById('notifContent').value.trim();
+
+      if (!title || !content) {
+        alert('Vui lòng nhập đầy đủ tiêu đề và nội dung thông báo!');
+        return;
+      }
+
+      const btn = document.getElementById('btnSubmitNotif');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Đang phát hành...';
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/notifications`, {
+          method: 'POST',
+          headers: { ...getAdminAuthHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: title,
+            content: content,
+            recipientGroup: targetGroup,
+            status: 3
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert('Phát hành thông báo hệ thống thành công!\nCác thành viên liên quan sẽ nhận được thông báo này.');
+          closeModal('modalComposeNotification');
+          await loadAdminNotifications();
+        } else {
+          alert('Không thể phát hành thông báo: ' + (data.message || 'Lỗi không xác định'));
+        }
+      } catch (e) {
+        console.error('Lỗi phát hành thông báo:', e);
+        alert('Lỗi kết nối máy chủ: ' + e.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = 'Phát hành thông báo';
+        }
+      }
+    }
+
+    async function syncCustomerList() {
+      try {
+        await loadAdminCustomers();
+        alert('Đã đồng bộ và làm mới danh sách khách hàng từ CSDL thành công!');
+      } catch (e) {
+        console.error(e);
+        alert('Lỗi khi đồng bộ khách hàng: ' + e.message);
+      }
+    }
+
+    // ==============================================================
+    // 10. BÁO CÁO & THỐNG KÊ (CHỌN TỪ NGÀY ĐẾN NGÀY & XUẤT CSV BÁO CÁO)
+    // ==============================================================
+    let currentReportCategory = 'all';
+    let currentReportInvoices = [];
+
+    function filterReportCategory(cat) {
+      currentReportCategory = cat;
+      const cats = ['all', 'package', 'course', 'product'];
+      cats.forEach(c => {
+        const btn = document.getElementById('btnReportCat' + c.charAt(0).toUpperCase() + c.slice(1));
+        if (btn) {
+          if (c === cat) {
+            btn.className = 'px-3.5 py-1.5 rounded-xl font-bold bg-black text-white shadow-2xs';
+          } else {
+            btn.className = 'px-3.5 py-1.5 rounded-xl font-semibold text-gray-600 hover:text-black hover:bg-gray-100';
+          }
+        }
+      });
+      applyReportDateFilter();
+    }
+
+    async function applyReportDateFilter() {
+      const from = document.getElementById('reportFromDate')?.value || '';
+      const to = document.getElementById('reportToDate')?.value || '';
+
+      let sumUrl = `${API_BASE}/api/admin/reports/summary`;
+      let revUrl = `${API_BASE}/api/admin/reports/revenue?category=${currentReportCategory}`;
+      let clsUrl = `${API_BASE}/api/admin/reports/classes`;
+
+      const params = [];
+      if (from) params.push(`from=${from}`);
+      if (to) params.push(`to=${to}`);
+      if (params.length > 0) {
+        const q = params.join('&');
+        sumUrl += '?' + q;
+        revUrl += '&' + q;
+        clsUrl += '?' + q;
+      }
+
+      try {
+        const [sumRes, revRes, clsRes] = await Promise.all([
+          fetch(sumUrl, { headers: getAdminAuthHeaders() }),
+          fetch(revUrl, { headers: getAdminAuthHeaders() }),
+          fetch(clsUrl, { headers: getAdminAuthHeaders() })
+        ]);
+        const sumData = await sumRes.json();
+        const revData = await revRes.json();
+        const clsData = await clsRes.json();
+
+        if (sumData.success && sumData.data) {
+          const s = sumData.data;
+          
+          const newMemEl = document.getElementById('repStatNewMembers');
+          if (newMemEl) newMemEl.innerText = s.newMembers ?? s.activeMembers ?? 0;
+          const newMemSub = document.getElementById('repStatNewMembersSub');
+          if (newMemSub) newMemSub.innerText = (from && to) ? `Ghi nhận từ ${from} đến ${to}` : 'Tổng hội viên đang hoạt động';
+
+          const enrollEl = document.getElementById('repStatEnrollments');
+          if (enrollEl) enrollEl.innerText = s.classEnrollments ?? s.openClasses ?? 0;
+          const enrollSub = document.getElementById('repStatEnrollmentsSub');
+          if (enrollSub) enrollSub.innerText = (from && to) ? 'Lượt đăng ký trong kỳ' : 'Số lớp đang mở tuyển';
+
+          const checkinEl = document.getElementById('repStatCheckins');
+          if (checkinEl) checkinEl.innerText = s.checkins ?? 0;
+          const checkinSub = document.getElementById('repStatCheckinsSub');
+          if (checkinSub) checkinSub.innerText = `Tỷ lệ lấp đầy ${s.occupancyRate ?? 0}%`;
+
+          const revEl = document.getElementById('repStatRevenue');
+          if (revEl) revEl.innerText = Number(s.totalRevenue || 0).toLocaleString('vi-VN') + ' đ';
+          const revSub = document.getElementById('repStatRevenueSub');
+          if (revSub) revSub.innerText = 'Chỉ tính giao dịch đã xác nhận';
+        }
+
+        if (revData.success && revData.data) {
+          currentReportInvoices = revData.data.invoices || [];
+        }
+
+        // Render động bảng Hiệu quả lớp học từ MySQL
+        if (clsData.success && clsData.data) {
+          const tbody = document.getElementById('reportClassEfficiencyTbody');
+          if (tbody) {
+            if (clsData.data.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-gray-400">Chưa có dữ liệu hiệu quả lớp học trong khoảng thời gian này.</td></tr>';
+            } else {
+              tbody.innerHTML = clsData.data.map(cl => {
+                const rate = Math.min(100, Math.round(Number(cl.occupancy_rate || 0)));
+                let tagClass = 'border border-gray-300 text-gray-700 bg-gray-50';
+                if (rate >= 80) tagClass = 'bg-black text-white font-bold';
+                else if (rate <= 30) tagClass = 'border border-dashed border-gray-400 text-gray-600';
+
+                return `
+                  <tr class="hover:bg-gray-50/50 transition">
+                    <td class="py-3 font-bold text-black">${escapeHtml(cl.name)}</td>
+                    <td class="py-3">${escapeHtml(cl.course_name || 'Khóa học')} · ${escapeHtml(cl.room_name || 'Phòng học')}</td>
+                    <td class="py-3 font-semibold font-mono">${cl.enrolled_count || 0}/${cl.capacity || 20}</td>
+                    <td class="py-3">
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-28 bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                          <div class="bg-black h-full rounded-full" style="width: ${rate}%;"></div>
+                        </div>
+                        <span class="font-bold text-black text-[11px] font-mono">${rate}%</span>
+                      </div>
+                    </td>
+                    <td class="py-3 text-right">
+                      <span class="${tagClass} px-2.5 py-0.5 rounded-full text-[10px]">${escapeHtml(cl.occupancy_status || 'Bình thường')}</span>
+                    </td>
+                  </tr>
+                `;
+              }).join('');
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Lỗi lọc báo cáo:', e);
+      }
+    }
+
+    // Tải báo cáo lần đầu tiên khi mở trang (mặc định lấy từ đầu tháng đến nay)
+    async function loadAdminReports() {
+      const fromInput = document.getElementById('reportFromDate');
+      const toInput = document.getElementById('reportToDate');
+
+      if (fromInput && !fromInput.value) {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        fromInput.value = firstDay.toISOString().slice(0, 10);
+      }
+      if (toInput && !toInput.value) {
+        toInput.value = new Date().toISOString().slice(0, 10);
+      }
+
+      await applyReportDateFilter();
+    }
+
+    // Xuất dữ liệu báo cáo ra tệp CSV (chuẩn Unicode UTF-8 BOM, hiển thị tiếng Việt hoàn hảo trên Excel)
+    async function exportReportData() {
+      if (!currentReportInvoices || currentReportInvoices.length === 0) {
+        await applyReportDateFilter();
+      }
+
+      if (!currentReportInvoices || currentReportInvoices.length === 0) {
+        alert('Không có giao dịch thanh toán đã xác nhận nào trong khoảng thời gian đã chọn để xuất báo cáo!');
+        return;
+      }
+
+      const from = document.getElementById('reportFromDate')?.value || 'toan_bo';
+      const to = document.getElementById('reportToDate')?.value || 'toan_bo';
+
+      // Header CSV
+      let csvContent = '\uFEFF'; // Byte Order Mark cho UTF-8
+      csvContent += 'Mã hóa đơn,Mã giao dịch,Thời gian thanh toán,Khách hàng,Phân loại,Phương thức thanh toán,Số tiền (VNĐ),Ghi chú\r\n';
+
+      currentReportInvoices.forEach(inv => {
+        const code = inv.code || '';
+        const id = inv.id || '';
+        const paidAt = inv.paid_at || '';
+        const customer = (inv.customer_name || 'Khách vãng lai').replace(/"/g, '""');
+        const category = (inv.category || 'Dịch vụ').replace(/"/g, '""');
+        const method = inv.payment_method || 'Tiền mặt';
+        const amount = Number(inv.amount || 0);
+        const note = (inv.note || '').replace(/"/g, '""');
+
+        csvContent += `"${code}","${id}","${paidAt}","${customer}","${category}","${method}",${amount},"${note}"\r\n`;
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `Bao_Cao_Doanh_Thu_FitCenter_${from}_${to}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      alert(`Đã xuất báo cáo thành công với ${currentReportInvoices.length} giao dịch thanh toán!`);
+    }
+
+    // ==============================================================
+    // 11. TỰ ĐỘNG ĐỒNG BỘ DỮ LIỆU KHI TẢI TRANG
+    // ==============================================================
     async function loadAdminRealData() {
-      // Thông tin phiên đăng nhập
       const userJson = localStorage.getItem('fitcenter_user');
       if (userJson) {
         try {
           const user = JSON.parse(userJson);
-          const nameEl = document.getElementById('adminSidebarName');
-          const emailEl = document.getElementById('adminSidebarEmail');
-          const avatarEl = document.getElementById('adminSidebarAvatar');
-          if (nameEl) nameEl.innerText = user.fullName || 'Quản trị viên';
-          if (emailEl) emailEl.innerText = user.email || 'admin@fitcenter.vn';
-          if (avatarEl && user.fullName) {
-            avatarEl.innerText = user.fullName.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'Q';
+          if (user.role === 'staff') {
+            alert('Tài khoản nhân viên được chuyển hướng đến Cổng Nhân viên (staff.html).');
+            window.location.href = 'staff.html';
+            return;
+          } else if (user.role !== 'admin') {
+            alert('Bạn không có quyền quản trị viên! Vui lòng đăng nhập lại.');
+            window.location.href = 'dang_nhap.html';
+            return;
+          }
+          const displayName = user.fullName || 'Quản trị viên';
+          const displayEmail = user.email || 'admin@fitcenter.vn';
+          const initials = displayName.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'Q';
+
+          // Đồng bộ thông tin lên Header góc phải
+          const headerNameEl = document.getElementById('adminHeaderName');
+          const headerEmailEl = document.getElementById('adminHeaderEmail');
+          const headerAvatarEl = document.getElementById('adminHeaderAvatar');
+          if (headerNameEl) headerNameEl.innerText = displayName;
+          if (headerEmailEl) headerEmailEl.innerText = displayEmail;
+          if (headerAvatarEl) headerAvatarEl.innerText = initials;
+
+          // Cập nhật ngày giờ thực tế trên Header
+          const subTitleEl = document.getElementById('headerSubtitle');
+          if (subTitleEl) {
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+            subTitleEl.innerText = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
           }
         } catch (e) {
           console.error(e);
         }
+      } else {
+        alert('Vui lòng đăng nhập để truy cập trang quản trị!');
+        window.location.href = 'dang_nhap.html';
+        return;
       }
 
       // Tải đồng thời tất cả các mảng nghiệp vụ
@@ -2752,14 +3858,16 @@
         loadAdminCourses(),
         loadAdminSchedule(),
         loadAdminStaff(),
-        loadAdminProducts()
+        loadAdminProducts(),
+        loadAdminNotifications(),
+        loadAdminReports()
       ]);
     }
 
     function logoutAdmin() {
       if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi Cổng Quản trị?')) {
         localStorage.removeItem('fitcenter_user');
-        window.location.href = 'dang_nhap.html';
+        window.location.href = 'trang_chu.html';
       }
     }
 
